@@ -37,8 +37,6 @@ def callback():
 
 CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
-endpoint = "https://api.imgur.com/3/account/me/images"
-headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
 
 @line_handler.add(MessageEvent, message=TextMessage)
@@ -47,6 +45,9 @@ def handle_message(event):
     msg = event.message.text
 
     if msg == "抽":
+        album_id = "woman"
+        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
+        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
         response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
