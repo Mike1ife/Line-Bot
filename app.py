@@ -76,6 +76,22 @@ def handle_message(event):
                 )
                 line_bot_api.reply_message(event.reply_token, image_message)
 
+    if msg == "大小":
+        album_id = "1K6H3WS"
+        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
+        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        response = requests.get(endpoint, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            images = data["data"]
+            if images:
+                random_image = random.choice(images)
+                image_url = random_image["link"]
+                image_message = ImageSendMessage(
+                    original_content_url=image_url, preview_image_url=image_url
+                )
+                line_bot_api.reply_message(event.reply_token, image_message)
+
 
 if __name__ == "__main__":
     app.run()
