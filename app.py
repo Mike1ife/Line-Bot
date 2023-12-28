@@ -45,7 +45,7 @@ def handle_message(event):
     msg = event.message.text
 
     if msg == "抽":
-        album_id = "woman"
+        album_id = "ZDcNFCL"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
         response = requests.get(endpoint, headers=headers)
