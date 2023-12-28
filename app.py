@@ -12,6 +12,12 @@ working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 app = Flask(__name__)
 
 
+# domain root
+@app.route("/")
+def home():
+    return "Hello, World!"
+
+
 @app.route("/webhook", methods=["POST"])
 def callback():
     # get X-Line-Signature header value
