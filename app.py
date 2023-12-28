@@ -45,10 +45,8 @@ headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 def handle_message(event):
     # echo
     msg = event.message.text
-    message = TextSendMessage(text=msg)
-    line_bot_api.reply_message(event.reply_token, message)
 
-    if message == "抽":
+    if msg == "抽":
         response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
