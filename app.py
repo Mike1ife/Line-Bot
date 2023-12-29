@@ -6,6 +6,10 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSend
 import os
 import requests
 import random
+import re
+import datetime
+from bs4 import BeautifulSoup
+
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
@@ -105,6 +109,31 @@ def handle_message(event):
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close
+
+    if msg == "NBA":
+        time = None
+        now = datetime.datetime.now()
+        if int(now.hour) > 15:
+            now = now - datetime.timedelta(hours=24)
+            time = f"{now.year}{now.month}{now.day}"
+        else:
+            now = now - datetime.timedelta(hours=48)
+            time = f"{now.year}{now.month}{now.day}"
+
+        data = requests.get(
+            f"https://secure.espn.com/core/nba/schedule/_/date/{time}?table=true"
+        ).text
+
+        soup = BeautifulSoup(data, "html.parser")
+        score_elements = soup.find_all(
+            "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
+        )
+        score_text = ""
+        for score_element in score_elements:
+            score = score_element.get_text(strip=True)
+            score_text += f"{score}\n"
+        text_message = TextSendMessage(text=score_text[:-1])
+        line_bot_api.reply_message(event.reply_token, text_message)
 
 
 if __name__ == "__main__":
