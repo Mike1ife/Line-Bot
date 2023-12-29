@@ -13,16 +13,17 @@ working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 app = Flask(__name__)
 
+res = ""
 
-def hanoi(n, A, B, C, res):
+
+def hanoi(n, A, B, C):
+    global res
     if n == 1:
         res += f"Move disk 1 from {A} to {C}\n"
-        return res
     else:
-        res = hanoi(n - 1, A, C, B, res)
-        res += f"Move disk {n} from {A} to {C}\n"
-        res = hanoi(n - 1, B, A, C, res)
-    return res
+        hanoi(n - 1, A, C, B)
+        hanoi(1, A, B, C)
+        hanoi(n - 1, B, A, C)
 
 
 # domain root
@@ -107,11 +108,12 @@ def handle_message(event):
         n = int(msg[3:])
         try:
             n = int(n)
-            res = hanoi(int(n), "A", "B", "C", "")
+            global res
+            res = ""
+            hanoi(int(n), "A", "B", "C")
             res = res[:-1]
             text_message = TextSendMessage(text=res)
             line_bot_api.reply_message(event.reply_token, text_message)
-            res = ""
         except:
             pass
 
