@@ -2,6 +2,4 @@ line-bot-sdk
 flask
 requests
 datetime
-os
-random
 beautifulsoup4
