@@ -13,6 +13,18 @@ working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 app = Flask(__name__)
 
+res = ""
+
+
+def hanoi(n, A, B, C):
+    global res
+    if n == 1:
+        res += f"從{A}移動到{C}\n"
+    else:
+        hanoi(n - 1, A, C, B)
+        hanoi(1, A, B, C)
+        hanoi(n - 1, B, A, C)
+
 
 # domain root
 @app.route("/")
@@ -91,6 +103,19 @@ def handle_message(event):
                     original_content_url=image_url, preview_image_url=image_url
                 )
                 line_bot_api.reply_message(event.reply_token, image_message)
+
+    if msg[:3] == "河內塔":
+        global res
+        n = int(msg[3:])
+        try:
+            n = int(n)
+            hanoi(int(n), "A", "B", "C")
+            res = res[:-1]
+            text_message = TextSendMessage(text=res)
+            line_bot_api.reply_message(event.reply_token, text_message)
+            res = ""
+        except:
+            pass
 
 
 if __name__ == "__main__":
