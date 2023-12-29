@@ -4,5 +4,4 @@ requests
 datetime
 os
 random
-bs4
-BeautifulSoup4
+beautifulsoup4
