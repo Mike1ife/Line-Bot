@@ -13,18 +13,6 @@ working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 app = Flask(__name__)
 
-res = ""
-
-
-def hanoi(n, A, B, C):
-    global res
-    if n == 1:
-        res += f"Move disk from {A} to {C}\n"
-    else:
-        hanoi(n - 1, A, C, B)
-        hanoi(1, A, B, C)
-        hanoi(n - 1, B, A, C)
-
 
 # domain root
 @app.route("/")
@@ -105,12 +93,18 @@ def handle_message(event):
                 line_bot_api.reply_message(event.reply_token, image_message)
 
     if msg == "河內塔":
-        global res
-        res = ""
-        hanoi(3, "A", "B", "C")
-        res = res[:-1]
-        text_message = TextSendMessage(text=res)
+        f = open("TextFiles/Hanoi3.txt")
+        text = f.read()
+        text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
+        f.close
+
+    if msg == "bubble sort":
+        f = open("TextFiles/BubbleSort.txt")
+        text = f.read()
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close
 
 
 if __name__ == "__main__":
