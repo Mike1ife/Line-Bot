@@ -19,7 +19,7 @@ res = ""
 def hanoi(n, A, B, C):
     global res
     if n == 1:
-        res += f"Move disk 1 from {A} to {C}\n"
+        res += f"Move disk from {A} to {C}\n"
     else:
         hanoi(n - 1, A, C, B)
         hanoi(1, A, B, C)
@@ -104,18 +104,13 @@ def handle_message(event):
                 )
                 line_bot_api.reply_message(event.reply_token, image_message)
 
-    if msg[:3] == "河內塔":
-        n = int(msg[3:])
-        try:
-            n = int(n)
-            global res
-            res = ""
-            hanoi(int(n), "A", "B", "C")
-            res = res[:-1]
-            text_message = TextSendMessage(text=res)
-            line_bot_api.reply_message(event.reply_token, text_message)
-        except:
-            pass
+    if msg == "河內塔":
+        global res
+        res = ""
+        hanoi(3, "A", "B", "C")
+        res = res[:-1]
+        text_message = TextSendMessage(text=res)
+        line_bot_api.reply_message(event.reply_token, text_message)
 
 
 if __name__ == "__main__":
