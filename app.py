@@ -128,7 +128,7 @@ def handle_message(event):
         score_elements = soup.find_all(
             "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
         )
-        score_text = "{time}\n"
+        score_text = f"{time}\n"
         for score_element in score_elements:
             score = score_element.get_text(strip=True)
             score_text += f"{score}\n"
