@@ -106,7 +106,7 @@ def handle_message(event):
     if msg == "抽單字":
         f = open("TextFiles/TOEFL.txt")
         vocabulary = f.readlines()
-        word = random.random(0, len(vocabulary))
+        word = random.randint(0, len(vocabulary) - 1)
         text = vocabulary[word][:-1]
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
