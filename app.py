@@ -115,27 +115,31 @@ def handle_message(event):
         date = None
         UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-        if int(TWnow.hour) > 15:
-            now = TWnow - timedelta(hours=24)
-            time = f"{now.year}{now.month}{now.day}"
-            date = f"{now.year}-{now.month}-{now.day}"
-        else:
-            now = TWnow - timedelta(hours=48)
-            time = f"{now.year}{now.month}{now.day}"
-            date = f"{now.year}-{now.month}-{now.day}"
 
-        data = requests.get(
-            f"https://secure.espn.com/core/nba/schedule/_/date/{time}?table=true"
-        ).text
+        score_elements = []
+        score_text = f""
 
-        soup = BeautifulSoup(data, "html.parser")
-        score_elements = soup.find_all(
-            "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
-        )
-        score_text = f"NBA {date}\n"
-        for score_element in score_elements:
-            score = score_element.get_text(strip=True)
-            score_text += f"{score}\n"
+        while True:
+            time = f"{TWnow.year}{TWnow.month}{TWnow.day}"
+
+            data = requests.get(
+                f"https://secure.espn.com/core/nba/schedule/_/date/{time}?table=true"
+            ).text
+
+            soup = BeautifulSoup(data, "html.parser")
+            score_elements = soup.find_all(
+                "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
+            )
+
+            if len(score_elements) == 0:
+                TWnow = TWnow - timedelta(hours=24)
+                continue
+            else:
+                for score_element in score_elements:
+                    score = score_element.get_text(strip=True)
+                    score_text += f"{score}\n"
+                break
+
         text_message = TextSendMessage(text=score_text[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
 
