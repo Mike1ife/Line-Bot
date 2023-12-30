@@ -103,6 +103,15 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close
 
+    if msg == "抽單字":
+        f = open("TextFiles/TOEFL.txt")
+        vocabulary = f.readlines()
+        word = random.random(0, len(vocabulary))
+        text = vocabulary[word][:-1]
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close
+
     if msg.lower() == "bubble sort":
         f = open("TextFiles/BubbleSort.txt")
         text = f.read()
