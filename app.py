@@ -51,6 +51,25 @@ def handle_message(event):
 
 def text_message(event):
     msg = event.message.text
+    if msg[:2].lower() == "yt":
+        search = msg[3:]
+        data = requests.get(
+            f"https://www.youtube.com/results?search_query={search}"
+        ).text
+        title_pattern = re.compile(r'"videoRenderer".*?"label":"(.*?)"')
+        video_id_pattern = re.compile(r'"videoRenderer":{"videoId":"(.*?)"')
+
+        # Find all matches for title and video ID in the text
+        titles = title_pattern.findall(data)
+        video_ids = video_id_pattern.findall(data)
+
+        for title, video_id in zip(titles, video_ids):
+            link = f"https://www.youtube.com/watch?v={video_id}"
+            text = f"{title}\n{link}"
+            text_message = TextSendMessage(text=text)
+            line_bot_api.reply_message(event.reply_token, text_message)
+            break
+
     if msg == "河內塔":
         f = open("TextFiles/Hanoi3.txt")
         text = f.read()
