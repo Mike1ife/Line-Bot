@@ -103,14 +103,14 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close
 
-    if msg == "bubble sort":
+    if msg.lower() == "bubble sort":
         f = open("TextFiles/BubbleSort.txt")
         text = f.read()
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close
 
-    if msg == "NBA":
+    if msg.lower() == "nba":
         time = None
         now = datetime.datetime.now()
         if int(now.hour) > 15:
@@ -128,7 +128,7 @@ def handle_message(event):
         score_elements = soup.find_all(
             "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
         )
-        score_text = ""
+        score_text = "time\n"
         for score_element in score_elements:
             score = score_element.get_text(strip=True)
             score_text += f"{score}\n"
