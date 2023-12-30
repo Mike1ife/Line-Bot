@@ -112,14 +112,17 @@ def handle_message(event):
 
     if msg.lower() == "nba":
         time = None
+        date = None
         UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
         if int(TWnow.hour) > 15:
             now = TWnow - timedelta(hours=24)
             time = f"{now.year}{now.month}{now.day}"
+            date = f"{now.year}-{now.month}-{now.day}"
         else:
             now = TWnow - timedelta(hours=48)
             time = f"{now.year}{now.month}{now.day}"
+            date = f"{now.year}-{now.month}-{now.day}"
 
         data = requests.get(
             f"https://secure.espn.com/core/nba/schedule/_/date/{time}?table=true"
@@ -129,7 +132,7 @@ def handle_message(event):
         score_elements = soup.find_all(
             "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
         )
-        score_text = ""
+        score_text = f"NBA {date}\n"
         for score_element in score_elements:
             score = score_element.get_text(strip=True)
             score_text += f"{score}\n"
