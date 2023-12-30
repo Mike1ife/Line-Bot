@@ -7,8 +7,8 @@ import os
 import requests
 import random
 import re
-import datetime
 from bs4 import BeautifulSoup
+from datetime import datetime, timezone, timedelta
 
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -112,13 +112,13 @@ def handle_message(event):
 
     if msg.lower() == "nba":
         time = None
-        now = datetime.datetime.now()
-        score_text = f"{now}\n"
-        if int(now.hour) > 15:
-            now = now - datetime.timedelta(hours=24)
+        UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+        TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+        if int(TWnow.hour) > 15:
+            now = TWnow - timedelta(hours=24)
             time = f"{now.year}{now.month}{now.day}"
         else:
-            now = now - datetime.timedelta(hours=48)
+            now = TWnow - timedelta(hours=48)
             time = f"{now.year}{now.month}{now.day}"
 
         data = requests.get(
@@ -129,7 +129,7 @@ def handle_message(event):
         score_elements = soup.find_all(
             "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
         )
-
+        score_text = ""
         for score_element in score_elements:
             score = score_element.get_text(strip=True)
             score_text += f"{score}\n"
