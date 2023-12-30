@@ -113,6 +113,7 @@ def handle_message(event):
     if msg.lower() == "nba":
         time = None
         now = datetime.datetime.now()
+        score_text = f"{now}\n"
         if int(now.hour) > 15:
             now = now - datetime.timedelta(hours=24)
             time = f"{now.year}{now.month}{now.day}"
@@ -128,7 +129,7 @@ def handle_message(event):
         score_elements = soup.find_all(
             "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
         )
-        score_text = f"{time}\n"
+
         for score_element in score_elements:
             score = score_element.get_text(strip=True)
             score_text += f"{score}\n"
