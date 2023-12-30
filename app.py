@@ -45,69 +45,15 @@ ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 
 @line_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # echo
+    random_message(event)
+    text_message(event)
+
+
+def text_message(event):
     msg = event.message.text
-
-    if msg == "抽":
-        album_id = "ZDcNFCL"
-        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
-        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get(endpoint, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            images = data["data"]
-            if images:
-                random_image = random.choice(images)
-                image_url = random_image["link"]
-                image_message = ImageSendMessage(
-                    original_content_url=image_url, preview_image_url=image_url
-                )
-                line_bot_api.reply_message(event.reply_token, image_message)
-
-    if msg == "抽牌":
-        album_id = "698HGtx"
-        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
-        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get(endpoint, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            images = data["data"]
-            if images:
-                random_image = random.choice(images)
-                image_url = random_image["link"]
-                image_message = ImageSendMessage(
-                    original_content_url=image_url, preview_image_url=image_url
-                )
-                line_bot_api.reply_message(event.reply_token, image_message)
-
-    if msg == "大小":
-        album_id = "1K6H3WS"
-        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
-        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get(endpoint, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            images = data["data"]
-            if images:
-                random_image = random.choice(images)
-                image_url = random_image["link"]
-                image_message = ImageSendMessage(
-                    original_content_url=image_url, preview_image_url=image_url
-                )
-                line_bot_api.reply_message(event.reply_token, image_message)
-
     if msg == "河內塔":
         f = open("TextFiles/Hanoi3.txt")
         text = f.read()
-        text_message = TextSendMessage(text=text)
-        line_bot_api.reply_message(event.reply_token, text_message)
-        f.close
-
-    if msg == "抽單字":
-        f = open("TextFiles/TOEFL.txt")
-        vocabulary = f.readlines()
-        word = random.randint(0, len(vocabulary) - 1)
-        text = vocabulary[word][:-1]
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close
@@ -151,6 +97,75 @@ def handle_message(event):
 
         text_message = TextSendMessage(text=score_text[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
+
+
+def random_message(event):
+    msg = event.message.text
+    if msg == "抽":
+        album_id = "ZDcNFCL"
+        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
+        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        response = requests.get(endpoint, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            images = data["data"]
+            if images:
+                random_image = random.choice(images)
+                image_url = random_image["link"]
+                image_message = ImageSendMessage(
+                    original_content_url=image_url, preview_image_url=image_url
+                )
+                line_bot_api.reply_message(event.reply_token, image_message)
+
+    if msg == "抽單字":
+        f = open("TextFiles/TOEFL.txt")
+        vocabulary = f.readlines()
+        word = random.randint(0, len(vocabulary) - 1)
+        text = vocabulary[word][:-1]
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close
+
+    if msg == "你媽":
+        f = open("TextFiles/YourMom.txt")
+        sentences = f.readlines()
+        index = random.randint(0, len(sentences) - 1)
+        text = sentences[index][:-1]
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close
+
+    if msg == "抽牌":
+        album_id = "698HGtx"
+        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
+        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        response = requests.get(endpoint, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            images = data["data"]
+            if images:
+                random_image = random.choice(images)
+                image_url = random_image["link"]
+                image_message = ImageSendMessage(
+                    original_content_url=image_url, preview_image_url=image_url
+                )
+                line_bot_api.reply_message(event.reply_token, image_message)
+
+    if msg == "大小":
+        album_id = "1K6H3WS"
+        endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
+        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        response = requests.get(endpoint, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            images = data["data"]
+            if images:
+                random_image = random.choice(images)
+                image_url = random_image["link"]
+                image_message = ImageSendMessage(
+                    original_content_url=image_url, preview_image_url=image_url
+                )
+                line_bot_api.reply_message(event.reply_token, image_message)
 
 
 if __name__ == "__main__":
