@@ -75,7 +75,10 @@ def text_message(event):
 
     if msg[:2].lower() == "gg":
         search_name = msg[3:]
-        driver = webdriver.Chrome()
+        os.environ["SELENIUM_BASE_DIR"] = "/tmp"
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(options=chrome_options)
         driver.implicitly_wait(10)
         driver.get("https://www.google.com/")
         html = driver.page_source
