@@ -4,9 +4,11 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
 
 import os
-import requests
-import random
 import re
+import random
+import pathlib
+import requests
+
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from selenium import webdriver
@@ -75,10 +77,9 @@ def text_message(event):
 
     if msg[:2].lower() == "gg":
         search_name = msg[3:]
-        os.environ["SELENIUM_BASE_DIR"] = "/tmp"
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(options=chrome_options)
+        options = webdriver.ChromeOptions()
+        options.add_argument(f"user-data-dir={pathlib.Path().resolve()}/tmp")
+        driver = webdriver.Chrome(options=options)
         driver.implicitly_wait(10)
         driver.get("https://www.google.com/")
         html = driver.page_source
