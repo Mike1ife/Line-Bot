@@ -9,7 +9,10 @@ import random
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
@@ -69,6 +72,37 @@ def text_message(event):
             text_message = TextSendMessage(text=text)
             line_bot_api.reply_message(event.reply_token, text_message)
             break
+
+    if msg[:2].lower() == "gg":
+        search_name = msg[3:]
+        driver = webdriver.Chrome()
+        driver.implicitly_wait(10)
+        driver.get("https://www.google.com/")
+        html = driver.page_source
+
+        text = ""
+
+        try:
+            search = driver.find_element(By.NAME, "q")
+            search.send_keys(search_name)
+            search.send_keys(Keys.ENTER)
+
+            items = driver.find_elements(By.CLASS_NAME, "LC20lb")
+            addrs = driver.find_elements(By.CLASS_NAME, "yuRUbf")
+
+            all = zip(items, addrs)
+
+            for item in all:
+                addr = item[1].find_element(By.TAG_NAME, "a").get_attribute("href")
+                text += f"{item[0].text} - {addr}\n"
+
+        except NoSuchElementException:
+            text = "Search Fail"
+
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+
+        driver.quit()
 
     if msg == "河內塔":
         f = open("TextFiles/Hanoi3.txt")
