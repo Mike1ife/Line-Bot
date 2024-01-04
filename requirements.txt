@@ -3,4 +3,3 @@ flask
 requests
 datetime
 beautifulsoup4
-selenium

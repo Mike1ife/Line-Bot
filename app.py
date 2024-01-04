@@ -6,15 +6,12 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSend
 import os
 import re
 import random
-import pathlib
 import requests
 
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
+
+from _table import nba_team_translations
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
@@ -108,7 +105,7 @@ def text_message(event):
             team_name_elements = team_row.find_all(class_="score-team-name team")
             team = team_name_elements[0].get_text() if team_name_elements else None
             team = team.split()
-            team_name = team[0].capitalize()
+            team_name = nba_team_translations[team[0]]
             team_standing = team[1]
 
             score_element = team_row.find(class_="score-team-score")
