@@ -91,33 +91,42 @@ def text_message(event):
 
     if msg.lower() == "nba":
         time = None
-        date = None
         UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+        time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-        score_elements = []
-        score_text = f""
+        data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
+        soup = BeautifulSoup(data, "html.parser")
+        team_rows = soup.find_all(class_="score-team-row")
 
-        while True:
-            time = f"{TWnow.year}{TWnow.month}{TWnow.day}"
+        team1 = {"name": "x", "standing": "x", "score": "0"}
+        team2 = {"name": "x", "standing": "x", "score": "0"}
 
-            data = requests.get(
-                f"https://secure.espn.com/core/nba/schedule/_/date/{time}?table=true"
-            ).text
+        i = 1
+        score_text = ""
+        for team_row in team_rows:
+            team_name_elements = team_row.find_all(class_="score-team-name team")
+            team = team_name_elements[0].get_text() if team_name_elements else None
+            team = team.split()
+            team_name = team[0].capitalize()
+            team_standing = team[1]
 
-            soup = BeautifulSoup(data, "html.parser")
-            score_elements = soup.find_all(
-                "a", {"name": re.compile(r"&lpos=nba:schedule:score")}
-            )
+            score_element = team_row.find(class_="score-team-score")
+            team_score = score_element.get_text().strip() if score_element else "TBD"
 
-            if len(score_elements) == 0:
-                TWnow = TWnow - timedelta(hours=24)
-                continue
+            if i == 1:
+                team1["name"] = team_name
+                team1["standing"] = team_standing
+                team1["score"] = team_score
+                i += 1
             else:
-                for score_element in score_elements:
-                    score = score_element.get_text(strip=True)
-                    score_text += f"{score}\n"
-                break
+                team2["name"] = team_name
+                team2["standing"] = team_standing
+                team2["score"] = team_score
+
+                score_text += f"{team1['name']} {team1['score']} - {team2['name']} {team2['score']}\n"
+
+                i = 1
 
         text_message = TextSendMessage(text=score_text[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
