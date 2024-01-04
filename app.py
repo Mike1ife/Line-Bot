@@ -201,27 +201,27 @@ def random_message(event):
                 line_bot_api.reply_message(event.reply_token, image_message)
 
 
-# def send_daily_reminder(user_id):
-#     # Customize your daily reminder message here
-#     reminder_message = "Hello! This is your daily reminder."
-#     line_bot_api.push_message(user_id, TextSendMessage(text=reminder_message))
+def send_daily_reminder(user_id):
+    # Customize your daily reminder message here
+    reminder_message = "Hello! This is your daily reminder."
+    line_bot_api.push_message(user_id, TextSendMessage(text=reminder_message))
 
 
-# UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-# TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-# schedule_instance = schedule.Scheduler(timezone=TWnow)
-# schedule_instance.every().day.at("00:00").do(
-#     send_daily_reminder, user_id="USER_ID_TO_PUSH_TO"
-# )
+UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+schedule_instance = schedule.Scheduler(timezone=TWnow)
+schedule_instance.every().day.at("00:00").do(
+    send_daily_reminder, user_id="Uba0a4dd4bcfcb11fb91a7f0ba9992843"
+)
 
 
-# def run_scheduler():
-#     while True:
-#         schedule_instance.run_pending()
-#         time.sleep(1)
+def run_scheduler():
+    while True:
+        schedule_instance.run_pending()
+        time.sleep(1)
 
 
 if __name__ == "__main__":
-    # scheduler_thread = threading.Thread(target=run_scheduler)
-    # scheduler_thread.start()
+    scheduler_thread = threading.Thread(target=run_scheduler)
+    scheduler_thread.start()
     app.run()
