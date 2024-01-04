@@ -50,9 +50,6 @@ ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 
 @line_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    profile = line_bot_api.get_profile("<user_id>")
-    text_message = TextSendMessage(text=profile)
-    line_bot_api.reply_message(event.reply_token, text_message)
     random_message(event)
     text_message(event)
 
