@@ -115,7 +115,7 @@ def text_message(event):
             team_standing = team[1]
 
             score_element = team_row.find(class_="score-team-score")
-            team_score = score_element.get_text().strip() if score_element else "TBD"
+            team_score = score_element.get_text().strip() if score_element else "未賽"
 
             if i == 1:
                 team1["name"] = team_name
