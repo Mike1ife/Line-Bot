@@ -4,4 +4,3 @@ requests
 datetime
 beautifulsoup4
 schedule
-threading
