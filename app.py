@@ -91,6 +91,9 @@ def cron_job():
 
 @app.route("/api/open_vote_form", methods=["GET"])
 def open_vote_form():
+    url1 = "https://b.fssta.com/uploads/application/nba/team-logos/Bucks.vresize.80.80.medium.0.png"
+    url2 = "https://b.fssta.com/uploads/application/nba/team-logos/Spurs.vresize.80.80.medium.0.png"
+    build_image(url1, url2)
     carousel_template = CarouselTemplate(
         columns=[
             CarouselColumn(
