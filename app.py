@@ -22,8 +22,8 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 
-from _image import build_image
-from _table import nba_team_translations
+from tools._image import build_image
+from tools._table import nba_team_translations
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
