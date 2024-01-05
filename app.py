@@ -91,13 +91,12 @@ def cron_job():
 
 @app.route("/api/open_vote_form", methods=["GET"])
 def open_vote_form():
-    url1 = "https://b.fssta.com/uploads/application/nba/team-logos/Bucks.vresize.80.80.medium.0.png"
-    url2 = "https://b.fssta.com/uploads/application/nba/team-logos/Spurs.vresize.80.80.medium.0.png"
-    build_image(url1, url2)
+    team1 = "公鹿"
+    team2 = "馬刺"
     carousel_template = CarouselTemplate(
         columns=[
             CarouselColumn(
-                thumbnail_image_url="https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/tmp/composite_logo.png",
+                thumbnail_image_url=f"https://github.com/Mike1ife/Line-Bot/blob/main/images/merge/{team1}_{team2}.png",
                 title="公鹿 25-10 - 馬刺 5-29",
                 text="預測贏球球隊",
                 actions=[
