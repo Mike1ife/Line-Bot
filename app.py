@@ -5,11 +5,8 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSend
 
 import os
 import re
-import time
 import random
 import requests
-import schedule
-import threading
 
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
@@ -27,6 +24,15 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return "Hello, World!"
+
+
+@app.route("/api/cron", methods=["POST"])
+def cron_job():
+    user_id = LINE_UID
+    message = TextSendMessage(text="Your daily message here")
+    line_bot_api.push_message(user_id, message)
+
+    return "Cron job executed successfully!"
 
 
 @app.route("/webhook", methods=["POST"])
@@ -206,15 +212,6 @@ def random_message(event):
                     original_content_url=image_url, preview_image_url=image_url
                 )
                 line_bot_api.reply_message(event.reply_token, image_message)
-
-
-@app.route("/api/cron", methods=["POST"])
-def cron_job():
-    user_id = LINE_UID
-    message = TextSendMessage(text="Your daily message here")
-    line_bot_api.push_message(user_id, message)
-
-    return "Cron job executed successfully!"
 
 
 if __name__ == "__main__":
