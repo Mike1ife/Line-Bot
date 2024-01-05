@@ -230,7 +230,7 @@ def text_message(event):
         team2 = {"name": "x", "standing": "x", "score": "0"}
 
         i = 1
-        score_text = ""
+        score_text = f"{time}\n"
         for team_row in team_rows:
             team_name_elements = team_row.find_all(class_="score-team-name team")
             team = team_name_elements[0].get_text() if team_name_elements else None
