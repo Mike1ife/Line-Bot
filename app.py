@@ -97,7 +97,7 @@ def open_vote_form():
     carousel_template = CarouselTemplate(
         columns=[
             CarouselColumn(
-                thumbnail_image_url=f"https://github.com/Mike1ife/Line-Bot/blob/main/images/merge/{team1}_{team2}.png",
+                thumbnail_image_url=f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{team1}_{team2}.png",
                 title="公鹿 25-10 - 馬刺 5-29",
                 text="預測贏球球隊",
                 actions=[
