@@ -18,6 +18,10 @@ line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 app = Flask(__name__)
+CLIENT_ID = "427bae956e65de4"
+ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
+MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
+GROUP_ID = "Ccd472bcff08c0d73df483615fa795a75"
 
 
 # domain root
@@ -29,8 +33,46 @@ def home():
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
     user_id = MY_UID
-    message = TextSendMessage(text="Your daily message here")
-    line_bot_api.push_message(user_id, message)
+
+    time = None
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    soup = BeautifulSoup(data, "html.parser")
+    team_rows = soup.find_all(class_="score-team-row")
+
+    team1 = {"name": "x", "standing": "x"}
+    team2 = {"name": "x", "standing": "x"}
+
+    i = 1
+    score_text = "NBA Today:\n"
+
+    for team_row in team_rows:
+        team_name_elements = team_row.find_all(class_="score-team-name team")
+        team = team_name_elements[0].get_text() if team_name_elements else None
+        team = team.split()
+        team_name = nba_team_translations[team[0]]
+        if team[0] == "TRAIL":
+            team_standing = team[2]
+        else:
+            team_standing = team[1]
+
+        if i == 1:
+            team1["name"] = team_name
+            team1["standing"] = team_standing
+            i += 1
+        else:
+            team2["name"] = team_name
+            team2["standing"] = team_standing
+            print(
+                f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}"
+            )
+            i = 1
+
+    text_message = TextSendMessage(text=score_text[:-1])
+    line_bot_api.push_message(user_id, text_message)
 
     return "Cron job executed successfully!"
 
@@ -48,11 +90,6 @@ def callback():
     except InvalidSignatureError:
         abort(400)
     return "OK"
-
-
-CLIENT_ID = "427bae956e65de4"
-ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
-MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 
 
 @line_handler.add(MessageEvent, message=TextMessage)
