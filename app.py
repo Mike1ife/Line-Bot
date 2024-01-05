@@ -66,9 +66,9 @@ def cron_job():
         else:
             team2["name"] = team_name
             team2["standing"] = team_standing
-            print(
-                f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}"
-            )
+
+            score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
+
             i = 1
 
     text_message = TextSendMessage(text=score_text[:-1])
