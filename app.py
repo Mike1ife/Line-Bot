@@ -1,7 +1,16 @@
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
+from linebot.models import (
+    MessageEvent,
+    TextMessage,
+    TextSendMessage,
+    ImageSendMessage,
+    TemplateSendMessage,
+    ButtonsTemplate,
+    PostbackAction,
+    PostbackEvent,
+)
 
 import os
 import re
@@ -75,6 +84,32 @@ def cron_job():
     line_bot_api.push_message(user_id, text_message)
 
     return "Cron job executed successfully!"
+
+
+@app.route("/api/open_vote_form", methods=["GET"])
+def open_vote_form():
+    buttons_template = ButtonsTemplate(
+        title="Vote for NBA Teams",
+        text="Select the team you think will win:",
+        actions=[
+            PostbackAction(label="湖人", data="vote_A"),
+            PostbackAction(label="勇士", data="vote_B"),
+        ],
+    )
+    template_message = TemplateSendMessage(
+        alt_text="Vote for NBA Teams", template=buttons_template
+    )
+
+    line_bot_api.push_message(MY_UID, template_message)
+    return "Vote form opened successfully!"
+
+
+@line_handler.add(PostbackEvent)
+def handle_postback(event):
+    user_id = event.source.user_id
+    selected_team = event.postback.data
+    reply_text = f"Thank you for voting for {selected_team}!"
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
 @app.route("/webhook", methods=["POST"])
