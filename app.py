@@ -26,7 +26,7 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/cron", methods=["POST"])
+@app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
     user_id = LINE_UID
     message = TextSendMessage(text="Your daily message here")
