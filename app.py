@@ -16,6 +16,7 @@ from linebot.models import (
 
 import os
 import re
+import urllib
 import random
 import requests
 
@@ -91,8 +92,8 @@ def cron_job():
 
 @app.route("/api/open_vote_form", methods=["GET"])
 def open_vote_form():
-    team1 = "公鹿"
-    team2 = "馬刺"
+    team1 = urllib.parse.quote("公鹿")
+    team2 = urllib.parse.quote("馬刺")
     carousel_template = CarouselTemplate(
         columns=[
             CarouselColumn(
