@@ -112,7 +112,7 @@ def open_vote_form():
         alt_text="Vote for NBA Teams", template=carousel_template
     )
 
-    line_bot_api.push_message(MY_UID, template_message)
+    line_bot_api.push_message(GROUP_ID, template_message)
     return "Vote form opened successfully!"
 
 
