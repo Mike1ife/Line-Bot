@@ -23,7 +23,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 
-from tools._image import build_image
+from tools._image import build_image, check_url_exists
 from tools._table import nba_team_translations
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -45,7 +45,7 @@ def home():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    user_id = GROUP_ID
+    user_id = MY_UID
 
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -61,6 +61,7 @@ def cron_job():
 
     i = 1
     score_text = "NBA Today:\n"
+    columns = []
 
     for team_row in team_rows:
         team_name_elements = team_row.find_all(class_="score-team-name team")
@@ -80,9 +81,34 @@ def cron_job():
             team2["name"] = team_name
             team2["standing"] = team_standing
 
+            encoded_team1 = urllib.parse.quote(team1["name"])
+            encoded_team2 = urllib.parse.quote(team2["name"])
+            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+            if not check_url_exists(thumbnail_image_url):
+                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+                team1, team2 = team2, team1
+
+            columns.append(
+                CarouselColumn(
+                    thumbnail_image_url=thumbnail_image_url,
+                    title=f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}",
+                    text="預測贏球球隊",
+                    actions=[
+                        PostbackAction(label=team1["name"], data=team1["name"]),
+                        PostbackAction(label=team2["name"], data=team2["name"]),
+                    ],
+                ),
+            )
+
             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
 
             i = 1
+
+    carousel_template = CarouselTemplate(columns=columns)
+    template_message = TemplateSendMessage(
+        alt_text="Vote for NBA Teams", template=carousel_template
+    )
+    line_bot_api.push_message(GROUP_ID, template_message)
 
     text_message = TextSendMessage(text=score_text[:-1])
     line_bot_api.push_message(user_id, text_message)

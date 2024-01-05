@@ -19,3 +19,12 @@ def build_image(url_team_a, url_team_b):
     composite_img.paste(img_team_a, (0, 0), mask=img_team_a)
     composite_img.paste(img_team_b, (img_team_a.width, 0), mask=img_team_b)
     composite_img.save("tmp/composite_logo.png")
+
+
+def check_url_exists(url):
+    try:
+        response = requests.head(url, allow_redirects=True)
+        # You can also use requests.get(url) if you want to follow redirects and check the content
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
