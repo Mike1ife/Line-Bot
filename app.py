@@ -28,7 +28,7 @@ def home():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    user_id = LINE_UID
+    user_id = MY_UID
     message = TextSendMessage(text="Your daily message here")
     line_bot_api.push_message(user_id, message)
 
@@ -52,7 +52,7 @@ def callback():
 
 CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
-LINE_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
+MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 
 
 @line_handler.add(MessageEvent, message=TextMessage)
@@ -65,7 +65,7 @@ def text_message(event):
     msg = event.message.text
 
     if msg == "uid":
-        text = event.source.user_id
+        text = event.source.group_id
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
 
