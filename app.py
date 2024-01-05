@@ -8,6 +8,8 @@ from linebot.models import (
     ImageSendMessage,
     TemplateSendMessage,
     ButtonsTemplate,
+    CarouselTemplate,
+    CarouselColumn,
     PostbackAction,
     PostbackEvent,
 )
@@ -20,6 +22,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 
+from _image import build_image
 from _table import nba_team_translations
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -88,16 +91,22 @@ def cron_job():
 
 @app.route("/api/open_vote_form", methods=["GET"])
 def open_vote_form():
-    buttons_template = ButtonsTemplate(
-        title="湖人 vs 勇士",
-        text="預測勝利球隊",
-        actions=[
-            PostbackAction(label="湖人", data="湖人"),
-            PostbackAction(label="勇士", data="勇士"),
-        ],
+    carousel_template = CarouselTemplate(
+        columns=[
+            CarouselColumn(
+                thumbnail_image_url="https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/tmp/composite_logo.png",
+                title="公鹿 25-10 - 馬刺 5-29",
+                text="預測贏球球隊",
+                actions=[
+                    PostbackAction(label="公鹿", data="公鹿"),
+                    PostbackAction(label="馬刺", data="馬刺"),
+                ],
+            ),
+        ]
     )
+
     template_message = TemplateSendMessage(
-        alt_text="Vote for NBA Teams", template=buttons_template
+        alt_text="Vote for NBA Teams", template=carousel_template
     )
 
     line_bot_api.push_message(MY_UID, template_message)
