@@ -59,7 +59,7 @@ def text_message(event):
 
     if msg == "uid":
         text = event.source.userId
-        text_message = TextSendMessage(text=text)
+        text_message = TextSendMessage(text="uid")
         line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg[:2].lower() == "yt":
