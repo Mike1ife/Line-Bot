@@ -58,8 +58,8 @@ def text_message(event):
     msg = event.message.text
 
     if msg == "uid":
-        # text = event.source.userId
-        text_message = TextSendMessage(text="uid")
+        text = event.source.userId
+        text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg[:2].lower() == "yt":
@@ -115,19 +115,19 @@ def text_message(event):
             team = team_name_elements[0].get_text() if team_name_elements else None
             team = team.split()
             team_name = nba_team_translations[team[0]]
-            team_standing = team[1]
+            # team_standing = team[1]
 
             score_element = team_row.find(class_="score-team-score")
             team_score = score_element.get_text().strip() if score_element else "未賽"
 
             if i == 1:
                 team1["name"] = team_name
-                team1["standing"] = team_standing
+                # team1["standing"] = team_standing
                 team1["score"] = team_score
                 i += 1
             else:
                 team2["name"] = team_name
-                team2["standing"] = team_standing
+                # team2["standing"] = team_standing
                 team2["score"] = team_score
 
                 score_text += f"{team1['name']} {team1['score']} - {team2['name']} {team2['score']}\n"
