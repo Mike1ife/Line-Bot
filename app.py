@@ -58,7 +58,7 @@ def text_message(event):
     msg = event.message.text
 
     if msg == "uid":
-        text = event.source.userId
+        # text = event.source.userId
         text_message = TextSendMessage(text="uid")
         line_bot_api.reply_message(event.reply_token, text_message)
 
