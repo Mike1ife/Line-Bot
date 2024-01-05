@@ -8,17 +8,13 @@
     ],
     "routes": [
         {
-            "src": "/api/cron",
-            "dest": "app.py"
-        },
-        {
             "src": "/(.*)",
             "dest": "app.py"
         }
     ],
     "crons": [
         {
-            "path": "/api/cron",
+            "path": "/app",
             "schedule": "*/5 * * * *"
         }
     ]
