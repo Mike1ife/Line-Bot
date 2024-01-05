@@ -32,7 +32,7 @@ def home():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    user_id = MY_UID
+    user_id = GROUP_ID
 
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
