@@ -89,11 +89,11 @@ def cron_job():
 @app.route("/api/open_vote_form", methods=["GET"])
 def open_vote_form():
     buttons_template = ButtonsTemplate(
-        title="Vote for NBA Teams",
-        text="Select the team you think will win:",
+        title="湖人 vs 勇士",
+        text="預測勝利球隊",
         actions=[
-            PostbackAction(label="湖人", data="vote_A"),
-            PostbackAction(label="勇士", data="vote_B"),
+            PostbackAction(label="湖人", data="湖人"),
+            PostbackAction(label="勇士", data="勇士"),
         ],
     )
     template_message = TemplateSendMessage(
@@ -108,7 +108,7 @@ def open_vote_form():
 def handle_postback(event):
     user_id = event.source.user_id
     selected_team = event.postback.data
-    reply_text = f"Thank you for voting for {selected_team}!"
+    reply_text = f"你預測{selected_team}!"
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
