@@ -104,14 +104,14 @@ def cron_job():
 
             i = 1
 
+    text_message = TextSendMessage(text=score_text[:-1])
+    line_bot_api.push_message(user_id, text_message)
+
     carousel_template = CarouselTemplate(columns=columns)
     template_message = TemplateSendMessage(
         alt_text="Vote for NBA Teams", template=carousel_template
     )
-    line_bot_api.push_message(GROUP_ID, template_message)
-
-    text_message = TextSendMessage(text=score_text[:-1])
-    line_bot_api.push_message(user_id, text_message)
+    line_bot_api.push_message(user_id, template_message)
 
     return "Cron job executed successfully!"
 
