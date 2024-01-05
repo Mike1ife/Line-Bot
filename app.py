@@ -119,8 +119,10 @@ def open_vote_form():
 @line_handler.add(PostbackEvent)
 def handle_postback(event):
     user_id = event.source.user_id
+    profile = line_bot_api.get_profile(user_id)
+    display_name = profile.display_name
     selected_team = event.postback.data
-    reply_text = f"你預測{selected_team}!"
+    reply_text = f"{display_name}預測{selected_team}!"
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
