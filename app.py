@@ -46,6 +46,7 @@ def callback():
 
 CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
+LINE_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 
 
 @line_handler.add(MessageEvent, message=TextMessage)
@@ -207,27 +208,14 @@ def random_message(event):
                 line_bot_api.reply_message(event.reply_token, image_message)
 
 
-# def send_daily_reminder(user_id):
-#     # Customize your daily reminder message here
-#     reminder_message = "Hello! This is your daily reminder."
-#     line_bot_api.push_message(user_id, TextSendMessage(text=reminder_message))
+@app.route("/api/cron", methods=["POST"])
+def cron_job():
+    user_id = LINE_UID
+    message = TextSendMessage(text="Your daily message here")
+    line_bot_api.push_message(user_id, message)
 
-
-# UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-# TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-# schedule_instance = schedule.Scheduler(timezone=TWnow)
-# schedule_instance.every().day.at("00:00").do(
-#     send_daily_reminder, user_id="Uba0a4dd4bcfcb11fb91a7f0ba9992843"
-# )
-
-
-# def run_scheduler():
-#     while True:
-#         schedule_instance.run_pending()
-#         time.sleep(1)
+    return "Cron job executed successfully!"
 
 
 if __name__ == "__main__":
-    # scheduler_thread = threading.Thread(target=run_scheduler)
-    # scheduler_thread.start()
     app.run()
