@@ -159,6 +159,10 @@ def handle_postback(event):
         if not column_exist(header, column):
             column = f"{loser}-{winner}"
 
+        """Create user if needed"""
+        if not check_user_exist(rows, display_name):
+            header, rows = add_new_user(header, rows, display_name)
+
         """User have predicted"""
         if user_predicted(header, rows, display_name, column):
             reply_text = f"{display_name}已經預測{winner}贏{loser}了!"
