@@ -44,79 +44,79 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/cron", methods=["GET", "POST"])
-def cron_job():
-    user_id = MY_UID
+# @app.route("/api/cron", methods=["GET", "POST"])
+# def cron_job():
+#     user_id = MY_UID
 
-    time = None
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+#     time = None
+#     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+#     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+#     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
-    soup = BeautifulSoup(data, "html.parser")
-    team_rows = soup.find_all(class_="score-team-row")
+#     data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
+#     soup = BeautifulSoup(data, "html.parser")
+#     team_rows = soup.find_all(class_="score-team-row")
 
-    team1 = {"name": "x", "standing": "x"}
-    team2 = {"name": "x", "standing": "x"}
+#     team1 = {"name": "x", "standing": "x"}
+#     team2 = {"name": "x", "standing": "x"}
 
-    i = 1
-    score_text = "NBA Today:\n"
-    columns = []
+#     i = 1
+#     score_text = "NBA Today:\n"
+#     columns = []
 
-    for team_row in team_rows:
-        team_name_elements = team_row.find_all(class_="score-team-name team")
-        team = team_name_elements[0].get_text() if team_name_elements else None
-        team = team.split()
-        team_name = nba_team_translations[team[0]]
-        if team[0] == "TRAIL":
-            team_standing = team[2]
-        else:
-            team_standing = team[1]
+#     for team_row in team_rows:
+#         team_name_elements = team_row.find_all(class_="score-team-name team")
+#         team = team_name_elements[0].get_text() if team_name_elements else None
+#         team = team.split()
+#         team_name = nba_team_translations[team[0]]
+#         if team[0] == "TRAIL":
+#             team_standing = team[2]
+#         else:
+#             team_standing = team[1]
 
-        if i == 1:
-            team1["name"] = team_name
-            team1["standing"] = team_standing
-            i += 1
-        else:
-            team2["name"] = team_name
-            team2["standing"] = team_standing
+#         if i == 1:
+#             team1["name"] = team_name
+#             team1["standing"] = team_standing
+#             i += 1
+#         else:
+#             team2["name"] = team_name
+#             team2["standing"] = team_standing
 
-            encoded_team1 = urllib.parse.quote(team1["name"])
-            encoded_team2 = urllib.parse.quote(team2["name"])
-            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
-            if not check_url_exists(thumbnail_image_url):
-                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-                team1, team2 = team2, team1
+#             encoded_team1 = urllib.parse.quote(team1["name"])
+#             encoded_team2 = urllib.parse.quote(team2["name"])
+#             thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+#             if not check_url_exists(thumbnail_image_url):
+#                 thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+#                 team1, team2 = team2, team1
 
-            columns.append(
-                CarouselColumn(
-                    thumbnail_image_url=thumbnail_image_url,
-                    title=f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}",
-                    text="預測贏球球隊",
-                    actions=[
-                        PostbackAction(label=team1["name"], data=team1["name"]),
-                        PostbackAction(label=team2["name"], data=team2["name"]),
-                    ],
-                ),
-            )
+#             columns.append(
+#                 CarouselColumn(
+#                     thumbnail_image_url=thumbnail_image_url,
+#                     title=f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}",
+#                     text="預測贏球球隊",
+#                     actions=[
+#                         PostbackAction(label=team1["name"], data=team1["name"]),
+#                         PostbackAction(label=team2["name"], data=team2["name"]),
+#                     ],
+#                 ),
+#             )
 
-            score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
+#             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
 
-            i = 1
+#             i = 1
 
-    text_message = TextSendMessage(text=score_text[:-1])
-    line_bot_api.push_message(user_id, text_message)
+#     text_message = TextSendMessage(text=score_text[:-1])
+#     line_bot_api.push_message(user_id, text_message)
 
-    for i in range(0, len(columns), 10):
-        chunk = columns[i : i + 10]
-        carousel_template = CarouselTemplate(columns=chunk)
-        template_message = TemplateSendMessage(
-            alt_text="每日NBA預測", template=carousel_template
-        )
-        line_bot_api.push_message(user_id, template_message)
+#     for i in range(0, len(columns), 10):
+#         chunk = columns[i : i + 10]
+#         carousel_template = CarouselTemplate(columns=chunk)
+#         template_message = TemplateSendMessage(
+#             alt_text="每日NBA預測", template=carousel_template
+#         )
+#         line_bot_api.push_message(user_id, template_message)
 
-    return "Cron job executed successfully!"
+#     return "Cron job executed successfully!"
 
 
 @app.route("/api/test", methods=["GET"])
