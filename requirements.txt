@@ -5,3 +5,5 @@ datetime
 beautifulsoup4
 schedule
 pillow
+gspread
+google-auth
