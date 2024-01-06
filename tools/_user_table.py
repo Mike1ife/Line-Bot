@@ -1,7 +1,5 @@
-from google.oauth2.service_account import Credentials
 from gspread import authorize
-from pandas import DataFrame, concat
-from numpy import nan
+from google.oauth2.service_account import Credentials
 
 
 def init():
@@ -15,55 +13,60 @@ def init():
     worksheet = sheet.get_worksheet(0)
     data = worksheet.get_all_values()
 
-    df = DataFrame(data[1:], columns=data[0])
-    return df, worksheet
+    header, rows = data[0], data[1:]
+    return header, rows, worksheet
 
 
-def modify_column_name(df, index, new_name):
+def modify_column_name(header, index, new_name):
     # new column
-    if (index + 2) == len(df.columns):
-        df.insert(loc=index + 2, column=new_name, value="")
+    if (index + 2) == len(header):
+        header.insert(index + 2, new_name)
     else:
-        df.columns.values[index + 2] = new_name
-    return df
+        header[index + 2] = new_name
+    return header
 
 
-def check_user_exist(df, name):
-    return True if name in df["Name"].values else False
+def check_user_exist(rows, name):
+    return any(name in row for row in rows)
 
 
-def add_new_user(df, name):
-    new_row = {"Name": name, "Points": "0"}
-    df = concat([df, DataFrame([new_row])], ignore_index=True)
-    df.replace({nan: ""}, inplace=True)
-    return df
+def add_new_user(header, rows, name):
+    new_row = [name, "0"]
+    rows.append(new_row)
+    return header, rows
 
 
-def reset_match(df):
-    df.drop(df.iloc[:, 2:], inplace=True, axis=1)
-    return df
+def reset_match(header, rows):
+    header = header[:2]
+    rows = [[row[0], row[1]] for row in rows]
+    return header, rows
 
 
-def modify_value(df, name, column, value):
-    df.at[df.index[df["Name"] == name].tolist()[0], column] = value
-    return df
+def modify_value(header, rows, name, column, value):
+    for i, row in enumerate(rows):
+        if row[0] == name:
+            row[header.index(column)] = value
+            break
+    return header, rows
 
 
-def count_points(df, name):
-    user_points = 0
-    for index, row in df[df["Name"] == name].iterrows():
-        for keys, values in row.items():
-            if keys != "Name":
-                if keys == "Points":
-                    user_points = int(values)
-                elif values == keys:
-                    user_points += 10
+def count_points(header, rows):
+    for row in rows:
+        user_points = 0
+        user_name = ""
+        for i, value in enumerate(row):
+            if header[i] == "Name":
+                user_name = value
+            elif header[i] == "Points":
+                user_points = int(value)
+            elif value == header[i]:
+                user_points += 10
 
-    df = modify_value(df, name, "Points", user_points)
-    return df
+        header, rows = modify_value(header, rows, user_name, "Points", str(user_points))
+    return header, rows
 
 
-def update_sheet(df, worksheet):
-    modified_data = [df.columns.tolist()] + df.values.tolist()
+def update_sheet(header, rows, worksheet):
+    modified_data = [header] + rows
     worksheet.clear()
     worksheet.update("A1", modified_data)

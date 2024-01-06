@@ -48,8 +48,9 @@ def home():
 def cron_job():
     user_id = MY_UID
 
-    df, worksheet = init()
-    df = reset_match(df)
+    """Reset the match in GS"""
+    header, rows, worksheet = init()
+    header, rows = reset_match(header, rows)
 
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -107,10 +108,16 @@ def cron_job():
 
             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
 
-            df = modify_column_name(df, match_index, f"{team1['name']}-{team2['name']}")
+            """Insert new match"""
+            header = modify_column_name(
+                header, match_index, f"{team1['name']}-{team2['name']}"
+            )
 
             match_index += 1
             i = 1
+
+    """Update GS"""
+    update_sheet(header, rows, worksheet)
 
     text_message = TextSendMessage(text=score_text[:-1])
     line_bot_api.push_message(user_id, text_message)
