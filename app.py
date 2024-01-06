@@ -162,7 +162,6 @@ def handle_postback(event):
         """Create user if needed"""
         if not check_user_exist(rows, display_name):
             header, rows = add_new_user(header, rows, display_name)
-            update_sheet(header, rows, worksheet)
 
         """User have predicted"""
         if user_predicted(header, rows, display_name, column):

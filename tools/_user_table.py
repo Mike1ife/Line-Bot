@@ -36,7 +36,8 @@ def check_user_exist(rows, name):
 
 
 def add_new_user(header, rows, name):
-    new_row = [name, "0"]
+    match_num = len(header) - 2
+    new_row = [name, "0"] + [""] * match_num
     rows.append(new_row)
     return header, rows
 
@@ -84,6 +85,7 @@ def user_predicted(header, rows, name, column):
             break
 
     # have not predicted
+
     if user_info[col_index] == "":
         return False
 
