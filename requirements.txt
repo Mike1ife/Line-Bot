@@ -6,4 +6,4 @@ beautifulsoup4
 pillow
 gspread
 google-auth
-pandas==2.1.4 --no-deps
+pandas
