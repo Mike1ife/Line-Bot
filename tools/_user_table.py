@@ -17,13 +17,18 @@ def init():
     return header, rows, worksheet
 
 
-def modify_column_name(header, index, new_name):
+def modify_column_name(header, rows, index, new_name):
     # new column
     if (index + 2) == len(header):
         header.insert(index + 2, new_name)
+        # insert empty value to each row to fill in column
+        for i in range(len(rows)):
+            fill_num = len(header) - len(rows[i])
+            rows[i] += [""] * fill_num
     else:
         header[index + 2] = new_name
-    return header
+
+    return header, rows
 
 
 def check_user_exist(rows, name):

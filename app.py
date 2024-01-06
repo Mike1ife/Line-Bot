@@ -113,8 +113,8 @@ def cron_job():
             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
 
             """Insert new match"""
-            header = modify_column_name(
-                header, match_index, f"{team1['name']}-{team2['name']}"
+            header, rows = modify_column_name(
+                header, rows, match_index, f"{team1['name']}-{team2['name']}"
             )
 
             match_index += 1
