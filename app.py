@@ -1,6 +1,6 @@
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError
+from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import (
     MessageEvent,
     TextMessage,
@@ -34,7 +34,7 @@ app = Flask(__name__)
 CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
-GROUP_ID = "Ccd472bcff08c0d73df483615fa795a75"
+GROUP_ID = "Cbb4733349bd2459a4fbe10a1068025ed"
 get
 
 
@@ -100,8 +100,12 @@ def cron_job():
                     title=f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}",
                     text="預測贏球球隊",
                     actions=[
-                        PostbackAction(label=team1["name"], data=team1["name"]),
-                        PostbackAction(label=team2["name"], data=team2["name"]),
+                        PostbackAction(
+                            label=team1["name"], data=f"{team1['name']}贏{team2['name']}"
+                        ),
+                        PostbackAction(
+                            label=team2["name"], data=f"{team2['name']}贏{team1['name']}"
+                        ),
                     ],
                 ),
             )
@@ -135,11 +139,39 @@ def cron_job():
 
 @line_handler.add(PostbackEvent)
 def handle_postback(event):
+    """Get GS"""
+    header, rows, worksheet = init()
+
+    reply_text = ""
     user_id = event.source.user_id
-    profile = line_bot_api.get_profile(user_id)
-    display_name = profile.display_name
-    selected_team = event.postback.data
-    reply_text = f"{display_name}預測{selected_team}!"
+    try:
+        profile = line_bot_api.get_profile(user_id)
+        display_name = profile.display_name
+
+        """Get user prediction"""
+        data = event.postback.data
+        split_point = data.find("贏")
+        winner = data[:split_point]
+        loser = data[split_point + 1 :]
+
+        """Locate column"""
+        column = f"{winner}-{loser}"
+        if not column_exist(header, column):
+            column = f"{loser}-{winner}"
+
+        """User have predicted"""
+        if user_predicted(header, rows, display_name, column):
+            reply_text = f"{display_name}已經預測{winner}贏{loser}了!"
+        else:
+            """First time predict"""
+            reply_text = f"{display_name}預測{winner}贏{loser}!"
+            # Modify GS
+            header, rows = modify_value(header, rows, display_name, column, winner)
+
+        update_sheet(header, rows, worksheet)
+    except LineBotApiError as e:
+        reply_text = "Unknown user."
+
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 

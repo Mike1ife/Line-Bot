@@ -66,6 +66,25 @@ def count_points(header, rows):
     return header, rows
 
 
+def column_exist(header, column):
+    return True if column in header else False
+
+
+def user_predicted(header, rows, name, column):
+    col_index = header.index(column)
+    user_info = None
+    for row in rows:
+        if row[0] == name:
+            user_info = row
+            break
+
+    # have not predicted
+    if user_info[col_index] == "":
+        return False
+
+    return True
+
+
 def update_sheet(header, rows, worksheet):
     modified_data = [header] + rows
     worksheet.clear()
