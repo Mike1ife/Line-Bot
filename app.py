@@ -120,7 +120,7 @@ def cron_job():
 
 @app.route("/api/open_vote_form", methods=["GET"])
 def open_vote_form():
-    user_id = GROUP_ID
+    user_id = MY_UID
 
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
