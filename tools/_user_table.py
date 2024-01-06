@@ -1,6 +1,6 @@
 from google.oauth2.service_account import Credentials
 import gspread
-import pandas as pd
+from pandas import DataFrame, concat
 import numpy as np
 
 
@@ -15,7 +15,7 @@ def init():
     worksheet = sheet.get_worksheet(0)
     data = worksheet.get_all_values()
 
-    df = pd.DataFrame(data[1:], columns=data[0])
+    df = DataFrame(data[1:], columns=data[0])
     return df, worksheet
 
 
@@ -34,7 +34,7 @@ def check_user_exist(df, name):
 
 def add_new_user(df, name):
     new_row = {"Name": name, "Points": "0"}
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    df = concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.replace({np.nan: ""}, inplace=True)
     return df
 

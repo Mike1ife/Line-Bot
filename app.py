@@ -25,8 +25,7 @@ from datetime import datetime, timezone, timedelta
 
 from tools._image import build_image, check_url_exists
 from tools._table import nba_team_translations
-
-# from tools._user_table import *
+from tools._user_table import *
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
@@ -124,8 +123,8 @@ def cron_job():
 def test():
     user_id = MY_UID
 
-    # df, worksheet = init()
-    # df = reset_match(df)
+    df, worksheet = init()
+    df = reset_match(df)
 
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -183,7 +182,7 @@ def test():
 
             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
 
-            # df = modify_column_name(df, match_index, f"{team1['name']}-{team2['name']}")
+            df = modify_column_name(df, match_index, f"{team1['name']}-{team2['name']}")
 
             match_index += 1
             i = 1
