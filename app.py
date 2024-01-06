@@ -48,8 +48,14 @@ def home():
 def cron_job():
     user_id = GROUP_ID
 
-    """Reset the match in GS"""
+    """Get GS"""
     header, rows, worksheet = init()
+
+    """Calculate points"""
+    header, rows = count_points(header, rows)
+    update_sheet(header, rows)
+
+    """Reset old matches"""
     header, rows = reset_match(header, rows)
 
     time = None
