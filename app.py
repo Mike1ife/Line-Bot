@@ -46,7 +46,7 @@ def home():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    user_id = MY_UID
+    user_id = GROUP_ID
 
     """Reset the match in GS"""
     header, rows, worksheet = init()
