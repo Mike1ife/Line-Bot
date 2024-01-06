@@ -7,35 +7,35 @@ from linebot.models import (
     TextSendMessage,
     ImageSendMessage,
     TemplateSendMessage,
-    ButtonsTemplate,
     CarouselTemplate,
     CarouselColumn,
     PostbackAction,
     PostbackEvent,
 )
 
-import os
-import re
-import urllib
-import random
-import requests
+from os import getenv
+from re import compile
+from urllib.parse import quote
+from random import choice, randint
+from requests import get
 
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 
-from tools._image import build_image, check_url_exists
+from tools._image import check_url_exists
 from tools._table import nba_team_translations
 from tools._user_table import *
 
-line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
-line_handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
-working_status = os.getenv("DEFALUT_TALKING", default="true").lower() == "true"
+line_bot_api = LineBotApi(getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+line_handler = WebhookHandler(getenv("LINE_CHANNEL_SECRET"))
+working_status = getenv("DEFALUT_TALKING", default="true").lower() == "true"
 
 app = Flask(__name__)
 CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 GROUP_ID = "Ccd472bcff08c0d73df483615fa795a75"
+get
 
 
 # domain root
@@ -48,12 +48,15 @@ def home():
 def cron_job():
     user_id = MY_UID
 
+    df, worksheet = init()
+    df = reset_match(df)
+
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
     soup = BeautifulSoup(data, "html.parser")
     team_rows = soup.find_all(class_="score-team-row")
 
@@ -61,6 +64,7 @@ def cron_job():
     team2 = {"name": "x", "standing": "x"}
 
     i = 1
+    match_index = 0
     score_text = "NBA Today:\n"
     columns = []
 
@@ -82,8 +86,8 @@ def cron_job():
             team2["name"] = team_name
             team2["standing"] = team_standing
 
-            encoded_team1 = urllib.parse.quote(team1["name"])
-            encoded_team2 = urllib.parse.quote(team2["name"])
+            encoded_team1 = quote(team1["name"])
+            encoded_team2 = quote(team2["name"])
             thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
             if not check_url_exists(thumbnail_image_url):
                 thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
@@ -103,6 +107,9 @@ def cron_job():
 
             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
 
+            df = modify_column_name(df, match_index, f"{team1['name']}-{team2['name']}")
+
+            match_index += 1
             i = 1
 
     text_message = TextSendMessage(text=score_text[:-1])
@@ -117,88 +124,6 @@ def cron_job():
         line_bot_api.push_message(user_id, template_message)
 
     return "Cron job executed successfully!"
-
-
-# @app.route("/api/test", methods=["GET"])
-# def test():
-#     user_id = MY_UID
-
-#     df, worksheet = init()
-#     df = reset_match(df)
-
-#     time = None
-#     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-#     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-#     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
-
-#     data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
-#     soup = BeautifulSoup(data, "html.parser")
-#     team_rows = soup.find_all(class_="score-team-row")
-
-#     team1 = {"name": "x", "standing": "x"}
-#     team2 = {"name": "x", "standing": "x"}
-
-#     i = 1
-#     match_index = 0
-#     score_text = "NBA Today:\n"
-#     columns = []
-
-#     for team_row in team_rows:
-#         team_name_elements = team_row.find_all(class_="score-team-name team")
-#         team = team_name_elements[0].get_text() if team_name_elements else None
-#         team = team.split()
-#         team_name = nba_team_translations[team[0]]
-#         if team[0] == "TRAIL":
-#             team_standing = team[2]
-#         else:
-#             team_standing = team[1]
-
-#         if i == 1:
-#             team1["name"] = team_name
-#             team1["standing"] = team_standing
-#             i += 1
-#         else:
-#             team2["name"] = team_name
-#             team2["standing"] = team_standing
-
-#             encoded_team1 = urllib.parse.quote(team1["name"])
-#             encoded_team2 = urllib.parse.quote(team2["name"])
-#             thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
-#             if not check_url_exists(thumbnail_image_url):
-#                 thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-#                 team1, team2 = team2, team1
-
-#             columns.append(
-#                 CarouselColumn(
-#                     thumbnail_image_url=thumbnail_image_url,
-#                     title=f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}",
-#                     text="預測贏球球隊",
-#                     actions=[
-#                         PostbackAction(label=team1["name"], data=team1["name"]),
-#                         PostbackAction(label=team2["name"], data=team2["name"]),
-#                     ],
-#                 ),
-#             )
-
-#             score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
-
-#             df = modify_column_name(df, match_index, f"{team1['name']}-{team2['name']}")
-
-#             match_index += 1
-#             i = 1
-
-#     text_message = TextSendMessage(text=score_text[:-1])
-#     line_bot_api.push_message(user_id, text_message)
-
-#     for i in range(0, len(columns), 10):
-#         chunk = columns[i : i + 10]
-#         carousel_template = CarouselTemplate(columns=chunk)
-#         template_message = TemplateSendMessage(
-#             alt_text="每日NBA預測", template=carousel_template
-#         )
-#         line_bot_api.push_message(user_id, template_message)
-
-#     return "Cron job executed successfully!"
 
 
 @line_handler.add(PostbackEvent)
@@ -242,11 +167,9 @@ def text_message(event):
 
     if msg[:2].lower() == "yt":
         search = msg[3:]
-        data = requests.get(
-            f"https://www.youtube.com/results?search_query={search}"
-        ).text
-        title_pattern = re.compile(r'"videoRenderer".*?"label":"(.*?)"')
-        video_id_pattern = re.compile(r'"videoRenderer":{"videoId":"(.*?)"')
+        data = get(f"https://www.youtube.com/results?search_query={search}").text
+        title_pattern = compile(r'"videoRenderer".*?"label":"(.*?)"')
+        video_id_pattern = compile(r'"videoRenderer":{"videoId":"(.*?)"')
 
         # Find all matches for title and video ID in the text
         titles = title_pattern.findall(data)
@@ -279,7 +202,7 @@ def text_message(event):
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
         time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-        data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
+        data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
         soup = BeautifulSoup(data, "html.parser")
         team_rows = soup.find_all(class_="score-team-row")
 
@@ -322,12 +245,12 @@ def random_message(event):
         album_id = "ZDcNFCL"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get(endpoint, headers=headers)
+        response = get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
             if images:
-                random_image = random.choice(images)
+                random_image = choice(images)
                 image_url = random_image["link"]
                 image_message = ImageSendMessage(
                     original_content_url=image_url, preview_image_url=image_url
@@ -337,7 +260,7 @@ def random_message(event):
     if msg == "抽單字":
         f = open("TextFiles/TOEFL.txt")
         vocabulary = f.readlines()
-        word = random.randint(0, len(vocabulary) - 1)
+        word = randint(0, len(vocabulary) - 1)
         text = vocabulary[word][:-1]
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
@@ -346,7 +269,7 @@ def random_message(event):
     if msg == "你媽":
         f = open("TextFiles/YourMom.txt")
         sentences = f.readlines()
-        index = random.randint(0, len(sentences) - 1)
+        index = randint(0, len(sentences) - 1)
         text = sentences[index][:-1]
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
@@ -356,12 +279,12 @@ def random_message(event):
         album_id = "698HGtx"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get(endpoint, headers=headers)
+        response = get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
             if images:
-                random_image = random.choice(images)
+                random_image = choice(images)
                 image_url = random_image["link"]
                 image_message = ImageSendMessage(
                     original_content_url=image_url, preview_image_url=image_url
@@ -372,12 +295,12 @@ def random_message(event):
         album_id = "1K6H3WS"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = requests.get(endpoint, headers=headers)
+        response = get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
             if images:
-                random_image = random.choice(images)
+                random_image = choice(images)
                 image_url = random_image["link"]
                 image_message = ImageSendMessage(
                     original_content_url=image_url, preview_image_url=image_url

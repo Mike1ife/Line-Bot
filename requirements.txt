@@ -1,3 +1,4 @@
+pandas
 line-bot-sdk
 flask
 requests
@@ -6,4 +7,3 @@ beautifulsoup4
 pillow
 gspread
 google-auth
-pandas

@@ -1,13 +1,13 @@
 from google.oauth2.service_account import Credentials
-import gspread
-import pandas as pd
-import numpy as np
+from gspread import authorize
+from pandas import DataFrame, concat
+from numpy import nan
 
 
 def init():
     scope = ["https://www.googleapis.com/auth/spreadsheets"]
     creds = Credentials.from_service_account_file("gs_credentials.json", scopes=scope)
-    gs = gspread.authorize(creds)
+    gs = authorize(creds)
 
     sheet = gs.open_by_url(
         "https://docs.google.com/spreadsheets/d/1QajQuyDTjBiaoj1ucQOfbZu99ChWLIRffABoKFohw3A/edit?hl=zh-tw#gid=0"
@@ -15,7 +15,7 @@ def init():
     worksheet = sheet.get_worksheet(0)
     data = worksheet.get_all_values()
 
-    df = pd.DataFrame(data[1:], columns=data[0])
+    df = DataFrame(data[1:], columns=data[0])
     return df, worksheet
 
 
@@ -34,8 +34,8 @@ def check_user_exist(df, name):
 
 def add_new_user(df, name):
     new_row = {"Name": name, "Points": "0"}
-    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-    df.replace({np.nan: ""}, inplace=True)
+    df = concat([df, DataFrame([new_row])], ignore_index=True)
+    df.replace({nan: ""}, inplace=True)
     return df
 
 
