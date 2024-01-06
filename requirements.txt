@@ -7,3 +7,4 @@ schedule
 pillow
 gspread
 google-auth
+pandas
