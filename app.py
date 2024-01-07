@@ -51,9 +51,19 @@ def cron_job():
     """Get GS"""
     header, rows, worksheet = init()
 
+    """Get yesterday winner team"""
+    header, rows = get_match_result(header, rows)
+
     """Calculate points"""
     header, rows = count_points(header, rows)
-    update_sheet(header, rows)
+    update_sheet(header, rows, worksheet)
+
+    """Send user results"""
+    user_ranks = get_user_points(rows)
+    message = "預測排行榜:\n"
+    for i, value in enumerate(user_ranks):
+        message += f"{i+1}. {value[0]}: {value[1]}分\n"
+    line_bot_api.push_message(user_id, TextSendMessage(text=message[:-1]))
 
     """Reset old matches"""
     header, rows = reset_match(header, rows)

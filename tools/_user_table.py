@@ -1,5 +1,10 @@
+from requests import get
 from gspread import authorize
+from bs4 import BeautifulSoup
+from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
+
+from _table import nba_team_translations
 
 
 def init():
@@ -90,6 +95,59 @@ def user_predicted(header, rows, name, column):
         return False
 
     return True
+
+
+def get_match_result(header, rows):
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWyesterday = UTCnow.astimezone(timezone(timedelta(hours=-16)))
+    time = f"{TWyesterday.year}-{TWyesterday.month}-{TWyesterday.day}"
+
+    data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    soup = BeautifulSoup(data, "html.parser")
+    team_rows = soup.find_all(class_="score-team-row")
+
+    team1 = {"name": "x", "score": "0"}
+    team2 = {"name": "x", "score": "0"}
+
+    match_index = 0
+    i = 1
+    for team_row in team_rows:
+        team_name_elements = team_row.find_all(class_="score-team-name team")
+        team = team_name_elements[0].get_text() if team_name_elements else None
+        team = team.split()
+        team_name = nba_team_translations[team[0]]
+
+        score_element = team_row.find(class_="score-team-score")
+        team_score = score_element.get_text().strip() if score_element else "0"
+
+        if i == 1:
+            team1["name"] = team_name
+            team1["score"] = team_score
+            i += 1
+        else:
+            team2["name"] = team_name
+            team2["score"] = team_score
+
+            winner = ""
+            if int(team1["score"]) > int(team2["score"]):
+                winner = team1["name"]
+            else:
+                winner = team2["name"]
+            header, rows = modify_column_name(header, rows, match_index, winner)
+
+            match_index += 1
+            i = 1
+
+    return header, rows
+
+
+def get_user_points(rows):
+    users_info = []
+    for row in rows:
+        users_info.append((row[0], row[1]))
+    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
+
+    return user_ranks
 
 
 def update_sheet(header, rows, worksheet):
