@@ -52,7 +52,7 @@ def cron_job():
     header, rows, worksheet = init()
 
     """Get yesterday winner team"""
-    header, rows = get_match_result(header, rows)
+    header, rows = get_match_result(header, rows, nba_team_translations)
 
     """Calculate points"""
     header, rows = count_points(header, rows)

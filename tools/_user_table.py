@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 
-from _table import nba_team_translations
-
 
 def init():
     scope = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -97,7 +95,7 @@ def user_predicted(header, rows, name, column):
     return True
 
 
-def get_match_result(header, rows):
+def get_match_result(header, rows, nba_team_translations):
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWyesterday = UTCnow.astimezone(timezone(timedelta(hours=-16)))
     time = f"{TWyesterday.year}-{TWyesterday.month}-{TWyesterday.day}"
