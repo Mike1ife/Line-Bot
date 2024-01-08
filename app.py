@@ -270,7 +270,7 @@ def text_message(event):
         text_message = TextSendMessage(text=score_text[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
 
-    if msg == "NBA Today: 每日預測":
+    if msg == "預測":
         messages = []
 
         """Get GS"""
