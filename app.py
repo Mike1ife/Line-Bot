@@ -52,7 +52,7 @@ def cron_job():
     header, rows, worksheet = init()
 
     """Get yesterday winner team"""
-    header, rows = get_match_result(header, rows)
+    header, rows = get_match_result(header, rows, "yesterday")
 
     """Calculate points"""
     header, rows = count_points(header, rows)
@@ -63,7 +63,9 @@ def cron_job():
     message = "預測排行榜:\n"
     for i, value in enumerate(user_ranks):
         message += f"{i+1}. {value[0]}: {value[1]}分\n"
-    messages.append(TextSendMessage(text=message[:-1]))
+    text_message = TextSendMessage(text=message[:-1])
+
+    messages.append(text_message)
 
     """Reset old matches"""
     header, rows = reset_match(header, rows)
@@ -133,7 +135,7 @@ def cron_job():
         )
         messages.append(template_message)
 
-    line_bot_api.push_message(user_id, template_message)
+    line_bot_api.push_message(user_id, messages)
 
     return "Cron job executed successfully!"
 
