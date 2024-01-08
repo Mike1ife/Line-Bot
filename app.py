@@ -135,7 +135,7 @@ def cron_job():
         )
         messages.append(template_message)
 
-    line_bot_api.push_message(user_id, messages)
+    # line_bot_api.push_message(user_id, messages)
 
     return "Cron job executed successfully!"
 
