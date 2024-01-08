@@ -12,7 +12,7 @@
             "dest": "app.py"
         }
     ],
-    "cron": [
+    "crons": [
         {
             "path": "/api/cron",
             "schedule": "0 16 * * *"
