@@ -43,101 +43,101 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/cron", methods=["GET", "POST"])
-def cron_job():
-    messages = []
-    user_id = MY_UID
+# @app.route("/api/cron", methods=["GET", "POST"])
+# def cron_job():
+#     messages = []
+#     user_id = MY_UID
 
-    """Get GS"""
-    header, rows, worksheet = init()
+#     """Get GS"""
+#     header, rows, worksheet = init()
 
-    """Get yesterday winner team"""
-    header, rows = get_match_result(header, rows, "yesterday")
+#     """Get yesterday winner team"""
+#     header, rows = get_match_result(header, rows, "yesterday")
 
-    """Calculate points"""
-    header, rows = count_points(header, rows)
-    update_sheet(header, rows, worksheet)
+#     """Calculate points"""
+#     header, rows = count_points(header, rows)
+#     update_sheet(header, rows, worksheet)
 
-    """Send user results"""
-    user_ranks = get_user_points(rows)
-    message = "預測排行榜:\n"
-    for i, value in enumerate(user_ranks):
-        message += f"{i+1}. {value[0]}: {value[1]}分\n"
-    text_message = TextSendMessage(text=message[:-1])
+#     """Send user results"""
+#     user_ranks = get_user_points(rows)
+#     message = "預測排行榜:\n"
+#     for i, value in enumerate(user_ranks):
+#         message += f"{i+1}. {value[0]}: {value[1]}分\n"
+#     text_message = TextSendMessage(text=message[:-1])
 
-    messages.append(text_message)
+#     messages.append(text_message)
 
-    """Reset old matches"""
-    header, rows = reset_match(header, rows)
+#     """Reset old matches"""
+#     header, rows = reset_match(header, rows)
 
-    """Get new matches"""
-    time = None
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+#     """Get new matches"""
+#     time = None
+#     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+#     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+#     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-    data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
-    soup = BeautifulSoup(data, "html.parser")
-    cards = soup.find_all("div", class_="card")
+#     data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
+#     soup = BeautifulSoup(data, "html.parser")
+#     cards = soup.find_all("div", class_="card")
 
-    match_index = 0
-    columns = []
+#     match_index = 0
+#     columns = []
 
-    for card in cards:
-        team_names = [
-            team.find("span", class_="team_name").text.strip()
-            for team in card.find_all("div", class_="team")
-        ]
-        team_scores = [
-            team.find("span", class_="team_score").text.strip()
-            for team in card.find_all("div", class_="team")
-        ]
+#     for card in cards:
+#         team_names = [
+#             team.find("span", class_="team_name").text.strip()
+#             for team in card.find_all("div", class_="team")
+#         ]
+#         team_scores = [
+#             team.find("span", class_="team_score").text.strip()
+#             for team in card.find_all("div", class_="team")
+#         ]
 
-        encoded_team1 = quote(team_names[0])
-        encoded_team2 = quote(team_names[1])
-        thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
-        if not check_url_exists(thumbnail_image_url):
-            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-            team_names.reverse()
-            team_scores.reverse()
+#         encoded_team1 = quote(team_names[0])
+#         encoded_team2 = quote(team_names[1])
+#         thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+#         if not check_url_exists(thumbnail_image_url):
+#             thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+#             team_names.reverse()
+#             team_scores.reverse()
 
-        columns.append(
-            CarouselColumn(
-                thumbnail_image_url=thumbnail_image_url,
-                title=f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}",
-                text="預測贏球球隊",
-                actions=[
-                    PostbackAction(
-                        label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
-                    ),
-                    PostbackAction(
-                        label=team_names[1], data=f"{team_names[1]}贏{team_names[0]}"
-                    ),
-                ],
-            ),
-        )
+#         columns.append(
+#             CarouselColumn(
+#                 thumbnail_image_url=thumbnail_image_url,
+#                 title=f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}",
+#                 text="預測贏球球隊",
+#                 actions=[
+#                     PostbackAction(
+#                         label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
+#                     ),
+#                     PostbackAction(
+#                         label=team_names[1], data=f"{team_names[1]}贏{team_names[0]}"
+#                     ),
+#                 ],
+#             ),
+#         )
 
-        """Insert new match"""
-        header, rows = modify_column_name(
-            header, rows, match_index, f"{team_names[0]}-{team_names[1]}"
-        )
+#         """Insert new match"""
+#         header, rows = modify_column_name(
+#             header, rows, match_index, f"{team_names[0]}-{team_names[1]}"
+#         )
 
-        match_index += 1
+#         match_index += 1
 
-    """Update GS"""
-    update_sheet(header, rows, worksheet)
+#     """Update GS"""
+#     update_sheet(header, rows, worksheet)
 
-    for i in range(0, len(columns), 10):
-        chunk = columns[i : i + 10]
-        carousel_template = CarouselTemplate(columns=chunk)
-        template_message = TemplateSendMessage(
-            alt_text="每日NBA預測", template=carousel_template
-        )
-        messages.append(template_message)
+#     for i in range(0, len(columns), 10):
+#         chunk = columns[i : i + 10]
+#         carousel_template = CarouselTemplate(columns=chunk)
+#         template_message = TemplateSendMessage(
+#             alt_text="每日NBA預測", template=carousel_template
+#         )
+#         messages.append(template_message)
 
-    # line_bot_api.push_message(user_id, messages)
+#     # line_bot_api.push_message(user_id, messages)
 
-    return "Cron job executed successfully!"
+#     return "Cron job executed successfully!"
 
 
 @line_handler.add(PostbackEvent)
