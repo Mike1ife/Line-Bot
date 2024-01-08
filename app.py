@@ -93,6 +93,11 @@ def cron_job():
             for team in card.find_all("div", class_="team")
         ]
 
+        if team_names[0] == "塞爾蒂克":
+            team_names[0] = "塞爾提克"
+        elif team_names[1] == "塞爾蒂克":
+            team_names[1] = "塞爾提克"
+
         encoded_team1 = quote(team_names[0])
         encoded_team2 = quote(team_names[1])
         thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
