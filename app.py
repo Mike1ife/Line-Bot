@@ -23,7 +23,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 
 from tools._image import check_url_exists
-from tools._table import nba_team_translations
 from tools._user_table import *
 
 line_bot_api = LineBotApi(getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -52,18 +51,18 @@ def cron_job():
     header, rows, worksheet = init()
 
     """Get yesterday winner team"""
-    # header, rows = get_match_result(header, rows, nba_team_translations)
+    header, rows = get_match_result(header, rows)
 
     """Calculate points"""
-    # header, rows = count_points(header, rows)
-    # update_sheet(header, rows, worksheet)
+    header, rows = count_points(header, rows)
+    update_sheet(header, rows, worksheet)
 
     """Send user results"""
-    # user_ranks = get_user_points(rows)
-    # message = "預測排行榜:\n"
-    # for i, value in enumerate(user_ranks):
-    #     message += f"{i+1}. {value[0]}: {value[1]}分\n"
-    # line_bot_api.push_message(user_id, TextSendMessage(text=message[:-1]))
+    user_ranks = get_user_points(rows)
+    message = "預測排行榜:\n"
+    for i, value in enumerate(user_ranks):
+        message += f"{i+1}. {value[0]}: {value[1]}分\n"
+    line_bot_api.push_message(user_id, TextSendMessage(text=message[:-1]))
 
     """Reset old matches"""
     header, rows = reset_match(header, rows)
@@ -79,7 +78,6 @@ def cron_job():
     cards = soup.find_all("div", class_="card")
 
     match_index = 0
-    score_text = "NBA Today:\n"
     columns = []
 
     for card in cards:
@@ -116,10 +114,6 @@ def cron_job():
             ),
         )
 
-        score_text += (
-            f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}\n"
-        )
-
         """Insert new match"""
         header, rows = modify_column_name(
             header, rows, match_index, f"{team_names[0]}-{team_names[1]}"
@@ -129,9 +123,6 @@ def cron_job():
 
     """Update GS"""
     update_sheet(header, rows, worksheet)
-
-    text_message = TextSendMessage(text=score_text[:-1])
-    line_bot_api.push_message(user_id, text_message)
 
     for i in range(0, len(columns), 10):
         chunk = columns[i : i + 10]
