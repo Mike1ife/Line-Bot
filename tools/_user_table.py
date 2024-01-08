@@ -95,9 +95,10 @@ def user_predicted(header, rows, name, column):
     return True
 
 
-def get_match_result(header, rows):
+def get_match_result(header, rows, when):
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    shift = 8 if when == "today" else -16
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=shift)))
     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
     data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text

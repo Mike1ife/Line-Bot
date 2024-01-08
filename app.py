@@ -269,6 +269,13 @@ def text_message(event):
         """Get GS"""
         header, rows, worksheet = init()
 
+        """Get yesterday winner team"""
+        header, rows = get_match_result(header, rows, "today")
+
+        """Calculate points"""
+        header, rows = count_points(header, rows)
+        update_sheet(header, rows, worksheet)
+
         """Reset old matches"""
         header, rows = reset_match(header, rows)
 
@@ -344,11 +351,11 @@ def text_message(event):
         header, rows, worksheet = init()
 
         """Get yesterday winner team"""
-        header, rows = get_match_result(header, rows)
+        header, rows = get_match_result(header, rows, "today")
 
         """Calculate points"""
         header, rows = count_points(header, rows)
-        # header, rows = reset_match(header, rows)
+        header, rows = reset_match(header, rows)
         update_sheet(header, rows, worksheet)
 
         """Send user results"""
