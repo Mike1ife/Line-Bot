@@ -97,8 +97,8 @@ def user_predicted(header, rows, name, column):
 
 def get_match_result(header, rows):
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWyesterday = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    time = f"{TWyesterday.year}-{TWyesterday.month}-{TWyesterday.day}"
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
     data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
     soup = BeautifulSoup(data, "html.parser")
