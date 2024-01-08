@@ -348,7 +348,7 @@ def text_message(event):
 
         """Calculate points"""
         header, rows = count_points(header, rows)
-        header, rows = reset_match(header, rows)
+        # header, rows = reset_match(header, rows)
         update_sheet(header, rows, worksheet)
 
         """Send user results"""
