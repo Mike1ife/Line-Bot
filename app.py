@@ -261,38 +261,24 @@ def text_message(event):
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
         time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-        data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
+        data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
         soup = BeautifulSoup(data, "html.parser")
-        team_rows = soup.find_all(class_="score-team-row")
+        cards = soup.find_all("div", class_="card")
 
-        team1 = {"name": "x", "standing": "x", "score": "0"}
-        team2 = {"name": "x", "standing": "x", "score": "0"}
-
-        i = 1
         score_text = ""
-        for team_row in team_rows:
-            team_name_elements = team_row.find_all(class_="score-team-name team")
-            team = team_name_elements[0].get_text() if team_name_elements else None
-            team = team.split()
-            team_name = nba_team_translations[team[0]]
-            # team_standing = team[1]
+        for card in cards:
+            team_names = [
+                team.find("span", class_="team_name").text.strip()
+                for team in card.find_all("div", class_="team")
+            ]
+            team_scores = [
+                team.find("span", class_="team_score").text.strip()
+                for team in card.find_all("div", class_="team")
+            ]
 
-            score_element = team_row.find(class_="score-team-score")
-            team_score = score_element.get_text().strip() if score_element else "TBD"
-
-            if i == 1:
-                team1["name"] = team_name
-                # team1["standing"] = team_standing
-                team1["score"] = team_score
-                i += 1
-            else:
-                team2["name"] = team_name
-                # team2["standing"] = team_standing
-                team2["score"] = team_score
-
-                score_text += f"{team1['name']} {team1['score']} - {team2['name']} {team2['score']}\n"
-
-                i = 1
+            score_text += (
+                f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}\n"
+            )
 
         text_message = TextSendMessage(text=score_text[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
