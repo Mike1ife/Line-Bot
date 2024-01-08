@@ -46,95 +46,86 @@ def home():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    user_id = GROUP_ID
+    user_id = MY_UID
 
     """Get GS"""
     header, rows, worksheet = init()
 
     """Get yesterday winner team"""
-    header, rows = get_match_result(header, rows, nba_team_translations)
+    # header, rows = get_match_result(header, rows, nba_team_translations)
 
     """Calculate points"""
-    header, rows = count_points(header, rows)
-    update_sheet(header, rows, worksheet)
+    # header, rows = count_points(header, rows)
+    # update_sheet(header, rows, worksheet)
 
     """Send user results"""
-    user_ranks = get_user_points(rows)
-    message = "預測排行榜:\n"
-    for i, value in enumerate(user_ranks):
-        message += f"{i+1}. {value[0]}: {value[1]}分\n"
-    line_bot_api.push_message(user_id, TextSendMessage(text=message[:-1]))
+    # user_ranks = get_user_points(rows)
+    # message = "預測排行榜:\n"
+    # for i, value in enumerate(user_ranks):
+    #     message += f"{i+1}. {value[0]}: {value[1]}分\n"
+    # line_bot_api.push_message(user_id, TextSendMessage(text=message[:-1]))
 
     """Reset old matches"""
     header, rows = reset_match(header, rows)
 
+    """Get new matches"""
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-    data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
     soup = BeautifulSoup(data, "html.parser")
-    team_rows = soup.find_all(class_="score-team-row")
+    cards = soup.find_all("div", class_="card")
 
-    team1 = {"name": "x", "standing": "x"}
-    team2 = {"name": "x", "standing": "x"}
-
-    i = 1
     match_index = 0
     score_text = "NBA Today:\n"
     columns = []
 
-    for team_row in team_rows:
-        team_name_elements = team_row.find_all(class_="score-team-name team")
-        team = team_name_elements[0].get_text() if team_name_elements else None
-        team = team.split()
-        team_name = nba_team_translations[team[0]]
-        if team[0] == "TRAIL":
-            team_standing = team[2]
-        else:
-            team_standing = team[1]
+    for card in cards:
+        team_names = [
+            team.find("span", class_="team_name").text.strip()
+            for team in card.find_all("div", class_="team")
+        ]
+        team_scores = [
+            team.find("span", class_="team_score").text.strip()
+            for team in card.find_all("div", class_="team")
+        ]
 
-        if i == 1:
-            team1["name"] = team_name
-            team1["standing"] = team_standing
-            i += 1
-        else:
-            team2["name"] = team_name
-            team2["standing"] = team_standing
+        encoded_team1 = quote(team_names[0])
+        encoded_team2 = quote(team_names[1])
+        thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+        if not check_url_exists(thumbnail_image_url):
+            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+            team_names.reverse()
+            team_scores.reverse()
 
-            encoded_team1 = quote(team1["name"])
-            encoded_team2 = quote(team2["name"])
-            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
-            if not check_url_exists(thumbnail_image_url):
-                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-                team1, team2 = team2, team1
+        columns.append(
+            CarouselColumn(
+                thumbnail_image_url=thumbnail_image_url,
+                title=f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}",
+                text="預測贏球球隊",
+                actions=[
+                    PostbackAction(
+                        label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
+                    ),
+                    PostbackAction(
+                        label=team_names[1], data=f"{team_names[1]}贏{team_names[0]}"
+                    ),
+                ],
+            ),
+        )
 
-            columns.append(
-                CarouselColumn(
-                    thumbnail_image_url=thumbnail_image_url,
-                    title=f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}",
-                    text="預測贏球球隊",
-                    actions=[
-                        PostbackAction(
-                            label=team1["name"], data=f"{team1['name']}贏{team2['name']}"
-                        ),
-                        PostbackAction(
-                            label=team2["name"], data=f"{team2['name']}贏{team1['name']}"
-                        ),
-                    ],
-                ),
-            )
+        score_text += (
+            f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}\n"
+        )
 
-            score_text += f"{team1['name']} {team1['standing']} - {team2['name']} {team2['standing']}\n"
+        """Insert new match"""
+        header, rows = modify_column_name(
+            header, rows, match_index, f"{team_names[0]}-{team_names[1]}"
+        )
 
-            """Insert new match"""
-            header, rows = modify_column_name(
-                header, rows, match_index, f"{team1['name']}-{team2['name']}"
-            )
-
-            match_index += 1
-            i = 1
+        match_index += 1
 
     """Update GS"""
     update_sheet(header, rows, worksheet)
