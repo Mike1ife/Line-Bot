@@ -266,15 +266,25 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg == "預測":
+        messages = []
+
         """Get GS"""
         header, rows, worksheet = init()
 
         """Get yesterday winner team"""
-        header, rows = get_match_result(header, rows, "today")
+        header, rows = get_match_result(header, rows, "yesterday")
 
         """Calculate points"""
         header, rows = count_points(header, rows)
         update_sheet(header, rows, worksheet)
+        """Send user results"""
+        user_ranks = get_user_points(rows)
+        message = "預測排行榜:\n"
+        for i, value in enumerate(user_ranks):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        text_message = TextSendMessage(text=message[:-1])
+
+        messages.append(text_message)
 
         """Reset old matches"""
         header, rows = reset_match(header, rows)
@@ -342,7 +352,9 @@ def text_message(event):
             template_message = TemplateSendMessage(
                 alt_text="每日NBA預測", template=carousel_template
             )
-            line_bot_api.reply_message(event.reply_token, template_message)
+            messages.append(template_message)
+
+        line_bot_api.reply_message(event.reply_token, messages)
 
         return "Cron job executed successfully!"
 
