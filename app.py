@@ -45,6 +45,7 @@ def home():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
+    messages = []
     user_id = MY_UID
 
     """Get GS"""
@@ -62,7 +63,7 @@ def cron_job():
     message = "預測排行榜:\n"
     for i, value in enumerate(user_ranks):
         message += f"{i+1}. {value[0]}: {value[1]}分\n"
-    # line_bot_api.push_message(user_id, TextSendMessage(text=message[:-1]))
+    messages.append(TextSendMessage(text=message[:-1]))
 
     """Reset old matches"""
     header, rows = reset_match(header, rows)
@@ -130,7 +131,9 @@ def cron_job():
         template_message = TemplateSendMessage(
             alt_text="每日NBA預測", template=carousel_template
         )
-        # line_bot_api.push_message(user_id, template_message)
+        messages.append(template_message)
+
+    line_bot_api.push_message(user_id, template_message)
 
     return "Cron job executed successfully!"
 
@@ -277,6 +280,7 @@ def text_message(event):
         """Calculate points"""
         header, rows = count_points(header, rows)
         update_sheet(header, rows, worksheet)
+
         """Send user results"""
         user_ranks = get_user_points(rows)
         message = "預測排行榜:\n"
