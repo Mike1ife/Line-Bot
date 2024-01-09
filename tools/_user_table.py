@@ -116,6 +116,11 @@ def get_match_result(header, rows, when):
             for team in card.find_all("div", class_="team")
         ]
 
+        if team_names[0] == "塞爾蒂克":
+            team_names[0] = "塞爾提克"
+        elif team_names[1] == "塞爾蒂克":
+            team_names[1] = "塞爾提克"
+
         winner = ""
         if int(team_scores[0]) > int(team_scores[1]):
             winner = team_names[0]
