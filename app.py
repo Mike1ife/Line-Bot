@@ -323,6 +323,8 @@ def text_message(event):
                 for team in card.find_all("div", class_="team")
             ]
 
+            team_pos = ["客", "主"]
+
             if team_names[0] == "塞爾蒂克":
                 team_names[0] = "塞爾提克"
             elif team_names[1] == "塞爾蒂克":
@@ -335,11 +337,12 @@ def text_message(event):
                 thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
                 team_names.reverse()
                 team_scores.reverse()
+                team_pos.reverse()
 
             columns.append(
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
-                    title=f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}",
+                    title=f"{team_names[0]}({team_pos[0]}) {team_scores[0]} - {team_names[1]}({team_pos[1]}) {team_scores[1]}",
                     text="預測贏球球隊",
                     actions=[
                         PostbackAction(
