@@ -323,6 +323,8 @@ def text_message(event):
                 for team in card.find_all("div", class_="team")
             ]
 
+            match_time = card.find("span", class_="during").text.strip()
+
             team_pos = ["客", "主"]
 
             if team_names[0] == "塞爾蒂克":
@@ -343,7 +345,7 @@ def text_message(event):
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
                     title=f"{team_names[0]}({team_pos[0]}) {team_scores[0]} - {team_names[1]}({team_pos[1]}) {team_scores[1]}",
-                    text="預測贏球球隊",
+                    text=f"{match_time}",
                     actions=[
                         PostbackAction(
                             label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
