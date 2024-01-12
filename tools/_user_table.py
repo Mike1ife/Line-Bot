@@ -207,8 +207,8 @@ def get_nba_today():
         match = matches[match_index]["name"]
         team_to_give = match.index(nba_team_translations[team_name])
         points = [0, 0]
-        points[team_to_give] = int(20 + 2 * float(team_give))
-        points[1 ^ team_to_give] = int(20 + 2 * -float(team_give))
+        points[team_to_give] = int(round(20 + float(team_give)))
+        points[1 ^ team_to_give] = int(round(20 + -float(team_give)))
 
         matches[match_index]["points"] = points
         match_index += 1
