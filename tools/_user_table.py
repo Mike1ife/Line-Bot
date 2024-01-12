@@ -100,6 +100,9 @@ def user_predicted(header, rows, name, column):
 
 
 def get_match_result(header, rows, when):
+    if len(header) == 2:
+        return header, rows
+
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     shift = 8 if when == "today" else -16
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=shift)))
