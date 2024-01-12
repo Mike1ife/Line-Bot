@@ -300,52 +300,98 @@ def text_message(event):
         """Reset old matches"""
         header, rows = reset_match(header, rows)
 
-        """Get new matches"""
-        time = None
-        UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-        TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-        time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+        """OLD WAY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+        # """Get new matches"""
+        # time = None
+        # UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+        # TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+        # time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-        data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
-        soup = BeautifulSoup(data, "html.parser")
-        cards = soup.find_all("div", class_="card")
+        # data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
+        # soup = BeautifulSoup(data, "html.parser")
+        # cards = soup.find_all("div", class_="card")
 
-        match_index = 0
+        # match_index = 0
+        # columns = []
+
+        # for card in cards:
+        #     team_names = [
+        #         team.find("span", class_="team_name").text.strip()
+        #         for team in card.find_all("div", class_="team")
+        #     ]
+        #     team_scores = [
+        #         team.find("span", class_="team_score").text.strip()
+        #         for team in card.find_all("div", class_="team")
+        #     ]
+
+        #     match_time = card.find("span", class_="during").text.strip()
+
+        #     team_pos = ["客", "主"]
+
+        #     if team_names[0] == "塞爾蒂克":
+        #         team_names[0] = "塞爾提克"
+        #     elif team_names[1] == "塞爾蒂克":
+        #         team_names[1] = "塞爾提克"
+
+        #     encoded_team1 = quote(team_names[0])
+        #     encoded_team2 = quote(team_names[1])
+        #     thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+        #     if not check_url_exists(thumbnail_image_url):
+        #         thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+        #         team_names.reverse()
+        #         team_scores.reverse()
+        #         team_pos.reverse()
+
+        #     columns.append(
+        #         CarouselColumn(
+        #             thumbnail_image_url=thumbnail_image_url,
+        #             title=f"{team_names[0]}({team_pos[0]}) {team_scores[0]} - {team_names[1]}({team_pos[1]}) {team_scores[1]}",
+        #             text=f"{match_time}",
+        #             actions=[
+        #                 PostbackAction(
+        #                     label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
+        #                 ),
+        #                 PostbackAction(
+        #                     label=team_names[1], data=f"{team_names[1]}贏{team_names[0]}"
+        #                 ),
+        #             ],
+        #         ),
+        #     )
+
+        #     """Insert new match"""
+        #     header, rows = modify_column_name(
+        #         header, rows, match_index, f"{team_names[0]}-{team_names[1]}"
+        #     )
+
+        #     match_index += 1
+
+        """NEW WAY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+        """Get NBA Today"""
         columns = []
+        matches = get_nba_today()
+        for match_index, match in enumerate(matches):
+            """Match infomation"""
+            team_name = match["name"]
+            team_standing = match["standing"]
+            team_points = match["points"]
 
-        for card in cards:
-            team_names = [
-                team.find("span", class_="team_name").text.strip()
-                for team in card.find_all("div", class_="team")
-            ]
-            team_scores = [
-                team.find("span", class_="team_score").text.strip()
-                for team in card.find_all("div", class_="team")
-            ]
-
-            match_time = card.find("span", class_="during").text.strip()
-
-            team_pos = ["客", "主"]
-
-            if team_names[0] == "塞爾蒂克":
-                team_names[0] = "塞爾提克"
-            elif team_names[1] == "塞爾蒂克":
-                team_names[1] = "塞爾提克"
-
-            encoded_team1 = quote(team_names[0])
-            encoded_team2 = quote(team_names[1])
+            """Create template"""
+            encoded_team1 = quote(team_name[0])
+            encoded_team2 = quote(team_name[1])
             thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
             if not check_url_exists(thumbnail_image_url):
                 thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-                team_names.reverse()
-                team_scores.reverse()
-                team_pos.reverse()
+                team_name.reverse()
+                team_standing.reverse()
+                team_points.reverse()
 
+            # title = 溜馬-老鷹 31/9
+            # text = 溜馬 31分 / 老鷹 9分
             columns.append(
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
-                    title=f"{team_names[0]}({team_pos[0]}) {team_scores[0]} - {team_names[1]}({team_pos[1]}) {team_scores[1]}",
-                    text=f"{match_time}",
+                    title=f"{team_names[0]}({team_standing[0]}) {team_scores[0]} - {team_names[1]}({team_standing[1]}) {team_scores[1]}",
+                    text=f"{team_names[0]} {team_points[0]}分 / {team_names[1]} {team_points[1]}分",
                     actions=[
                         PostbackAction(
                             label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
@@ -357,12 +403,12 @@ def text_message(event):
                 ),
             )
 
-            """Insert new match"""
             header, rows = modify_column_name(
-                header, rows, match_index, f"{team_names[0]}-{team_names[1]}"
+                header,
+                rows,
+                match_index,
+                f"{team_name[0]}-{team_name[1]} {team_points[0]}/{team_points[1]}",
             )
-
-            match_index += 1
 
         """Update GS"""
         update_sheet(header, rows, worksheet)

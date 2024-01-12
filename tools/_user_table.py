@@ -3,6 +3,7 @@ from gspread import authorize
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
+from tools._table import nba_team_translations
 
 
 def init():
@@ -68,8 +69,11 @@ def count_points(header, rows):
                 user_name = value
             elif header[i] == "Points":
                 user_points = int(value)
-            elif value == header[i]:
-                user_points += 10
+            else:
+                predicted_team = value
+                winner, winner_point = header[i].split()
+                if predicted_team == winner:
+                    user_points += int(winner_point)
 
         header, rows = modify_value(header, rows, user_name, "Points", str(user_points))
     return header, rows
@@ -126,7 +130,17 @@ def get_match_result(header, rows, when):
             winner = team_names[0]
         else:
             winner = team_names[1]
-        header, rows = modify_column_name(header, rows, match_index, winner)
+
+        match = header[2 + match_index]
+        teams, points = match.split()
+        teams = teams.split("-")
+        points = points.split("/")
+
+        winner_point = points[teams.index(winner)]
+
+        header, rows = modify_column_name(
+            header, rows, match_index, f"{winner} {winner_point}"
+        )
 
         match_index += 1
 
@@ -146,3 +160,53 @@ def update_sheet(header, rows, worksheet):
     modified_data = [header] + rows
     worksheet.clear()
     worksheet.update("A1", modified_data)
+
+
+def get_nba_today():
+    time = None
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=-16)))
+    if int(TWnow.month) < 10:
+        time = f"{TWnow.year}-0{TWnow.month}-{TWnow.day}"
+    else:
+        time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+    data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    matches = []
+    match = {}
+    match_index = 0
+    match_team = soup.find_all("div", class_="score-team-name abbreviation")
+
+    for team in match_team:
+        team_name = team.find("span", class_="scores-text uc")
+        team_name = nba_team_translations[team_name.text.strip()]
+
+        team_standing = team.find("sup", class_="scores-team-record ffn-gr-11")
+        team_standing = team_standing.text.strip()
+
+        if match_index == 0:
+            match["name"] = [team_name]
+            match["standing"] = [team_standing]
+        else:
+            match["name"].append(team_name)
+            match["standing"].append(team_standing)
+            matches.append(match.copy())
+            match.clear()
+
+        match_index = (match_index + 1) % 2
+
+    match_index = 0
+    values = soup.find_all("span", class_="secondary-text status ffn-11 opac-5 uc")
+    for value in values:
+        team_name, team_give = value.text.strip().split()
+        match = matches[match_index]["name"]
+        team_to_give = match.index(nba_team_translations[team_name])
+        points = [0, 0]
+        points[team_to_give] = int(20 + 2 * float(team_give))
+        points[1 ^ team_to_give] = int(20 + 2 * -float(team_give))
+
+        matches[match_index]["points"] = points
+        match_index += 1
+
+    return matches
