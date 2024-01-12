@@ -100,6 +100,7 @@ def user_predicted(header, rows, name, column):
 
 
 def get_match_result(header, rows, when):
+    """If no matches"""
     if len(header) == 2:
         return header, rows
 

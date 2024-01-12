@@ -374,6 +374,7 @@ def text_message(event):
             team_name = match["name"]
             team_standing = match["standing"]
             team_points = match["points"]
+            team_pos = ["客", "主"]
 
             """Create template"""
             encoded_team1 = quote(team_name[0])
@@ -384,20 +385,21 @@ def text_message(event):
                 team_name.reverse()
                 team_standing.reverse()
                 team_points.reverse()
+                team_pos.reverse()
 
             # title = 溜馬-老鷹 31/9
             # text = 溜馬 31分 / 老鷹 9分
             columns.append(
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
-                    title=f"{team_names[0]}({team_standing[0]}) {team_scores[0]} - {team_names[1]}({team_standing[1]}) {team_scores[1]}",
-                    text=f"{team_names[0]} {team_points[0]}分 / {team_names[1]} {team_points[1]}分",
+                    title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
+                    text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
                     actions=[
                         PostbackAction(
-                            label=team_names[0], data=f"{team_names[0]}贏{team_names[1]}"
+                            label=team_name[0], data=f"{team_name[0]}贏{team_name[1]}"
                         ),
                         PostbackAction(
-                            label=team_names[1], data=f"{team_names[1]}贏{team_names[0]}"
+                            label=team_name[1], data=f"{team_name[1]}贏{team_name[0]}"
                         ),
                     ],
                 ),
