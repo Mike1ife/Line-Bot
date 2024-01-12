@@ -435,7 +435,7 @@ def handle_postback(event):
 
         """User have predicted"""
         if user_predicted(header, rows, display_name, column):
-            reply_text = f"{display_name}已經預測{winner}贏{loser}了!"
+            reply_text = f"{display_name}已經預測{winner}/{loser}了!"
         else:
             """First time predict"""
             reply_text = f"{display_name}預測{winner}贏{loser}!"
