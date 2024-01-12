@@ -355,21 +355,11 @@ def text_message(event):
                     actions=[
                         PostbackAction(
                             label=team_name[0],
-                            data=[
-                                team_name[0],
-                                team_name[1],
-                                team_points[0],
-                                team_points[1],
-                            ],
+                            data=f"{team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
                         ),
                         PostbackAction(
                             label=team_name[1],
-                            data=[
-                                team_name[1],
-                                team_name[0],
-                                team_points[1],
-                                team_points[0],
-                            ],
+                            data=f"{team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
                         ),
                     ],
                 ),
@@ -431,10 +421,8 @@ def handle_postback(event):
 
         """Get user prediction"""
         data = event.postback.data
-        winner = data[0]
-        winner_point = data[2]
-        loser = data[1]
-        loser_point = data[3]
+
+        winner, loser, winner_point, loser_point = data.split()
 
         """Locate column"""
         column = f"{winner}-{loser} {winner_point}/{loser_point}"
