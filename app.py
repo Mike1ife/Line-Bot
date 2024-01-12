@@ -145,48 +145,6 @@ def cron_job():
     return "Cron job executed successfully!"
 
 
-@line_handler.add(PostbackEvent)
-def handle_postback(event):
-    """Get GS"""
-    header, rows, worksheet = init()
-
-    reply_text = ""
-    user_id = event.source.user_id
-    try:
-        profile = line_bot_api.get_profile(user_id)
-        display_name = profile.display_name
-
-        """Get user prediction"""
-        data = event.postback.data
-        split_point = data.find("贏")
-        winner = data[:split_point]
-        loser = data[split_point + 1 :]
-
-        """Locate column"""
-        column = f"{winner}-{loser}"
-        if not column_exist(header, column):
-            column = f"{loser}-{winner}"
-
-        """Create user if needed"""
-        if not check_user_exist(rows, display_name):
-            header, rows = add_new_user(header, rows, display_name)
-
-        """User have predicted"""
-        if user_predicted(header, rows, display_name, column):
-            reply_text = f"{display_name}已經預測{winner}贏{loser}了!"
-        else:
-            """First time predict"""
-            reply_text = f"{display_name}預測{winner}贏{loser}!"
-            # Modify GS
-            header, rows = modify_value(header, rows, display_name, column, winner)
-
-        update_sheet(header, rows, worksheet)
-    except LineBotApiError as e:
-        reply_text = "Unknown user."
-
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-
-
 @app.route("/webhook", methods=["POST"])
 def callback():
     # get X-Line-Signature header value
@@ -396,10 +354,22 @@ def text_message(event):
                     text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
                     actions=[
                         PostbackAction(
-                            label=team_name[0], data=f"{team_name[0]}贏{team_name[1]}"
+                            label=team_name[0],
+                            data=[
+                                team_name[0],
+                                team_name[1],
+                                team_points[0],
+                                team_points[1],
+                            ],
                         ),
                         PostbackAction(
-                            label=team_name[1], data=f"{team_name[1]}贏{team_name[0]}"
+                            label=team_name[1],
+                            data=[
+                                team_name[1],
+                                team_name[0],
+                                team_points[1],
+                                team_points[0],
+                            ],
                         ),
                     ],
                 ),
@@ -446,6 +416,49 @@ def text_message(event):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
         text_message = TextSendMessage(text=message[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
+
+
+@line_handler.add(PostbackEvent)
+def handle_postback(event):
+    """Get GS"""
+    header, rows, worksheet = init()
+
+    reply_text = ""
+    user_id = event.source.user_id
+    try:
+        profile = line_bot_api.get_profile(user_id)
+        display_name = profile.display_name
+
+        """Get user prediction"""
+        data = event.postback.data
+        winner = data[0]
+        winner_point = data[2]
+        loser = data[1]
+        loser_point = data[3]
+
+        """Locate column"""
+        column = f"{winner}-{loser} {winner_point}/{loser_point}"
+        if not column_exist(header, column):
+            column = f"{loser}-{winner} {loser_point}/{winner_point}"
+
+        """Create user if needed"""
+        if not check_user_exist(rows, display_name):
+            header, rows = add_new_user(header, rows, display_name)
+
+        """User have predicted"""
+        if user_predicted(header, rows, display_name, column):
+            reply_text = f"{display_name}已經預測{winner}贏{loser}了!"
+        else:
+            """First time predict"""
+            reply_text = f"{display_name}預測{winner}贏{loser}!"
+            # Modify GS
+            header, rows = modify_value(header, rows, display_name, column, winner)
+
+        update_sheet(header, rows, worksheet)
+    except LineBotApiError as e:
+        reply_text = "Unknown user."
+
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
 
 def random_message(event):
