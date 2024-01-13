@@ -8,7 +8,7 @@ from tools._table import nba_team_translations
 
 def init():
     scope = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = Credentials.from_service_account_file("gs_credentials.json", scopes=scope)
+    creds = Credentials.from_service_account_file("user_table.json", scopes=scope)
     gs = authorize(creds)
 
     sheet = gs.open_by_url(

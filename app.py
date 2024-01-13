@@ -24,6 +24,7 @@ from datetime import datetime, timezone, timedelta
 
 from tools._image import check_url_exists
 from tools._user_table import *
+import tools._rank_table as rank
 
 line_bot_api = LineBotApi(getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(getenv("LINE_CHANNEL_SECRET"))
@@ -260,6 +261,18 @@ def text_message(event):
             reply_text = "Unknown user."
 
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+
+    if msg == "NBA預測週最佳":
+        header, rows, worksheet = rank.init()
+        header, rows, week_best = rank.get_week_best(header, rows)
+        rank.update_sheet(header, rows, worksheet)
+
+        reply_text = "上週預測GOAT:"
+        for user in week_best:
+            reply_text += f"{user} "
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=reply_text[:-1])
+        )
 
 
 @line_handler.add(PostbackEvent)
