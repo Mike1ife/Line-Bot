@@ -208,3 +208,20 @@ def get_nba_today():
         match_index += 1
 
     return matches
+
+
+def check_user_prediction(header, rows, name):
+    for row in rows:
+        if row[0] == name:
+            if row.count("") == len(header) - 2:
+                return "還沒預測任何比賽"
+            elif row.count("") == 0:
+                return "已經完成全部預測"
+            else:
+                indices = [i for i, x in enumerate(row) if x == ""]
+                game_names = [header[i].split()[0] for i in indices]
+                response = "還沒預測:\n"
+                for game_name in game_names:
+                    response += f"{game_name}\n"
+                return response[:-1]
+    return "Unknown user"

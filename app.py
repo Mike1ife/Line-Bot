@@ -247,6 +247,20 @@ def text_message(event):
         text_message = TextSendMessage(text=message[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
 
+    if msg == "檢查":
+        header, rows, worksheet = init()
+        reply_text = ""
+        user_id = event.source.user_id
+        try:
+            profile = line_bot_api.get_profile(user_id)
+            display_name = profile.display_name
+            response = check_user_prediction(header, rows, display_name)
+            reply_text = display_name + response
+        except LineBotApiError as e:
+            reply_text = "Unknown user."
+
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+
 
 @line_handler.add(PostbackEvent)
 def handle_postback(event):
