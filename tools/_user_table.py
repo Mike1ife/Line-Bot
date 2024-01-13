@@ -99,58 +99,42 @@ def user_predicted(header, rows, name, column):
     return True
 
 
-def get_match_result(header, rows, when):
-    """If no matches"""
+def get_match_result(header, rows):
     if len(header) == 2:
         return header, rows
 
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    shift = 8 if when == "today" else -16
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=shift)))
-    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
-
-    data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
+    data = get(f"https://www.foxsports.com/nba/scores").text
     soup = BeautifulSoup(data, "html.parser")
-    cards = soup.find_all("div", class_="card")
 
+    match_index = 0
+    winner = None
     winners = []
-    for card in cards:
-        team_names = [
-            team.find("span", class_="team_name").text.strip()
-            for team in card.find_all("div", class_="team")
-        ]
-        team_scores = [
-            team.find("span", class_="team_score").text.strip()
-            for team in card.find_all("div", class_="team")
-        ]
+    winner_score = 0
+    teams = soup.find_all("div", class_="score-team-name abbreviation")
+    scores = soup.find_all("div", class_="score-team-score")
+    for team, score in zip(teams, scores):
+        name = team.find("span", class_="scores-text uc").text.strip()
+        point = score.find("span", class_="scores-text uc").text.strip()
 
-        if team_names[0] == "塞爾蒂克":
-            team_names[0] = "塞爾提克"
-        elif team_names[1] == "塞爾蒂克":
-            team_names[1] = "塞爾提克"
-
-        winner = ""
-        if int(team_scores[0]) > int(team_scores[1]):
-            winner = team_names[0]
+        if match_index == 0:
+            winner = nba_team_translations[name]
+            winner_score = point
         else:
-            winner = team_names[1]
+            if int(point) > int(winner_score):
+                winner = nba_team_translations[name]
+                winner_score = point
+            winners.append(winner)
 
-        winners.append(winner)
+        match_index = (match_index + 1) % 2
 
     match_index = 0
     for match in header[2:]:
         teams, points = match.split()
-        team1, team2 = teams.split("-")
-        point1, point2 = points.split("/")
+        teams = teams.split("-")
+        points = points.split("/")
 
-        winner = None
-        winner_point = None
-        if team1 in winners:
-            winner = team1
-            winner_point = point1
-        elif team2 in winners:
-            winner = team2
-            winner_point = point2
+        winner = winners[match_index]
+        winner_point = points[teams.index(winner)]
 
         header, rows = modify_column_name(
             header, rows, match_index, f"{winner} {winner_point}"
