@@ -113,7 +113,7 @@ def get_match_result(header, rows, when):
     soup = BeautifulSoup(data, "html.parser")
     cards = soup.find_all("div", class_="card")
 
-    match_index = 0
+    winners = []
     for card in cards:
         team_names = [
             team.find("span", class_="team_name").text.strip()
@@ -135,10 +135,22 @@ def get_match_result(header, rows, when):
         else:
             winner = team_names[1]
 
-        match = header[2 + match_index]
+        winners.append(winner)
+
+    match_index = 0
+    for match in header[2:]:
         teams, points = match.split()
-        teams = teams.split("-")
-        points = points.split("/")
+        team1, team2 = teams.split("-")
+        point1, point2 = points.split("/")
+
+        winner = None
+        winner_point = None
+        if team1 in winners:
+            winner = team1
+            winner_point = point1
+        elif team2 in winners:
+            winner = team2
+            winner_point = point2
 
         winner_point = points[teams.index(winner)]
 
