@@ -152,8 +152,6 @@ def get_match_result(header, rows, when):
             winner = team2
             winner_point = point2
 
-        winner_point = points[teams.index(winner)]
-
         header, rows = modify_column_name(
             header, rows, match_index, f"{winner} {winner_point}"
         )
