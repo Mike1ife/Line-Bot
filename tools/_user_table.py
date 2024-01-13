@@ -24,7 +24,7 @@ def init():
 def reset_user_points(header, rows):
     all_user_name = [row[0] for row in rows]
     for user_name in all_user_name:
-        header, rows = modify_value(header, rows, user_name, "Points", 0, "modify")
+        header, rows = modify_value(header, rows, user_name, "Points", 0)
     return header, rows
 
 
