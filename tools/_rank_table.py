@@ -26,12 +26,6 @@ def reset_column(header, rows, columns):
     return header, rows
 
 
-def update_sheet(header, rows, worksheet):
-    modified_data = [header] + rows
-    worksheet.clear()
-    worksheet.update("A1", modified_data)
-
-
 def modify_value(header, rows, name, column, value, method):
     for i, row in enumerate(rows):
         if row[0] == name:

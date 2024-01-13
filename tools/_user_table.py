@@ -21,6 +21,13 @@ def init():
     return header, rows, worksheet
 
 
+def reset_user_points(header, rows):
+    all_user_name = [row[0] for row in rows]
+    for user_name in all_user_name:
+        header, rows = modify_value(header, rows, user_name, "Points", 0, "modify")
+    return header, rows
+
+
 def modify_column_name(header, rows, index, new_name):
     # new column
     if (index + 2) == len(header):

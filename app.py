@@ -263,9 +263,15 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
     if msg == "NBA預測週最佳":
+        """Get week best"""
         header, rows, worksheet = rank.init()
         header, rows, week_best = rank.get_week_best(header, rows)
-        rank.update_sheet(header, rows, worksheet)
+        update_sheet(header, rows, worksheet)
+
+        """Reset current points"""
+        header, rows, worksheet = init()
+        header, rows = reset_user_points(header, rows)
+        update_sheet(header, rows, worksheet)
 
         reply_text = "上週預測GOAT:"
         for user in week_best:
