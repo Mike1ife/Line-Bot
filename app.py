@@ -309,6 +309,7 @@ def text_message(event):
         for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
         week_point_message = TextSendMessage(text=message[:-1])
+        line_bot_api.reply_message(event.reply_token, week_point_message)
 
     if msg == "月排行":
         """Get week best"""
@@ -318,7 +319,8 @@ def text_message(event):
         message = "本月排行榜:\n"
         for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
-        week_point_message = TextSendMessage(text=message[:-1])
+        month_point_message = TextSendMessage(text=message[:-1])
+        line_bot_api.reply_message(event.reply_token, month_point_message)
 
 
 @line_handler.add(PostbackEvent)
