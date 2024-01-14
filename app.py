@@ -152,7 +152,7 @@ def text_message(event):
         # update_sheet(header, rows, worksheet)
 
         """Send user results"""
-        user_ranks = get_user_points(rows)
+        user_ranks = get_user_week_points(rows)
         message = "預測排行榜:\n"
         for i, value in enumerate(user_ranks):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
@@ -240,7 +240,7 @@ def text_message(event):
         update_sheet(header, rows, worksheet)
 
         """Send user results"""
-        user_ranks = get_user_points(rows)
+        user_ranks = get_user_week_points(rows)
         message = "預測排行榜:\n"
         for i, value in enumerate(user_ranks):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
@@ -277,7 +277,7 @@ def text_message(event):
         header, rows = reset_user_points(header, rows)
         update_sheet(header, rows, worksheet)
 
-        reply_text = "上週預測GOAT:"
+        reply_text = "上週預測GOAT: "
         for user in week_best:
             reply_text += f"{user[0]}({user[1]}分) "
         week_best_message = TextSendMessage(text=reply_text[:-1])
