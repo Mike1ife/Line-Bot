@@ -37,15 +37,13 @@ def modify_value(header, rows, name, column, value, method):
     return header, rows
 
 
-def get_day_point(header, rows):
+def get_day_point():
     user_table, user_rows, user_worksheet = tools._user_table.init()
-    for user_row in user_rows:
-        user_name = user_row[0]
-        user_point = user_row[1]
-        header, rows = modify_value(
-            header, rows, user_name, "Day Points", user_point, "modify"
-        )
-    return header, rows
+    users_info = []
+    for row in user_rows:
+        users_info.append((row[0], row[1]))
+    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
+    return user_ranks
 
 
 def get_week_point(rows):
@@ -57,12 +55,7 @@ def get_week_point(rows):
 
 
 def get_week_best(header, rows):
-    header, rows = get_day_point(header, rows)
-
-    users_info = []
-    for row in rows:
-        users_info.append((row[0], row[1]))
-    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
+    user_ranks = get_day_point()
 
     total = 100
     week_best = []
