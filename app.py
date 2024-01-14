@@ -285,8 +285,16 @@ def text_message(event):
         line_bot_api.reply_message(
             event.reply_token, [week_best_message, week_point_message]
         )
+
     if msg == "規則":
         f = open("TextFiles/NBA_Rule.txt")
+        text = f.read()
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close()
+
+    if msg.lower() == "help":
+        f = open("TextFiles/Help.txt")
         text = f.read()
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
