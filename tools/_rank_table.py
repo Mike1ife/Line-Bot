@@ -64,22 +64,17 @@ def get_week_best(header, rows):
         users_info.append((row[0], row[1]))
     user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
 
+    total = 100
     week_best = []
-    current_best = -1
-    for user in user_ranks:
+    for i, user in enumerate(user_ranks):
         user_name = user[0]
         user_point = int(user[1])
-        if user_point >= current_best:
-            week_best.append(user_name)
-            current_best = user_point
-        else:
-            break
-
-    best_point = round(100.0 / len(week_best))
-    for best_user in week_best:
         header, rows = modify_value(
-            header, rows, best_user, "Week Points", best_point, "add"
+            header, rows, user_name, "Week Points", total, "add"
         )
+        total -= 10
+        if i == 0:
+            week_best.append(user_name)
 
     header, rows = reset_column(header, rows, "Day Points")
     return header, rows, week_best
