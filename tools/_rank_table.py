@@ -19,13 +19,6 @@ def init():
     return header, rows, worksheet
 
 
-def reset_column(header, rows, columns):
-    all_user_name = [row[0] for row in rows]
-    for user_name in all_user_name:
-        header, rows = modify_value(header, rows, user_name, columns, 0, "modify")
-    return header, rows
-
-
 def modify_value(header, rows, name, column, value, method):
     for i, row in enumerate(rows):
         if row[0] == name:
@@ -49,7 +42,7 @@ def get_day_point():
 def get_week_point(rows):
     users_info = []
     for row in rows:
-        users_info.append((row[0], row[2]))
+        users_info.append((row[0], row[1]))
     user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
     return user_ranks
 
@@ -69,7 +62,6 @@ def get_week_best(header, rows):
         if i == 0:
             week_best.append(user_name)
 
-    header, rows = reset_column(header, rows, "Day Points")
     return header, rows, week_best
 
 
