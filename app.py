@@ -279,7 +279,7 @@ def text_message(event):
 
         reply_text = "上週預測GOAT:"
         for user in week_best:
-            reply_text += f"{user} "
+            reply_text += f"{user[0]}({user[1]}分) "
         week_best_message = TextSendMessage(text=reply_text[:-1])
 
         line_bot_api.reply_message(

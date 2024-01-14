@@ -164,11 +164,10 @@ def get_week_best(header, rows):
     total = 100
     week_best = []
     for i, user in enumerate(user_ranks):
-        user_name = user[0]
-        header, rows = add_value(header, rows, user_name, "Month Points", total)
+        header, rows = add_value(header, rows, user[0], "Month Points", total)
         total -= 10
         if i == 0:
-            week_best.append(user_name)
+            week_best.append(user)
 
     return header, rows, week_best
 
