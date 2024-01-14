@@ -268,6 +268,12 @@ def text_message(event):
         header, rows, week_best = rank.get_week_best(header, rows)
         update_sheet(header, rows, worksheet)
 
+        user_week_point = rank.get_week_point(rows)
+        message = "本月週排行榜:\n"
+        for i, value in enumerate(user_week_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        week_point_message = TextSendMessage(text=message[:-1])
+
         """Reset current points"""
         header, rows, worksheet = init()
         header, rows = reset_user_points(header, rows)
@@ -276,8 +282,10 @@ def text_message(event):
         reply_text = "上週預測GOAT:"
         for user in week_best:
             reply_text += f"{user} "
+        week_best_message = TextSendMessage(text=reply_text[:-1])
+
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=reply_text[:-1])
+            event.reply_token, [week_best_message, week_point_message]
         )
 
 

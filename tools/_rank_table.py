@@ -48,6 +48,14 @@ def get_day_point(header, rows):
     return header, rows
 
 
+def get_week_point(rows):
+    users_info = []
+    for row in rows:
+        users_info.append((row[0], row[2]))
+    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
+    return user_ranks
+
+
 def get_week_best(header, rows):
     header, rows = get_day_point(header, rows)
 
