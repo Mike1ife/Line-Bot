@@ -5,3 +5,5 @@ a.py
 html_viewer.py
 output.txt
 *.pyc
+rank_table_test.py
+user_table_test.py
