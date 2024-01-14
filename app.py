@@ -300,6 +300,26 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close()
 
+    if msg == "週排行":
+        """Get week best"""
+        header, rows, worksheet = init()
+        """Send user ranks"""
+        user_month_point = get_user_week_points(rows)
+        message = "本週排行榜:\n"
+        for i, value in enumerate(user_month_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        week_point_message = TextSendMessage(text=message[:-1])
+
+    if msg == "月排行":
+        """Get week best"""
+        header, rows, worksheet = init()
+        """Send user ranks"""
+        user_month_point = get_user_month_points(rows)
+        message = "本月排行榜:\n"
+        for i, value in enumerate(user_month_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        week_point_message = TextSendMessage(text=message[:-1])
+
 
 @line_handler.add(PostbackEvent)
 def handle_postback(event):

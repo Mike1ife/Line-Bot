@@ -1,7 +1,6 @@
 nba
 uid
 yt {anything}
-
 bubble sort
 抽
 抽牌
@@ -11,3 +10,5 @@ bubble sort
 大小
 抽單字
 河內塔
+週排行
+月排行
