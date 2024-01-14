@@ -101,14 +101,14 @@ def text_message(event):
         text = f.read()
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
-        f.close
+        f.close()
 
     if msg.lower() == "bubble sort":
         f = open("TextFiles/BubbleSort.txt")
         text = f.read()
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
-        f.close
+        f.close()
 
     if msg.lower() == "nba":
         time = None
@@ -285,6 +285,12 @@ def text_message(event):
         line_bot_api.reply_message(
             event.reply_token, [week_best_message, week_point_message]
         )
+    if msg == "規則":
+        f = open("TextFiles/NBA_Rule.txt")
+        text = f.read()
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close()
 
 
 @line_handler.add(PostbackEvent)
@@ -353,7 +359,7 @@ def random_message(event):
         text = vocabulary[word][:-1]
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
-        f.close
+        f.close()
 
     if msg == "你媽":
         f = open("TextFiles/YourMom.txt")
@@ -362,7 +368,7 @@ def random_message(event):
         text = sentences[index][:-1]
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
-        f.close
+        f.close()
 
     if msg == "抽牌":
         album_id = "698HGtx"
