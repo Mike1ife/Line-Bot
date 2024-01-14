@@ -24,7 +24,6 @@ from datetime import datetime, timezone, timedelta
 
 from tools._image import check_url_exists
 from tools._user_table import *
-import tools._rank_table as rank
 
 line_bot_api = LineBotApi(getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(getenv("LINE_CHANNEL_SECRET"))
@@ -264,18 +263,17 @@ def text_message(event):
 
     if msg == "NBA預測週最佳":
         """Get week best"""
-        header, rows, worksheet = rank.init()
-        header, rows, week_best = rank.get_week_best(header, rows)
-        update_sheet(header, rows, worksheet)
+        header, rows, worksheet = init()
+        header, rows, week_best = get_week_best(header, rows)
 
-        user_week_point = rank.get_week_point(rows)
-        message = "本月週排行榜:\n"
-        for i, value in enumerate(user_week_point):
+        """Send user ranks"""
+        user_month_point = get_user_month_points(rows)
+        message = "本月排行榜:\n"
+        for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
         week_point_message = TextSendMessage(text=message[:-1])
 
         """Reset current points"""
-        header, rows, worksheet = init()
         header, rows = reset_user_points(header, rows)
         update_sheet(header, rows, worksheet)
 

@@ -24,38 +24,27 @@ def init():
 def reset_user_points(header, rows):
     all_user_name = [row[0] for row in rows]
     for user_name in all_user_name:
-        header, rows = modify_value(header, rows, user_name, "Points", 0)
+        header, rows = modify_value(header, rows, user_name, "Week Points", 0)
+    return header, rows
+
+
+def reset_match(header, rows):
+    header = header[:4]
+    rows = [row[:4] for row in rows]
     return header, rows
 
 
 def modify_column_name(header, rows, index, new_name):
     # new column
-    if (index + 2) == len(header):
-        header.insert(index + 2, new_name)
+    if (index + 4) == len(header):
+        header.insert(index + 4, new_name)
         # insert empty value to each row to fill in column
         for i in range(len(rows)):
             fill_num = len(header) - len(rows[i])
             rows[i] += [""] * fill_num
     else:
-        header[index + 2] = new_name
+        header[index + 4] = new_name
 
-    return header, rows
-
-
-def check_user_exist(rows, name):
-    return any(name in row for row in rows)
-
-
-def add_new_user(header, rows, name):
-    match_num = len(header) - 2
-    new_row = [name, "0"] + [""] * match_num
-    rows.append(new_row)
-    return header, rows
-
-
-def reset_match(header, rows):
-    header = header[:2]
-    rows = [[row[0], row[1]] for row in rows]
     return header, rows
 
 
@@ -63,6 +52,14 @@ def modify_value(header, rows, name, column, value):
     for i, row in enumerate(rows):
         if row[0] == name:
             row[header.index(column)] = value
+            break
+    return header, rows
+
+
+def add_value(header, rows, name, column, value):
+    for i, row in enumerate(rows):
+        if row[0] == name:
+            row[header.index(column)] = int(value) + int(row[header.index(column)])
             break
     return header, rows
 
@@ -90,20 +87,11 @@ def column_exist(header, column):
     return True if column in header else False
 
 
-def user_predicted(header, rows, name, column):
-    col_index = header.index(column)
-    user_info = None
-    for row in rows:
-        if row[0] == name:
-            user_info = row
-            break
-
-    # have not predicted
-
-    if user_info[col_index] == "":
-        return False
-
-    return True
+def add_new_user(header, rows, name):
+    match_num = len(header) - 2
+    new_row = [name, "0"] + [""] * match_num
+    rows.append(new_row)
+    return header, rows
 
 
 def get_match_result(header, rows):
@@ -152,7 +140,7 @@ def get_match_result(header, rows):
     return header, rows
 
 
-def get_user_points(rows):
+def get_user_week_points(rows):
     users_info = []
     for row in rows:
         users_info.append((row[0], row[1]))
@@ -161,10 +149,28 @@ def get_user_points(rows):
     return user_ranks
 
 
-def update_sheet(header, rows, worksheet):
-    modified_data = [header] + rows
-    worksheet.clear()
-    worksheet.update("A1", modified_data)
+def get_user_month_points(rows):
+    users_info = []
+    for row in rows:
+        users_info.append((row[0], row[2]))
+    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
+
+    return user_ranks
+
+
+def get_week_best(header, rows):
+    user_ranks = get_user_week_points(rows)
+
+    total = 100
+    week_best = []
+    for i, user in enumerate(user_ranks):
+        user_name = user[0]
+        header, rows = add_value(header, rows, user_name, "Month Points", total)
+        total -= 10
+        if i == 0:
+            week_best.append(user_name)
+
+    return header, rows, week_best
 
 
 def get_nba_today():
@@ -217,6 +223,26 @@ def get_nba_today():
     return matches
 
 
+def check_user_exist(rows, name):
+    return any(name in row for row in rows)
+
+
+def user_predicted(header, rows, name, column):
+    col_index = header.index(column)
+    user_info = None
+    for row in rows:
+        if row[0] == name:
+            user_info = row
+            break
+
+    # have not predicted
+
+    if user_info[col_index] == "":
+        return False
+
+    return True
+
+
 def check_user_prediction(header, rows, name):
     for row in rows:
         if row[0] == name:
@@ -232,3 +258,9 @@ def check_user_prediction(header, rows, name):
                     response += f"{game_name}\n"
                 return response[:-1]
     return "Unknown user"
+
+
+def update_sheet(header, rows, worksheet):
+    modified_data = [header] + rows
+    worksheet.clear()
+    worksheet.update("A1", modified_data)
