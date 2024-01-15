@@ -71,7 +71,7 @@ def count_points(header, rows):
         for i, value in enumerate(row):
             if header[i] == "Name":
                 user_name = value
-            elif header[i] == "Points":
+            elif header[i] == "Week Points":
                 user_points = int(value)
             else:
                 predicted_team = value
@@ -79,7 +79,9 @@ def count_points(header, rows):
                 if predicted_team == winner:
                     user_points += int(winner_point)
 
-        header, rows = modify_value(header, rows, user_name, "Points", str(user_points))
+        header, rows = modify_value(
+            header, rows, user_name, "Week Points", str(user_points)
+        )
     return header, rows
 
 
