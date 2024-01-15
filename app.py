@@ -96,6 +96,22 @@ def text_message(event):
             line_bot_api.reply_message(event.reply_token, text_message)
             break
 
+    if msg[:2].lower() == "gg":
+        search = msg[3:]
+        data = get(
+            f"https://www.google.com/search?q={search}&sca_esv=598606570&rlz=1C1ONGR_zh-TWTW1064TW1065&tbm=isch&sxsrf=ACQVn09-EZMI6kvkFZI5HibbcpDK5srJSA:1705336906757&source=lnms&sa=X&ved=2ahUKEwiwsbKE69-DAxWarlYBHVoxD4oQ_AUoAXoECAEQAw&cshid=1705337101532851&biw=1862&bih=901&dpr=1.38"
+        ).text
+        soup = BeautifulSoup(data, "html.parser")
+        img_src = soup.find("img", class_="DS1iW")["src"]
+
+        response = get(img_src)
+        if response.status_code == 200:
+            image_message = ImageSendMessage(
+                original_content_url=img_src,  # Replace with the public URL of your image
+                preview_image_url=img_src,  # Replace with the public URL of your image
+            )
+            line_bot_api.reply_message(event.reply_token, image_message)
+
     if msg == "河內塔":
         f = open("TextFiles/Hanoi3.txt")
         text = f.read()
