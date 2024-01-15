@@ -98,9 +98,7 @@ def text_message(event):
 
     if msg[:2].lower() == "gg":
         search = msg[3:]
-        data = get(
-            f"https://www.google.com/search?q={search}&sca_esv=598606570&rlz=1C1ONGR_zh-TWTW1064TW1065&tbm=isch&sxsrf=ACQVn09-EZMI6kvkFZI5HibbcpDK5srJSA:1705336906757&source=lnms&sa=X&ved=2ahUKEwiwsbKE69-DAxWarlYBHVoxD4oQ_AUoAXoECAEQAw&cshid=1705337101532851&biw=1862&bih=901&dpr=1.38"
-        ).text
+        data = get(f"https://www.google.com/search?q={search}&tbm=isch").text
         soup = BeautifulSoup(data, "html.parser")
         img_src = soup.find("img", class_="DS1iW")["src"]
 
