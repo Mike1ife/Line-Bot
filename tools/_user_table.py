@@ -88,14 +88,14 @@ def column_exist(header, column):
 
 
 def add_new_user(header, rows, name):
-    match_num = len(header) - 2
+    match_num = len(header) - 4
     new_row = [name, "0"] + [""] * match_num
     rows.append(new_row)
     return header, rows
 
 
 def get_match_result(header, rows):
-    if len(header) == 2:
+    if len(header) == 4:
         return header, rows
 
     data = get(f"https://www.foxsports.com/nba/scores").text
@@ -123,7 +123,7 @@ def get_match_result(header, rows):
         match_index = (match_index + 1) % 2
 
     match_index = 0
-    for match in header[2:]:
+    for match in header[4:]:
         teams, points = match.split()
         teams = teams.split("-")
         points = points.split("/")
@@ -245,7 +245,7 @@ def user_predicted(header, rows, name, column):
 def check_user_prediction(header, rows, name):
     for row in rows:
         if row[0] == name:
-            if row.count("") == len(header) - 2:
+            if row.count("") == len(header) - 4:
                 return "還沒預測任何比賽"
             elif row.count("") == 0:
                 return "已經完成全部預測"
