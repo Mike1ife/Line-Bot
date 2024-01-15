@@ -1,6 +1,7 @@
 nba
 uid
 yt {anything}
+gg {anything}
 bubble sort
 抽
 抽牌
