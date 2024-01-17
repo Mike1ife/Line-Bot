@@ -5,6 +5,8 @@ from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 from tools._table import nba_team_translations
 
+static_len = 34
+
 
 def init():
     scope = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -29,29 +31,30 @@ def reset_user_points(header, rows):
 
 
 def reset_match(header, rows):
-    header = header[:4]
-    rows = [row[:4] for row in rows]
+    header = header[:static_len]
+    rows = [row[:static_len] for row in rows]
     return header, rows
 
 
 def modify_column_name(header, rows, index, new_name):
     # new column
-    if (index + 4) == len(header):
-        header.insert(index + 4, new_name)
+    if (index + static_len) == len(header):
+        header.insert(index + static_len, new_name)
         # insert empty value to each row to fill in column
         for i in range(len(rows)):
             fill_num = len(header) - len(rows[i])
             rows[i] += [""] * fill_num
     else:
-        header[index + 4] = new_name
+        header[index + static_len] = new_name
 
     return header, rows
 
 
-def modify_value(header, rows, name, column, value):
+def modify_value(header, rows, name, column, winner):
     for i, row in enumerate(rows):
         if row[0] == name:
-            row[header.index(column)] = value
+            row[header.index(column)] = winner
+            row[header.index(winner)] = int(row[header.index(winner)]) + 1
             break
     return header, rows
 
@@ -90,14 +93,14 @@ def column_exist(header, column):
 
 
 def add_new_user(header, rows, name):
-    match_num = len(header) - 4
+    match_num = len(header) - static_len
     new_row = [name, "0"] + [""] * match_num
     rows.append(new_row)
     return header, rows
 
 
 def get_match_result(header, rows):
-    if len(header) == 4:
+    if len(header) == static_len:
         return header, rows
 
     data = get(f"https://www.foxsports.com/nba/scores").text
@@ -125,7 +128,7 @@ def get_match_result(header, rows):
         match_index = (match_index + 1) % 2
 
     match_index = 0
-    for match in header[4:]:
+    for match in header[static_len:]:
         teams, points = match.split()
         teams = teams.split("-")
         points = points.split("/")
@@ -229,13 +232,13 @@ def get_user_prediction(header, rows, name_index):
         name = rows[name_index][0]
         for row in rows:
             if row[0] == name:
-                if row.count("") == len(header) - 4:
+                if row.count("") == len(header) - static_len:
                     return f"{name}還沒預測任何比賽"
                 else:
                     response = f"{name}預測的球隊:\n"
                     indices = [i for i, x in enumerate(row) if x != ""]
                     game_names = [row[i].split()[0] for i in indices]
-                    for team in game_names[4:]:
+                    for team in game_names[static_len:]:
                         response += f"{team}\n"
                     return response[:-1]
     return "Unknown user"
@@ -264,7 +267,7 @@ def user_predicted(header, rows, name, column):
 def check_user_prediction(header, rows, name):
     for row in rows:
         if row[0] == name:
-            if row.count("") == len(header) - 4:
+            if row.count("") == len(header) - static_len:
                 return "還沒預測任何比賽"
             elif row.count("") == 0:
                 return "已經完成全部預測"
