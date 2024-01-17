@@ -1,4 +1,3 @@
-nba
 uid
 yt {anything}
 gg {anything}
@@ -6,10 +5,17 @@ bubble sort
 抽
 抽牌
 檢查
-規則
 你媽
 大小
 抽單字
 河內塔
+
+nba
+規則
+檢查
+信仰
+結算
 週排行
 月排行
+NBA每日預測
+NBA預測週最佳
