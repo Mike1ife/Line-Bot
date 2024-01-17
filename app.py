@@ -336,6 +336,24 @@ def text_message(event):
         month_point_message = TextSendMessage(text=message[:-1])
         line_bot_api.reply_message(event.reply_token, month_point_message)
 
+    if msg == "看盤":
+        header, rows, worksheet = init()
+        message = "使用方式:\n看盤 id\n"
+        for i, row in enumerate(rows):
+            message += f"{i}.{row[0]}\n"
+        text_message = TextSendMessage(text=message[:-1])
+        line_bot_api.reply_message(event.reply_token, text_message)
+    elif msg[:2] == "看盤":
+        try:
+            name_index = int(msg.split()[1])
+            header, rows, worksheet = init()
+            response = get_user_prediction(header, rows, name_index)
+            text_message = TextSendMessage(text=response)
+            line_bot_api.reply_message(event.reply_token, text_message)
+        except:
+            text_message = TextSendMessage(text="錯誤使用方式")
+            line_bot_api.reply_message(event.reply_token, text_message)
+
 
 @line_handler.add(PostbackEvent)
 def handle_postback(event):

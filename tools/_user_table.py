@@ -224,6 +224,23 @@ def get_nba_today():
     return matches
 
 
+def get_user_prediction(header, rows, name_index):
+    if name_index < len(rows):
+        name = rows[name_index][0]
+        for row in rows:
+            if row[0] == name:
+                if row.count("") == len(header) - 4:
+                    return f"{name}還沒預測任何比賽"
+                else:
+                    response = f"{name}預測的球隊:\n"
+                    indices = [i for i, x in enumerate(row) if x != ""]
+                    game_names = [row[i].split()[0] for i in indices]
+                    for team in game_names[4:]:
+                        response += f"{team}\n"
+                    return response[:-1]
+    return "Unknown user"
+
+
 def check_user_exist(rows, name):
     return any(name in row for row in rows)
 
