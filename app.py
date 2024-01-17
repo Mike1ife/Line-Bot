@@ -336,14 +336,14 @@ def text_message(event):
         month_point_message = TextSendMessage(text=message[:-1])
         line_bot_api.reply_message(event.reply_token, month_point_message)
 
-    if msg == "看盤":
+    if msg == "跟盤":
         header, rows, worksheet = init()
-        message = "使用方式:\n看盤 id\n"
+        message = "使用方式:\n跟盤 id\n"
         for i, row in enumerate(rows):
             message += f"{i}.{row[0]}\n"
         text_message = TextSendMessage(text=message[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
-    elif msg[:2] == "看盤":
+    elif msg[:2] == "跟盤":
         try:
             name_index = int(msg.split()[1])
             header, rows, worksheet = init()
