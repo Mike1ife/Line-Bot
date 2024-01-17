@@ -244,6 +244,14 @@ def get_user_prediction(header, rows, name_index):
     return "Unknown user"
 
 
+def get_user_belief(header, rows, name):
+    for row in rows:
+        if row[0] == name:
+            belief_team = header[row.index(str(max([int(x) for x in row[4:34]])))]
+            return belief_team
+    return "Unknown user"
+
+
 def check_user_exist(rows, name):
     return any(name in row for row in rows)
 

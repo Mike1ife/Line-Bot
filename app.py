@@ -275,6 +275,20 @@ def text_message(event):
 
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
+    if msg == "信仰":
+        header, rows, worksheet = init()
+        reply_text = ""
+        user_id = event.source.user_id
+        try:
+            profile = line_bot_api.get_profile(user_id)
+            display_name = profile.display_name
+            response = get_user_belief(header, rows, display_name)
+            reply_text = f"{display_name}是{response}的舔狗"
+        except LineBotApiError as e:
+            reply_text = "Unknown user."
+
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+
     if msg == "NBA預測週最佳":
         """Get week best"""
         header, rows, worksheet = init()
