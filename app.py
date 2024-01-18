@@ -372,7 +372,7 @@ def text_message(event):
     if msg.lower() == "test":
         flex_message = FlexSendMessage(
             alt_text="test",
-            content={
+            contents={
                 "type": "bubble",
                 "body": {
                     "type": "box",
