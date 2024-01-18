@@ -187,7 +187,7 @@ def get_week_best(header, rows):
 def get_nba_today():
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=-16)))
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
     if int(TWnow.month) < 10:
         time = f"{TWnow.year}-0{TWnow.month}-{TWnow.day}"
     else:
