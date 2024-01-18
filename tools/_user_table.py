@@ -54,6 +54,13 @@ def modify_value(header, rows, name, column, winner):
     for i, row in enumerate(rows):
         if row[0] == name:
             row[header.index(column)] = winner
+            break
+    return header, rows
+
+
+def add_belief_count(header, rows, name, column, winner):
+    for i, row in enumerate(rows):
+        if row[0] == name:
             row[header.index(winner)] = int(row[header.index(winner)]) + 1
             break
     return header, rows
@@ -76,7 +83,7 @@ def count_points(header, rows):
                 user_name = value
             elif header[i] == "Week Points":
                 user_points = int(value)
-            else:
+            elif i >= 34:
                 predicted_team = value
                 winner, winner_point = header[i].split()
                 if predicted_team == winner:

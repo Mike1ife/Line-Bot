@@ -402,6 +402,7 @@ def handle_postback(event):
             reply_text = f"{display_name}預測{winner}贏{loser}!"
             # Modify GS
             header, rows = modify_value(header, rows, display_name, column, winner)
+            header, rows = add_belief_count(header, rows, display_name, winner)
 
         update_sheet(header, rows, worksheet)
     except LineBotApiError as e:
