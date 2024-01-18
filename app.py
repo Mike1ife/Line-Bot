@@ -11,6 +11,7 @@ from linebot.models import (
     CarouselColumn,
     PostbackAction,
     PostbackEvent,
+    FlexSendMessage,
 )
 
 from os import getenv
@@ -367,6 +368,43 @@ def text_message(event):
         except:
             text_message = TextSendMessage(text="錯誤使用方式")
             line_bot_api.reply_message(event.reply_token, text_message)
+
+    if msg.lower() == "test":
+        flex_message = FlexSendMessage(
+            alt_text="test",
+            content={
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "Closing the distance",
+                            "size": "md",
+                            "align": "center",
+                            "color": "#ff0000",
+                        },
+                        {
+                            "type": "text",
+                            "text": "Closing the distance",
+                            "size": "lg",
+                            "align": "center",
+                            "color": "#00ff00",
+                        },
+                        {
+                            "type": "text",
+                            "text": "Closing the distance",
+                            "size": "xl",
+                            "align": "center",
+                            "weight": "bold",
+                            "color": "#0000ff",
+                        },
+                    ],
+                },
+            },
+        )
+        line_bot_api.reply_message(event.reply_token, flex_message)
 
 
 @line_handler.add(PostbackEvent)
