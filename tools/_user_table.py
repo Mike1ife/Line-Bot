@@ -58,7 +58,7 @@ def modify_value(header, rows, name, column, winner):
     return header, rows
 
 
-def add_belief_count(header, rows, name, column, winner):
+def add_belief_count(header, rows, name, winner):
     for i, row in enumerate(rows):
         if row[0] == name:
             row[header.index(winner)] = int(row[header.index(winner)]) + 1
