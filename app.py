@@ -35,7 +35,6 @@ CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 GROUP_ID = "Cbb4733349bd2459a4fbe10a1068025ed"
-get
 
 
 # domain root
