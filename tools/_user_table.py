@@ -220,7 +220,7 @@ def get_nba_today():
 
     match_index = 0
     values = soup.find_all("span", class_="secondary-text status ffn-11 opac-5 uc")
-    for value in values[:-1]:
+    for value in values:
         team_name, team_give = value.text.strip().split()
         match = matches[match_index]["name"]
         team_to_give = match.index(nba_team_translations[team_name])
