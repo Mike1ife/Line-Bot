@@ -200,7 +200,7 @@ def get_nba_today():
     match_index = 0
     match_team = soup.find_all("div", class_="score-team-name abbreviation")
 
-    for team in match_team[:-2]:
+    for team in match_team:
         team_name = team.find("span", class_="scores-text uc")
         team_name = nba_team_translations[team_name.text.strip()]
 
