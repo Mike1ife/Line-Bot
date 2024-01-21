@@ -275,15 +275,21 @@ def text_message(event):
 
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
-    if msg == "信仰":
+    if msg[:2] == "信仰":
         header, rows, worksheet = init()
         reply_text = ""
         user_id = event.source.user_id
         try:
             profile = line_bot_api.get_profile(user_id)
             display_name = profile.display_name
-            response = get_user_belief(header, rows, display_name)
-            reply_text = f"{display_name}是{response}的舔狗"
+
+            if len(msg) == 2:
+                response = get_user_belief(header, rows, display_name)
+                reply_text = f"{display_name}是{response}的舔狗"
+            else:
+                team_name = msg.split()[1]
+                response = get_user_team(header, rows, display_name, team_name)
+                reply_text = f"{display_name}舔了{team_name}{response}口"
         except LineBotApiError as e:
             reply_text = "Unknown user."
 
