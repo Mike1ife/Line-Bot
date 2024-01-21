@@ -262,10 +262,7 @@ def get_user_belief(header, rows, name):
 def get_user_team(header, rows, name, team):
     for row in rows:
         if row[0] == name:
-            if team not in nba_team_translations.values():
-                return "Unknown team"
-            else:
-                return row[header.index(team)]
+            return row[header.index(team)]
     return "Unknown user"
 
 

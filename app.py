@@ -288,8 +288,11 @@ def text_message(event):
                 reply_text = f"{display_name}是{response}的舔狗"
             else:
                 team_name = msg.split()[1]
-                response = get_user_team(header, rows, display_name, team_name)
-                reply_text = f"{display_name}舔了{team_name}{response}口"
+                if team_name not in nba_team_translations.values():
+                    reply_text = "Unknown team"
+                else:
+                    response = get_user_team(header, rows, display_name, team_name)
+                    reply_text = f"{display_name}舔了{team_name}{response}口"
         except LineBotApiError as e:
             reply_text = "Unknown user."
 
