@@ -288,7 +288,7 @@ def text_message(event):
             correct_time = correct[first_team]
 
             if len(msg) == 2:
-                reply_text = f"{display_name}是{first_team}({correct_time})的舔狗"
+                reply_text = f"{display_name}是{first_team}的舔狗"
             elif msg[2] == " ":
                 team_name = msg.split()[1]
                 if team_name not in nba_team_translations.values():
@@ -313,13 +313,13 @@ def text_message(event):
             wrong_time = wrong[first_team]
 
             if len(msg) == 2:
-                reply_text = f"{first_team}({wrong_time})是的{display_name}傻鳥"
+                reply_text = f"{display_name}的傻鳥是{first_team}"
             elif msg[2] == " ":
                 team_name = msg.split()[1]
                 if team_name not in nba_team_translations.values():
                     reply_text = "Unknown team"
                 else:
-                    reply_text = f"{first_team}肛了{display_name}{wrong[team_name]}次"
+                    reply_text = f"{display_name}被{team_name}肛了{wrong[team_name]}次"
         except LineBotApiError as e:
             reply_text = "Unknown user."
 
