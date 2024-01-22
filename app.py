@@ -283,16 +283,43 @@ def text_message(event):
             profile = line_bot_api.get_profile(user_id)
             display_name = profile.display_name
 
+            correct = get_user_belief(header, rows, display_name)
+            first_team = list(correct.keys())[0]
+            correct_time = correct[first_team]
+
             if len(msg) == 2:
-                response = get_user_belief(header, rows, display_name)
-                reply_text = f"{display_name}是{response}的舔狗"
-            else:
+                reply_text = f"{display_name}是{first_team}({correct_time})的舔狗"
+            elif msg[2] == " ":
                 team_name = msg.split()[1]
                 if team_name not in nba_team_translations.values():
                     reply_text = "Unknown team"
                 else:
-                    response = get_user_team(header, rows, display_name, team_name)
-                    reply_text = f"{display_name}舔了{team_name}{response}口"
+                    reply_text = f"{display_name}舔了{team_name}{correct[team_name]}口"
+        except LineBotApiError as e:
+            reply_text = "Unknown user."
+
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+
+    if msg[:2] == "傻鳥":
+        header, rows, worksheet = init()
+        reply_text = ""
+        user_id = event.source.user_id
+        try:
+            profile = line_bot_api.get_profile(user_id)
+            display_name = profile.display_name
+
+            wrong = get_user_hatred(header, rows, display_name)
+            first_team = list(wrong.keys())[0]
+            wrong_time = wrong[first_team]
+
+            if len(msg) == 2:
+                reply_text = f"{first_team}({wrong_time})是的{display_name}傻鳥"
+            elif msg[2] == " ":
+                team_name = msg.split()[1]
+                if team_name not in nba_team_translations.values():
+                    reply_text = "Unknown team"
+                else:
+                    reply_text = f"{first_team}肛了{display_name}{wrong[team_name]}次"
         except LineBotApiError as e:
             reply_text = "Unknown user."
 
@@ -448,7 +475,6 @@ def handle_postback(event):
             reply_text = f"{display_name}預測{winner}贏{loser}!"
             # Modify GS
             header, rows = modify_value(header, rows, display_name, column, winner)
-            header, rows = add_belief_count(header, rows, display_name, winner)
 
         update_sheet(header, rows, worksheet)
     except LineBotApiError as e:

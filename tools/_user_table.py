@@ -58,12 +58,17 @@ def modify_value(header, rows, name, column, winner):
     return header, rows
 
 
-def add_belief_count(header, rows, name, winner):
-    for i, row in enumerate(rows):
+def add_belief_count(header, rows, name, predicted_team, is_winner):
+    for row in rows:
         if row[0] == name:
-            row[header.index(winner)] = int(row[header.index(winner)]) + 1
-            break
-    return header, rows
+            index = header.index(predicted_team)
+            correct, wrong = row[index].split()
+            if is_winner:
+                correct = int(correct) + 1
+            else:
+                wrong = int(wrong) + 1
+            row[index] = f"{correct} {wrong}"
+            return header, rows
 
 
 def add_value(header, rows, name, column, value):
@@ -86,8 +91,13 @@ def count_points(header, rows):
             elif i >= 34:
                 predicted_team = value
                 winner, winner_point = header[i].split()
-                if predicted_team == winner:
+
+                is_winner = predicted_team == winner
+                if is_winner:
                     user_points += int(winner_point)
+                header, rows = add_belief_count(
+                    header, rows, user_name, predicted_team, is_winner=is_winner
+                )
 
         header, rows = modify_value(
             header, rows, user_name, "Week Points", str(user_points)
@@ -252,17 +262,26 @@ def get_user_prediction(header, rows, name_index):
 
 
 def get_user_belief(header, rows, name):
+    correct = {}
     for row in rows:
         if row[0] == name:
-            belief_team = header[row.index(str(max([int(x) for x in row[4:34]])))]
-            return belief_team
+            for i in range(4, 34):
+                correct[header[i]] = row[i].split()[0]
+            correct = dict(
+                sorted(correct.items(), key=lambda item: item[1], reverse=True)
+            )
+            return correct
     return "Unknown user"
 
 
-def get_user_team(header, rows, name, team):
+def get_user_hatred(header, rows, name):
+    wrong = {}
     for row in rows:
         if row[0] == name:
-            return row[header.index(team)]
+            for i in range(4, 34):
+                wrong[header[i]] = row[i].split()[1]
+            wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
+            return wrong
     return "Unknown user"
 
 
