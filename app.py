@@ -25,6 +25,7 @@ from datetime import datetime, timezone, timedelta
 
 from tools._image import check_url_exists
 from tools._user_table import *
+from tools._table import *
 
 line_bot_api = LineBotApi(getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(getenv("LINE_CHANNEL_SECRET"))
@@ -404,42 +405,45 @@ def text_message(event):
             text_message = TextSendMessage(text="錯誤使用方式")
             line_bot_api.reply_message(event.reply_token, text_message)
 
-    if msg.lower() == "test":
-        flex_message = FlexSendMessage(
-            alt_text="test",
-            contents={
-                "type": "bubble",
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "Closing the distance",
-                            "size": "md",
-                            "align": "center",
-                            "color": "#ff0000",
-                        },
-                        {
-                            "type": "text",
-                            "text": "Closing the distance",
-                            "size": "lg",
-                            "align": "center",
-                            "color": "#00ff00",
-                        },
-                        {
-                            "type": "text",
-                            "text": "Closing the distance",
-                            "size": "xl",
-                            "align": "center",
-                            "weight": "bold",
-                            "color": "#0000ff",
-                        },
-                    ],
-                },
-            },
-        )
-        line_bot_api.reply_message(event.reply_token, flex_message)
+    if msg.lower() == "lck":
+        data = get(
+            f"https://dotesports.com/league-of-legends/news/2024-lck-spring-split-scores-standings-and-schedule"
+        ).text
+        soup = BeautifulSoup(data, "html.parser")
+
+        UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+        TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+        month = TWnow.month
+        day = TWnow.day
+        weekday = TWnow.weekday()
+
+        if weekday == 0 or weekday == 1:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="No LCK today")
+            )
+
+        target_date = f"{week_day[weekday]}, {month_abbreviation[month-1]}. {day}"
+        time = None
+        if weekday == 5 or weekday == 6:
+            time = ["16:00", "18:30"]
+        else:
+            time = ["14:00", "16:30"]
+
+        days = soup.find_all("strong")
+        for day in days:
+            date = day.text.strip()
+            if date == target_date:
+                matches = day.find_next("ul").find_all("li")
+                matches_for_target_date = [match.text.strip() for match in matches]
+
+                message = f"Matches for {target_date}:\n"
+                for i, match in enumerate(matches_for_target_date):
+                    match = match.split(" ", 1)
+                    message += f"- {time[i]} {match[1]}\n"
+
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text=message[:-1])
+                )
 
 
 @line_handler.add(PostbackEvent)

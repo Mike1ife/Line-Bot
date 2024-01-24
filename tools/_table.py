@@ -30,3 +30,15 @@ nba_team_translations = {
     "UTA": "爵士",
     "WAS": "巫師",
 }
+
+week_day = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+
+month_abbreviation = ["Jan", "Feb", "March"]
