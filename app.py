@@ -425,9 +425,9 @@ def text_message(event):
         target_date = f"{week_day[weekday]}, {month_abbreviation[month-1]}. {day}"
         time = None
         if weekday == 5 or weekday == 6:
-            time = ["16:00", "18:30"]
-        else:
             time = ["14:00", "16:30"]
+        else:
+            time = ["16:00", "18:30"]
 
         days = soup.find_all("strong")
         for day in days:
