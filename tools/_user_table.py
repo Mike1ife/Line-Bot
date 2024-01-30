@@ -23,10 +23,10 @@ def init():
     return header, rows, worksheet
 
 
-def reset_user_points(header, rows):
+def reset_user_points(header, rows, column):
     all_user_name = [row[0] for row in rows]
     for user_name in all_user_name:
-        header, rows = modify_value(header, rows, user_name, "Week Points", 0)
+        header, rows = modify_value(header, rows, user_name, column, 0)
     return header, rows
 
 
@@ -180,6 +180,15 @@ def get_user_month_points(rows):
     return user_ranks
 
 
+def get_user_year_points(rows):
+    users_info = []
+    for row in rows:
+        users_info.append((row[0], row[3]))
+    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
+
+    return user_ranks
+
+
 def get_week_best(header, rows):
     user_ranks = get_user_week_points(rows)
 
@@ -192,6 +201,36 @@ def get_week_best(header, rows):
             week_best.append(user)
 
     return header, rows, week_best
+
+
+def get_month_best(header, rows):
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    weekday = TWnow.weekday()
+
+    if weekday != 6:
+        user_ranks = get_user_week_points(rows)
+        total = 100.0
+        for i, user in enumerate(user_ranks):
+            header, rows = add_value(
+                header,
+                rows,
+                user[0],
+                "Month Points",
+                round(total * ((weekday + 1) / 7.0)),
+            )
+            total -= 10
+
+    user_ranks = get_user_month_points(rows)
+    total = 100
+    month_best = []
+    for i, user in enumerate(user_ranks):
+        header, rows = add_value(header, rows, user[0], "Year Points", total)
+        total -= 10
+        if i == 0:
+            month_best.append(user)
+
+    return header, rows, month_best
 
 
 def get_nba_today():

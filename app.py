@@ -339,16 +339,41 @@ def text_message(event):
         week_point_message = TextSendMessage(text=message[:-1])
 
         """Reset current points"""
-        header, rows = reset_user_points(header, rows)
+        header, rows = reset_user_points(header, rows, "Week Points")
         update_sheet(header, rows, worksheet)
 
-        reply_text = "上週預測GOAT: "
+        reply_text = "本週預測GOAT: "
         for user in week_best:
             reply_text += f"{user[0]}({user[1]}分) "
         week_best_message = TextSendMessage(text=reply_text[:-1])
 
         line_bot_api.reply_message(
             event.reply_token, [week_best_message, week_point_message]
+        )
+
+    if msg == "NBA預測月最佳":
+        """Get week best"""
+        header, rows, worksheet = init()
+        header, rows, month_best = get_month_best(header, rows)
+
+        """Send user ranks"""
+        user_month_point = get_user_year_points(rows)
+        message = "本季排行榜:\n"
+        for i, value in enumerate(user_month_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        month_point_message = TextSendMessage(text=message[:-1])
+
+        """Reset current points"""
+        header, rows = reset_user_points(header, rows, "Month Points")
+        update_sheet(header, rows, worksheet)
+
+        reply_text = "本月預測GOAT: "
+        for user in month_best:
+            reply_text += f"{user[0]}({user[1]}分) "
+        month_best_message = TextSendMessage(text=reply_text[:-1])
+
+        line_bot_api.reply_message(
+            event.reply_token, [month_best_message, month_point_message]
         )
 
     if msg == "規則":
@@ -386,6 +411,17 @@ def text_message(event):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
         month_point_message = TextSendMessage(text=message[:-1])
         line_bot_api.reply_message(event.reply_token, month_point_message)
+
+    if msg == "季排行":
+        """Get week best"""
+        header, rows, worksheet = init()
+        """Send user ranks"""
+        user_year_point = get_user_year_points(rows)
+        message = "本季排行榜:\n"
+        for i, value in enumerate(user_year_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        year_point_message = TextSendMessage(text=message[:-1])
+        line_bot_api.reply_message(event.reply_token, year_point_message)
 
     if msg == "跟盤":
         header, rows, worksheet = init()
