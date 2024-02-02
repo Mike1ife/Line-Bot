@@ -237,10 +237,13 @@ def get_nba_today():
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    if int(TWnow.month) < 10:
-        time = f"{TWnow.year}-0{TWnow.month}-{TWnow.day}"
-    else:
-        time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+    year, month, day = TWnow.year, TWnow.month, TWnow.day
+    if month < 10:
+        month = f"0{month}"
+    if day < 10:
+        day = f"0{day}"
+    time = f"{year}-{month}-{day}"
+
     data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
     soup = BeautifulSoup(data, "html.parser")
 
