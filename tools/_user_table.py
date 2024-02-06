@@ -90,6 +90,9 @@ def count_points(header, rows):
                 user_points = int(value)
             elif i >= 34:
                 predicted_team = value
+                if predicted_team not in nba_team_translations.values():
+                    continue
+
                 winner, winner_point = header[i].split()
 
                 is_winner = predicted_team == winner
