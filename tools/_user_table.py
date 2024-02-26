@@ -311,7 +311,7 @@ def get_user_belief(header, rows, name):
     for row in rows:
         if row[0] == name:
             for i in range(4, 34):
-                correct[header[i]] = row[i].split()[0]
+                correct[header[i]] = int(row[i].split()[0])
             correct = dict(
                 sorted(correct.items(), key=lambda item: item[1], reverse=True)
             )
@@ -324,7 +324,7 @@ def get_user_hatred(header, rows, name):
     for row in rows:
         if row[0] == name:
             for i in range(4, 34):
-                wrong[header[i]] = row[i].split()[1]
+                wrong[header[i]] = int(row[i].split()[1])
             wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
             return wrong
     return "Unknown user"
