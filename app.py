@@ -449,7 +449,7 @@ def text_message(event):
             display_name = profile.display_name
             header, rows = add_new_user(header, rows, display_name)
             update_sheet(header, rows, worksheet)
-            text_message = TextSendMessage(text=f"{display_name} 完成註冊")
+            text_message = TextSendMessage(text=f"{display_name} 已完成註冊")
             line_bot_api.reply_message(event.reply_token, text_message)
         except:
             text_message = TextSendMessage(text="Unknown user")
