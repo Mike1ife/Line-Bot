@@ -133,7 +133,7 @@ def get_match_result(header, rows):
     teams = soup.find_all("div", class_="score-team-name abbreviation")
     scores = soup.find_all("div", class_="score-team-score")
     for team, score in zip(teams, scores):
-        name = team.find("span", class_="scores-text uc").text.strip()
+        name = team.find("span", class_="scores-text capi").text.strip()
         point = score.find("span", class_="scores-text uc").text.strip()
 
         if match_index == 0:
