@@ -256,10 +256,10 @@ def get_nba_today():
     match_team = soup.find_all("div", class_="score-team-name abbreviation")
 
     for team in match_team:
-        team_name = team.find("span", class_="scores-text uc")
+        team_name = team.find("span", class_="scores-text capi")
         team_name = nba_team_translations[team_name.text.strip()]
 
-        team_standing = team.find("sup", class_="scores-team-record ffn-gr-11")
+        team_standing = team.find("sup", class_="scores-team-record ffn-gr-10")
         team_standing = team_standing.text.strip()
 
         if match_index == 0:
