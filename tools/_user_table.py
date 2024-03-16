@@ -114,7 +114,7 @@ def column_exist(header, column):
 
 def add_new_user(header, rows, name):
     match_num = len(header) - static_len
-    new_row = [name, "0"] + [""] * match_num
+    new_row = [name, "0", "0", "0"] + ["0 0"] * 30 + [""] * match_num
     rows.append(new_row)
     return header, rows
 

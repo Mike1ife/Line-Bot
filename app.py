@@ -441,6 +441,20 @@ def text_message(event):
             text_message = TextSendMessage(text="錯誤使用方式")
             line_bot_api.reply_message(event.reply_token, text_message)
 
+    if msg == "註冊":
+        header, rows, worksheet = init()
+        user_id = event.source.user_id
+        try:
+            profile = line_bot_api.get_profile(user_id)
+            display_name = profile.display_name
+            header, rows = add_new_user(header, rows, display_name)
+            update_sheet(header, rows, worksheet)
+            text_message = TextSendMessage(text=f"{display_name} 完成註冊")
+            line_bot_api.reply_message(event.reply_token, text_message)
+        except:
+            text_message = TextSendMessage(text="Unknown user")
+            line_bot_api.reply_message(event.reply_token, text_message)
+
     if msg.lower() == "lck":
         data = get(
             f"https://dotesports.com/league-of-legends/news/2024-lck-spring-split-scores-standings-and-schedule"
