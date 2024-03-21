@@ -256,7 +256,7 @@ def text_message(event):
             text_message = TextSendMessage(text=message[:-1])
             line_bot_api.reply_message(event.reply_token, text_message)
         except Exception as e:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=e))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
 
     if msg == "檢查":
         header, rows, worksheet = init()
