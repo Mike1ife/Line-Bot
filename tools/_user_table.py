@@ -133,7 +133,7 @@ def get_match_result(header, rows):
     teams = soup.find_all("div", class_="score-team-name abbreviation")
     scores = soup.find_all("div", class_="score-team-score")
     for team, score in zip(teams, scores):
-        name = team.find("span", class_="scores-text capi").text.strip()
+        name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text uc").text.strip()
 
         if match_index == 0:
@@ -256,7 +256,7 @@ def get_nba_today():
     match_team = soup.find_all("div", class_="score-team-name abbreviation")
 
     for team in match_team:
-        team_name = team.find("span", class_="scores-text capi")
+        team_name = team.find("span", class_="scores-text capi pd-b-1 ff-ff")
         team_name = nba_team_translations[team_name.text.strip()]
 
         team_standing = team.find("sup", class_="scores-team-record ffn-gr-10")

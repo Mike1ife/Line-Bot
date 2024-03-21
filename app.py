@@ -159,13 +159,6 @@ def text_message(event):
         """Get GS"""
         header, rows, worksheet = init()
 
-        # """Get yesterday winner team"""
-        # header, rows = get_match_result(header, rows, "yesterday")
-
-        # """Calculate points"""
-        # header, rows = count_points(header, rows)
-        # update_sheet(header, rows, worksheet)
-
         """Send user results"""
         user_ranks = get_user_week_points(rows)
         message = "預測排行榜:\n"
@@ -178,69 +171,69 @@ def text_message(event):
         """Reset old matches"""
         header, rows = reset_match(header, rows)
 
-        """NEW WAY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
-        """Get NBA Today"""
-        columns = []
-        matches = get_nba_today()
-        for match_index, match in enumerate(matches):
-            """Match infomation"""
-            team_name = match["name"]
-            team_standing = match["standing"]
-            team_points = match["points"]
-            team_pos = ["客", "主"]
+        try:
+            """Get NBA Today"""
+            columns = []
+            matches = get_nba_today()
+            for match_index, match in enumerate(matches):
+                """Match infomation"""
+                team_name = match["name"]
+                team_standing = match["standing"]
+                team_points = match["points"]
+                team_pos = ["客", "主"]
 
-            """Create template"""
-            encoded_team1 = quote(team_name[0])
-            encoded_team2 = quote(team_name[1])
-            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
-            if not check_url_exists(thumbnail_image_url):
-                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-                team_name.reverse()
-                team_standing.reverse()
-                team_points.reverse()
-                team_pos.reverse()
+                """Create template"""
+                encoded_team1 = quote(team_name[0])
+                encoded_team2 = quote(team_name[1])
+                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+                if not check_url_exists(thumbnail_image_url):
+                    thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+                    team_name.reverse()
+                    team_standing.reverse()
+                    team_points.reverse()
+                    team_pos.reverse()
 
-            # title = 溜馬-老鷹 31/9
-            # text = 溜馬 31分 / 老鷹 9分
-            columns.append(
-                CarouselColumn(
-                    thumbnail_image_url=thumbnail_image_url,
-                    title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
-                    text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
-                    actions=[
-                        PostbackAction(
-                            label=team_name[0],
-                            data=f"{team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
-                        ),
-                        PostbackAction(
-                            label=team_name[1],
-                            data=f"{team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
-                        ),
-                    ],
-                ),
-            )
+                # title = 溜馬-老鷹 31/9
+                # text = 溜馬 31分 / 老鷹 9分
+                columns.append(
+                    CarouselColumn(
+                        thumbnail_image_url=thumbnail_image_url,
+                        title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
+                        text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
+                        actions=[
+                            PostbackAction(
+                                label=team_name[0],
+                                data=f"{team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
+                            ),
+                            PostbackAction(
+                                label=team_name[1],
+                                data=f"{team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
+                            ),
+                        ],
+                    ),
+                )
 
-            header, rows = modify_column_name(
-                header,
-                rows,
-                match_index,
-                f"{team_name[0]}-{team_name[1]} {team_points[0]}/{team_points[1]}",
-            )
+                header, rows = modify_column_name(
+                    header,
+                    rows,
+                    match_index,
+                    f"{team_name[0]}-{team_name[1]} {team_points[0]}/{team_points[1]}",
+                )
 
-        """Update GS"""
-        update_sheet(header, rows, worksheet)
+            """Update GS"""
+            update_sheet(header, rows, worksheet)
 
-        for i in range(0, len(columns), 10):
-            chunk = columns[i : i + 10]
-            carousel_template = CarouselTemplate(columns=chunk)
-            template_message = TemplateSendMessage(
-                alt_text="每日NBA預測", template=carousel_template
-            )
-            messages.append(template_message)
+            for i in range(0, len(columns), 10):
+                chunk = columns[i : i + 10]
+                carousel_template = CarouselTemplate(columns=chunk)
+                template_message = TemplateSendMessage(
+                    alt_text="每日NBA預測", template=carousel_template
+                )
+                messages.append(template_message)
 
-        line_bot_api.reply_message(event.reply_token, messages)
-
-        return "Cron job executed successfully!"
+            line_bot_api.reply_message(event.reply_token, messages)
+        except Exception as e:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=e))
 
     if msg == "結算":
         """Get GS"""
