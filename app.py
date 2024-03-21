@@ -233,7 +233,7 @@ def text_message(event):
 
             line_bot_api.reply_message(event.reply_token, messages)
         except Exception as e:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=e))
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
 
     if msg == "結算":
         """Get GS"""
