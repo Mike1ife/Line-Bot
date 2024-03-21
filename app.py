@@ -247,20 +247,23 @@ def text_message(event):
         header, rows, worksheet = init()
 
         """Get yesterday winner team"""
-        header, rows = get_match_result(header, rows)
+        try:
+            header, rows = get_match_result(header, rows)
 
-        """Calculate points"""
-        header, rows = count_points(header, rows)
-        header, rows = reset_match(header, rows)
-        update_sheet(header, rows, worksheet)
+            """Calculate points"""
+            header, rows = count_points(header, rows)
+            header, rows = reset_match(header, rows)
+            update_sheet(header, rows, worksheet)
 
-        """Send user results"""
-        user_ranks = get_user_week_points(rows)
-        message = "預測排行榜:\n"
-        for i, value in enumerate(user_ranks):
-            message += f"{i+1}. {value[0]}: {value[1]}分\n"
-        text_message = TextSendMessage(text=message[:-1])
-        line_bot_api.reply_message(event.reply_token, text_message)
+            """Send user results"""
+            user_ranks = get_user_week_points(rows)
+            message = "預測排行榜:\n"
+            for i, value in enumerate(user_ranks):
+                message += f"{i+1}. {value[0]}: {value[1]}分\n"
+            text_message = TextSendMessage(text=message[:-1])
+            line_bot_api.reply_message(event.reply_token, text_message)
+        except Exception as e:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=e))
 
     if msg == "檢查":
         header, rows, worksheet = init()
