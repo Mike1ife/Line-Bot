@@ -468,9 +468,14 @@ def text_message(event):
                 team_data[team.text] = team_players
 
             message = f"{team_name}傷病名單:\n"
-            for player in team_data[team_name]:
-                message += f"{player}\n"
-            print(message[:-1])
+            try:
+                for player in team_data[team_name]:
+                    message += f"{player}\n"
+                text_message = TextSendMessage(text=message[:-1])
+                line_bot_api.reply_message(event.reply_token, text_message)
+            except KeyError:
+                text_message = TextSendMessage(text=f"{team_name}沒有傷兵")
+                line_bot_api.reply_message(event.reply_token, text_message)
         except Exception as e:
             # text_message = TextSendMessage(text="錯誤使用方式")
             text_message = TextSendMessage(text=str(e))
