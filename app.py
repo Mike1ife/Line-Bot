@@ -464,7 +464,7 @@ def text_message(event):
                     player_name = row.find("td").text
                     reason = row.find_all("td")[-2].text.strip()
                     Return = row.find_all("td")[-1].text.strip()
-                    team_players.append(f"{player_name} ({reason} / {Return})")
+                    team_players.append(f"{player_name} {reason}\n({Return})")
                 team_data[team.text] = team_players
 
             message = f"{team_name}傷病名單:\n"
