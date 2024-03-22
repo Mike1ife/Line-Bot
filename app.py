@@ -471,8 +471,9 @@ def text_message(event):
             for player in team_data[team_name]:
                 message += f"{player}\n"
             print(message[:-1])
-        except:
-            text_message = TextSendMessage(text="錯誤使用方式")
+        except Exception as e:
+            # text_message = TextSendMessage(text="錯誤使用方式")
+            text_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg == "註冊":
