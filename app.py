@@ -118,6 +118,13 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)
         f.close()
 
+    if msg == "牢大":
+        f = open("TextFiles/Mamba.txt")
+        text = f.read()
+        text_message = TextSendMessage(text=text)
+        line_bot_api.reply_message(event.reply_token, text_message)
+        f.close()
+
     if msg.lower() == "bubble sort":
         f = open("TextFiles/BubbleSort.txt")
         text = f.read()
