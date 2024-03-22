@@ -4,6 +4,7 @@ gg {anything}
 bubble sort
 抽
 抽牌
+兄弟
 檢查
 你媽
 大小
@@ -12,6 +13,8 @@ bubble sort
 
 nba
 規則
+跟盤
+傷病
 檢查
 信仰
 信仰 {球隊}
