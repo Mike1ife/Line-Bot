@@ -442,7 +442,7 @@ def text_message(event):
             line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg == "傷病":
-        message = "使用方式:\傷病 {球隊}"
+        message = "使用方式: 傷病 {球隊}"
         text_message = TextSendMessage(text=message)
         line_bot_api.reply_message(event.reply_token, text_message)
     elif msg[:2] == "傷病":
@@ -455,17 +455,17 @@ def text_message(event):
                 headers={"User-Agent": "Agent"},
             ).text
             soup = BeautifulSoup(data, "html.parser")
-            team_names = soup.find_all("h3", class_=None)
-            for team_name in team_names[1:]:
+            teams = soup.find_all("h3", class_=None)
+            for team in teams[1:]:
                 team_players = []
-                table = team_name.find_next_sibling("table")
+                table = team.find_next_sibling("table")
                 rows = table.find_all("tr", class_="TableBase-bodyTr")
                 for row in rows:
                     player_name = row.find("td").text
                     reason = row.find_all("td")[-2].text.strip()
                     Return = row.find_all("td")[-1].text.strip()
                     team_players.append(f"{player_name} ({reason} / {Return})")
-                team_data[team_name.text] = team_players
+                team_data[team.text] = team_players
 
             message = f"{team_name}傷病名單:\n"
             for player in team_data[team_name]:
