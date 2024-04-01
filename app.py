@@ -167,7 +167,7 @@ def text_message(event):
         header, rows, worksheet = init()
 
         """Send user results"""
-        user_ranks = get_user_week_points(rows)
+        user_ranks = get_user_points(rows, "week")
         message = "預測排行榜:\n"
         for i, value in enumerate(user_ranks):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
@@ -256,7 +256,7 @@ def text_message(event):
             update_sheet(header, rows, worksheet)
 
             """Send user results"""
-            user_ranks = get_user_week_points(rows)
+            user_ranks = get_user_points(rows, "week")
             message = "預測排行榜:\n"
             for i, value in enumerate(user_ranks):
                 message += f"{i+1}. {value[0]}: {value[1]}分\n"
