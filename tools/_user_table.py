@@ -220,27 +220,49 @@ def get_month_best(header, rows):
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
     weekday = TWnow.weekday()
 
-    if weekday != 6:
+    if weekday != 0:
         user_ranks = get_user_week_points(rows)
-        total = 100.0
+        point = 100.0
+        current_best = 0.0
+        reduction = 0.0
         for i, user in enumerate(user_ranks):
+            if user[1] != current_best and i != 0:
+                point -= reduction
+                reduction = 0.0
+
             header, rows = add_value(
                 header,
                 rows,
                 user[0],
                 "Month Points",
-                round(total * ((weekday + 1) / 7.0)),
+                round(point * ((weekday) / 7.0)),
             )
-            total -= 10
+
+            current_best = user[1]
+            reduction += 10
 
     user_ranks = get_user_month_points(rows)
-    total = 100
+    point = 100.0
+    total_best = 0.0
+    current_best = 0.0
+    reduction = 0.0
     month_best = []
     for i, user in enumerate(user_ranks):
-        header, rows = add_value(header, rows, user[0], "Year Points", total)
-        total -= 10
         if i == 0:
+            total_best = user[1]
             month_best.append(user)
+        elif user[1] == total_best:
+            month_best.append(user)
+        elif user[1] != current_best:
+            point -= reduction
+            reduction = 0.0
+
+        # print(user[0], user[1], point, current_best)
+
+        header, rows = add_value(header, rows, user[0], "Year Points", point)
+
+        current_best = user[1]
+        reduction += 10
 
     return header, rows, month_best
 
