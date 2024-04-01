@@ -174,35 +174,18 @@ def get_match_result(header, rows):
     return header, rows
 
 
-def get_user_week_points(rows):
+def get_user_points(rows, rank_type="week"):
+    mapping = {"week": 0, "month": 1, "season": 2}
     users_info = []
     for row in rows:
-        users_info.append((row[0], row[1]))
-    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
-
-    return user_ranks
-
-
-def get_user_month_points(rows):
-    users_info = []
-    for row in rows:
-        users_info.append((row[0], row[2]))
-    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
-
-    return user_ranks
-
-
-def get_user_year_points(rows):
-    users_info = []
-    for row in rows:
-        users_info.append((row[0], row[3]))
+        users_info.append((row[0], row[mapping[rank_type]]))
     user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
 
     return user_ranks
 
 
 def get_week_best(header, rows):
-    user_ranks = get_user_week_points(rows)
+    user_ranks = get_user_points(rows, "week")
 
     point = 100.0
     total_best = 0.0
@@ -235,7 +218,7 @@ def get_month_best(header, rows):
     weekday = TWnow.weekday()
 
     if weekday != 0:
-        user_ranks = get_user_week_points(rows)
+        user_ranks = get_user_points(rows, "week")
         point = 100.0
         current_best = 0.0
         reduction = 0.0
@@ -255,7 +238,7 @@ def get_month_best(header, rows):
             current_best = user[1]
             reduction += 10
 
-    user_ranks = get_user_month_points(rows)
+    user_ranks = get_user_points(rows, "month")
     point = 100.0
     total_best = 0.0
     current_best = 0.0

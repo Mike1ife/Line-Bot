@@ -401,7 +401,7 @@ def text_message(event):
         """Get week best"""
         header, rows, worksheet = init()
         """Send user ranks"""
-        user_month_point = get_user_week_points(rows)
+        user_month_point = get_user_points(rows, "week")
         message = "本週排行榜:\n"
         for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
@@ -412,7 +412,7 @@ def text_message(event):
         """Get week best"""
         header, rows, worksheet = init()
         """Send user ranks"""
-        user_month_point = get_user_month_points(rows)
+        user_month_point = get_user_points(rows, "month")
         message = "本月排行榜:\n"
         for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
@@ -423,7 +423,7 @@ def text_message(event):
         """Get week best"""
         header, rows, worksheet = init()
         """Send user ranks"""
-        user_year_point = get_user_year_points(rows)
+        user_year_point = get_user_points(rows, "season")
         message = "本季排行榜:\n"
         for i, value in enumerate(user_year_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
