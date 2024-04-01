@@ -175,7 +175,7 @@ def get_match_result(header, rows):
 
 
 def get_user_points(rows, rank_type="week"):
-    mapping = {"week": 0, "month": 1, "season": 2}
+    mapping = {"week": 1, "month": 2, "season": 3}
     users_info = []
     for row in rows:
         users_info.append((row[0], row[mapping[rank_type]]))
