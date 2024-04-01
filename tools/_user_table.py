@@ -127,33 +127,42 @@ def get_match_result(header, rows):
     soup = BeautifulSoup(data, "html.parser")
 
     match_index = 0
-    winner = None
-    winners = []
-    winner_score = 0
     teams = soup.find_all("div", class_="score-team-name abbreviation")
     scores = soup.find_all("div", class_="score-team-score")
+
+    match_team = []
+    match_point = []
+    match_result = {}
     for team, score in zip(teams, scores):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text uc").text.strip()
 
-        if match_index == 0:
-            winner = nba_team_translations[name]
-            winner_score = point
-        else:
-            if int(point) > int(winner_score):
-                winner = nba_team_translations[name]
-                winner_score = point
-            winners.append(winner)
+        match_team.append(nba_team_translations[name])
+        match_point.append(int(point))
+
+        if match_index != 0:
+            match_result["-".join(match_team)] = match_team[
+                int(match_point[1] > match_point[0])
+            ]
+            match_team.clear()
+            match_point.clear()
 
         match_index = (match_index + 1) % 2
 
     match_index = 0
     for match in header[static_len:]:
         teams, points = match.split()
+        try:
+            winner = match_result[teams]
+        except:
+            temp = teams
+            temp = temp.split("-")
+            temp.reverse()
+            winner = match_result["-".join(temp)]
+
         teams = teams.split("-")
         points = points.split("/")
 
-        winner = winners[match_index]
         winner_point = points[teams.index(winner)]
 
         header, rows = modify_column_name(
