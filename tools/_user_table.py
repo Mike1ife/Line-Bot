@@ -204,13 +204,27 @@ def get_user_year_points(rows):
 def get_week_best(header, rows):
     user_ranks = get_user_week_points(rows)
 
-    total = 100
+    point = 100.0
+    total_best = 0.0
+    current_best = 0.0
+    reduction = 0.0
     week_best = []
     for i, user in enumerate(user_ranks):
-        header, rows = add_value(header, rows, user[0], "Month Points", total)
-        total -= 10
         if i == 0:
+            total_best = user[1]
             week_best.append(user)
+        elif user[1] == total_best:
+            week_best.append(user)
+        elif user[1] != current_best:
+            point -= reduction
+            reduction = 0.0
+
+        print(user[0], user[1], point, current_best)
+
+        header, rows = add_value(header, rows, user[0], "Month Points", point)
+
+        current_best = user[1]
+        reduction += 10
 
     return header, rows, week_best
 
