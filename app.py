@@ -339,7 +339,7 @@ def text_message(event):
         header, rows, week_best = get_week_best(header, rows)
 
         """Send user ranks"""
-        user_month_point = get_user_month_points(rows)
+        user_month_point = get_user_points(rows, "month")
         message = "本月排行榜:\n"
         for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
@@ -364,7 +364,7 @@ def text_message(event):
         header, rows, month_best = get_month_best(header, rows)
 
         """Send user ranks"""
-        user_month_point = get_user_year_points(rows)
+        user_month_point = get_user_points(rows, "season")
         message = "本季排行榜:\n"
         for i, value in enumerate(user_month_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
