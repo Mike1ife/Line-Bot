@@ -186,7 +186,10 @@ def text_message(event):
                 """Match infomation"""
                 team_name = match["name"]
                 team_standing = match["standing"]
-                team_points = match["points"]
+                try:
+                    team_points = match["points"]
+                except:
+                    team_points = [20, 20]
                 team_pos = ["客", "主"]
 
                 """Create template"""

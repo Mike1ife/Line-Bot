@@ -303,20 +303,17 @@ def get_nba_today():
 
     match_index = 0
     values = soup.find_all("span", class_="secondary-text status ffn-11 opac-5 uc")
-    if len(values):
-        for value in values:
-            team_name, team_give = value.text.strip().split()
-            match = matches[match_index]["name"]
-            team_to_give = match.index(nba_team_translations[team_name])
-            points = [0, 0]
-            points[team_to_give] = int(round(20 + float(team_give)))
-            points[1 ^ team_to_give] = int(round(20 + -float(team_give)))
+    for value in values:
+        team_name, team_give = value.text.strip().split()
+        match = matches[match_index]["name"]
+        team_to_give = match.index(nba_team_translations[team_name])
+        points = [0, 0]
+        points[team_to_give] = int(round(20 + float(team_give)))
+        points[1 ^ team_to_give] = int(round(20 + -float(team_give)))
 
-            matches[match_index]["points"] = points
-            match_index += 1
-    else:
-        for i in range(len(matches)):
-            matches[i]["points"] = [20, 20]
+        matches[match_index]["points"] = points
+        match_index += 1
+
     return matches
 
 
