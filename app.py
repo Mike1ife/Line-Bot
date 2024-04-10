@@ -178,11 +178,11 @@ def text_message(event):
         """Reset old matches"""
         header, rows = reset_match(header, rows)
 
-        try:
-            """Get NBA Today"""
-            columns = []
-            matches = get_nba_today()
-            for match_index, match in enumerate(matches):
+
+        """Get NBA Today"""
+        columns = []
+        matches = get_nba_today()
+        for match_index, match in enumerate(matches):
                 """Match infomation"""
                 team_name = match["name"]
                 team_standing = match["standing"]
@@ -227,20 +227,19 @@ def text_message(event):
                     f"{team_name[0]}-{team_name[1]} {team_points[0]}/{team_points[1]}",
                 )
 
-            """Update GS"""
-            update_sheet(header, rows, worksheet)
+        """Update GS"""
+        update_sheet(header, rows, worksheet)
 
-            for i in range(0, len(columns), 10):
-                chunk = columns[i : i + 10]
-                carousel_template = CarouselTemplate(columns=chunk)
-                template_message = TemplateSendMessage(
+        for i in range(0, len(columns), 10):
+            chunk = columns[i : i + 10]
+            carousel_template = CarouselTemplate(columns=chunk)
+            template_message = TemplateSendMessage(
                     alt_text="每日NBA預測", template=carousel_template
                 )
-                messages.append(template_message)
+            messages.append(template_message)
 
-            line_bot_api.reply_message(event.reply_token, messages)
-        except Exception as e:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
+        line_bot_api.reply_message(event.reply_token, messages)
+
 
     if msg == "結算":
         """Get GS"""
