@@ -147,7 +147,12 @@ def text_message(event):
             name = team.find(
                 "span", class_="scores-text capi pd-b-1 ff-ff"
             ).text.strip()
-            point = score.find("span", class_="scores-text uc").text.strip()
+            try:
+                point = score.find("span", class_="scores-text uc").text.strip()
+            except:
+                point = team.find(
+                    "sup", class_="scores-team-record ffn-gr-10"
+                ).text.strip()
 
             matches.append(nba_team_translations[name])
             matches.append(point)
