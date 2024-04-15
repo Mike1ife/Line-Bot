@@ -278,6 +278,11 @@ def get_nba_today():
     data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
     soup = BeautifulSoup(data, "html.parser")
 
+    scores = soup.find_all("div", class_="score-team-score")
+
+    if len(scores) != 0:
+        return []
+
     matches = []
     match = {}
     match_index = 0
