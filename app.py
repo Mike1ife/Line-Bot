@@ -133,29 +133,30 @@ def text_message(event):
         f.close()
 
     if msg.lower() == "nba":
-        time = None
-        UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-        TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-        time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
-
-        data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
+        data = get(f"https://www.foxsports.com/nba/scores").text
         soup = BeautifulSoup(data, "html.parser")
-        cards = soup.find_all("div", class_="card")
 
+        match_index = 0
+        teams = soup.find_all("div", class_="score-team-name abbreviation")
+        scores = soup.find_all("div", class_="score-team-score")
+
+        matches = []
         score_text = ""
-        for card in cards:
-            team_names = [
-                team.find("span", class_="team_name").text.strip()
-                for team in card.find_all("div", class_="team")
-            ]
-            team_scores = [
-                team.find("span", class_="team_score").text.strip()
-                for team in card.find_all("div", class_="team")
-            ]
 
-            score_text += (
-                f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}\n"
-            )
+        for team, score in zip(teams, scores):
+            name = team.find(
+                "span", class_="scores-text capi pd-b-1 ff-ff"
+            ).text.strip()
+            point = score.find("span", class_="scores-text uc").text.strip()
+
+            matches.append(nba_team_translations[name])
+            matches.append(point)
+
+            if match_index != 0:
+                match_text = f"{' '.join(matches[:2])} - {' '.join(matches[-2:])}\n"
+                score_text += match_text
+                matches.clear()
+            match_index = (match_index + 1) % 2
 
         text_message = TextSendMessage(text=score_text[:-1])
         line_bot_api.reply_message(event.reply_token, text_message)
