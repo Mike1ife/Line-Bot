@@ -292,7 +292,7 @@ def get_nba_today():
         team_name = team.find("span", class_="scores-text capi pd-b-1 ff-ff")
         team_name = nba_team_translations[team_name.text.strip()]
 
-        team_standing = team.find("sup", class_="secondary-text status uc")
+        team_standing = team.find("sup", class_="scores-team-record ffn-gr-10")
         team_standing = team_standing.text.strip()
 
         if match_index == 0:
@@ -307,7 +307,7 @@ def get_nba_today():
         match_index = (match_index + 1) % 2
 
     match_index = 0
-    values = soup.find_all("span", class_="secondary-text status ffn-11 opac-5 uc")
+    values = soup.find_all("span", class_="secondary-text status uc")
     for value in values:
         team_name, team_give = value.text.strip().split()
         match = matches[match_index]["name"]
