@@ -137,11 +137,11 @@ def text_message(event):
         UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
         time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
-        
+
         data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
         soup = BeautifulSoup(data, "html.parser")
         cards = soup.find_all("div", class_="card")
-        
+
         score_text = ""
         for card in cards:
             team_names = [
@@ -152,7 +152,7 @@ def text_message(event):
                 team.find("span", class_="team_score").text.strip()
                 for team in card.find_all("div", class_="team")
             ]
-        
+
             score_text += (
                 f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}\n"
             )
@@ -345,28 +345,33 @@ def text_message(event):
         header, rows, worksheet = init()
         header, rows, week_best = get_week_best(header, rows)
 
-        """Send user ranks"""
-        user_month_point = get_user_points(rows, "month")
-        message = "本月排行榜:\n"
-        for i, value in enumerate(user_month_point):
-            message += f"{i+1}. {value[0]}: {value[1]}分\n"
-        week_point_message = TextSendMessage(text=message[:-1])
+        if week_best[0][1] == 0:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="本週沒有分數")
+            )
+        else:
+            """Send user ranks"""
+            user_month_point = get_user_points(rows, "month")
+            message = "本月排行榜:\n"
+            for i, value in enumerate(user_month_point):
+                message += f"{i+1}. {value[0]}: {value[1]}分\n"
+            week_point_message = TextSendMessage(text=message[:-1])
 
-        """Reset current points"""
-        header, rows = reset_user_points(header, rows, "Week Points")
-        update_sheet(header, rows, worksheet)
+            """Reset current points"""
+            header, rows = reset_user_points(header, rows, "Week Points")
+            update_sheet(header, rows, worksheet)
 
-        reply_text = "本週預測GOAT: "
-        for user in week_best:
-            reply_text += f"{user[0]}({user[1]}分) "
-        week_best_message = TextSendMessage(text=reply_text[:-1])
+            reply_text = "本週預測GOAT: "
+            for user in week_best:
+                reply_text += f"{user[0]}({user[1]}分) "
+            week_best_message = TextSendMessage(text=reply_text[:-1])
 
-        line_bot_api.reply_message(
-            event.reply_token, [week_best_message, week_point_message]
-        )
+            line_bot_api.reply_message(
+                event.reply_token, [week_best_message, week_point_message]
+            )
 
     if msg == "NBA預測月最佳":
-        """Get week best"""
+        """Get month best"""
         header, rows, worksheet = init()
         header, rows, month_best = get_month_best(header, rows)
 
@@ -382,6 +387,31 @@ def text_message(event):
         update_sheet(header, rows, worksheet)
 
         reply_text = "本月預測GOAT: "
+        for user in month_best:
+            reply_text += f"{user[0]}({user[1]}分) "
+        month_best_message = TextSendMessage(text=reply_text[:-1])
+
+        line_bot_api.reply_message(
+            event.reply_token, [month_best_message, month_point_message]
+        )
+
+    if msg == "NBA預測季最佳":
+        """Get season best"""
+        header, rows, worksheet = init()
+        header, rows, month_best = get_season_best(header, rows)
+
+        """Send user ranks"""
+        user_month_point = get_user_points(rows, "all-time")
+        message = "歷史排行榜:\n"
+        for i, value in enumerate(user_month_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        month_point_message = TextSendMessage(text=message[:-1])
+
+        """Reset current points"""
+        header, rows = reset_user_points(header, rows, "Month Points")
+        update_sheet(header, rows, worksheet)
+
+        reply_text = "歷史預測GOAT: "
         for user in month_best:
             reply_text += f"{user[0]}({user[1]}分) "
         month_best_message = TextSendMessage(text=reply_text[:-1])

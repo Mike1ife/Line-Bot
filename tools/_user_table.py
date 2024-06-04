@@ -175,7 +175,7 @@ def get_match_result(header, rows):
 
 
 def get_user_points(rows, rank_type="week"):
-    mapping = {"all-time": 1, "week": 2, "month": 3, "season": 4}
+    mapping = {"week": 1, "month": 2, "season": 3, "all-time": 4}
     users_info = []
     for row in rows:
         users_info.append((row[0], row[mapping[rank_type]]))
@@ -262,6 +262,34 @@ def get_month_best(header, rows):
         reduction += 10
 
     return header, rows, month_best
+
+
+def get_season_best(header, rows):
+    user_ranks = get_user_points(rows, "season")
+
+    point = 100.0
+    total_best = 0.0
+    current_best = 0.0
+    reduction = 0.0
+    season_best = []
+    for i, user in enumerate(user_ranks):
+        if i == 0:
+            total_best = user[1]
+            season_best.append(user)
+        elif user[1] == total_best:
+            season_best.append(user)
+        elif user[1] != current_best:
+            point -= reduction
+            reduction = 0.0
+
+        print(user[0], user[1], point, current_best)
+
+        header, rows = add_value(header, rows, user[0], "All-time Points", point)
+
+        current_best = user[1]
+        reduction += 10
+
+    return header, rows, season_best
 
 
 def get_nba_today():
