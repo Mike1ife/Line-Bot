@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 from tools._table import nba_team_translations
 
-static_len = 34
+static_len = 35
 
 
 def init():
@@ -114,7 +114,7 @@ def column_exist(header, column):
 
 def add_new_user(header, rows, name):
     match_num = len(header) - static_len
-    new_row = [name, "0", "0", "0"] + ["0 0"] * 30 + [""] * match_num
+    new_row = [name, "0", "0", "0", "0"] + ["0 0"] * 30 + [""] * match_num
     rows.append(new_row)
     return header, rows
 
@@ -175,7 +175,7 @@ def get_match_result(header, rows):
 
 
 def get_user_points(rows, rank_type="week"):
-    mapping = {"week": 1, "month": 2, "season": 3}
+    mapping = {"all-time": 1, "week": 2, "month": 3, "season": 4}
     users_info = []
     for row in rows:
         users_info.append((row[0], row[mapping[rank_type]]))
@@ -343,7 +343,7 @@ def get_user_belief(header, rows, name):
     correct = {}
     for row in rows:
         if row[0] == name:
-            for i in range(4, 34):
+            for i in range(static_len - 30, static_len):
                 correct[header[i]] = int(row[i].split()[0])
             correct = dict(
                 sorted(correct.items(), key=lambda item: item[1], reverse=True)
@@ -356,7 +356,7 @@ def get_user_hatred(header, rows, name):
     wrong = {}
     for row in rows:
         if row[0] == name:
-            for i in range(4, 34):
+            for i in range(static_len - 30, static_len):
                 wrong[header[i]] = int(row[i].split()[1])
             wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
             return wrong

@@ -422,7 +422,7 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, week_point_message)
 
     if msg == "月排行":
-        """Get week best"""
+        """Get month best"""
         header, rows, worksheet = init()
         """Send user ranks"""
         user_month_point = get_user_points(rows, "month")
@@ -433,11 +433,22 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, month_point_message)
 
     if msg == "季排行":
-        """Get week best"""
+        """Get season best"""
         header, rows, worksheet = init()
         """Send user ranks"""
         user_year_point = get_user_points(rows, "season")
         message = "本季排行榜:\n"
+        for i, value in enumerate(user_year_point):
+            message += f"{i+1}. {value[0]}: {value[1]}分\n"
+        year_point_message = TextSendMessage(text=message[:-1])
+        line_bot_api.reply_message(event.reply_token, year_point_message)
+
+    if msg == "總排行":
+        """Get all-time best"""
+        header, rows, worksheet = init()
+        """Send user ranks"""
+        user_year_point = get_user_points(rows, "all-time")
+        message = "歷史排行榜:\n"
         for i, value in enumerate(user_year_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
         year_point_message = TextSendMessage(text=message[:-1])
