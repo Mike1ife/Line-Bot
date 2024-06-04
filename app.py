@@ -345,7 +345,7 @@ def text_message(event):
         header, rows, worksheet = init()
         header, rows, week_best = get_week_best(header, rows)
 
-        if week_best[0][1] == 0:
+        if len(week_best) == 0:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="本週沒有分數")
             )
