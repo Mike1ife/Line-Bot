@@ -186,7 +186,7 @@ def get_user_points(rows, rank_type="week"):
 
 def get_week_best(header, rows):
     user_ranks = get_user_points(rows, "week")
-    if all([x[1] == 0 for x in user_ranks]):
+    if all([x[1] == '0' for x in user_ranks]):
         return header, rows, []
 
     point = 100.0
