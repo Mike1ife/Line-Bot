@@ -375,50 +375,60 @@ def text_message(event):
         header, rows, worksheet = init()
         header, rows, month_best = get_month_best(header, rows)
 
-        """Send user ranks"""
-        user_month_point = get_user_points(rows, "season")
-        message = "本季排行榜:\n"
-        for i, value in enumerate(user_month_point):
-            message += f"{i+1}. {value[0]}: {value[1]}分\n"
-        month_point_message = TextSendMessage(text=message[:-1])
+        if len(month_best) == 0:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="本月沒有分數")
+            )
+        else:
+            """Send user ranks"""
+            user_month_point = get_user_points(rows, "season")
+            message = "本季排行榜:\n"
+            for i, value in enumerate(user_month_point):
+                message += f"{i+1}. {value[0]}: {value[1]}分\n"
+            month_point_message = TextSendMessage(text=message[:-1])
 
-        """Reset current points"""
-        header, rows = reset_user_points(header, rows, "Month Points")
-        update_sheet(header, rows, worksheet)
+            """Reset current points"""
+            header, rows = reset_user_points(header, rows, "Month Points")
+            update_sheet(header, rows, worksheet)
 
-        reply_text = "本月預測GOAT: "
-        for user in month_best:
-            reply_text += f"{user[0]}({user[1]}分) "
-        month_best_message = TextSendMessage(text=reply_text[:-1])
+            reply_text = "本月預測GOAT: "
+            for user in month_best:
+                reply_text += f"{user[0]}({user[1]}分) "
+            month_best_message = TextSendMessage(text=reply_text[:-1])
 
-        line_bot_api.reply_message(
-            event.reply_token, [month_best_message, month_point_message]
-        )
+            line_bot_api.reply_message(
+                event.reply_token, [month_best_message, month_point_message]
+            )
 
     if msg == "NBA預測季最佳":
         """Get season best"""
         header, rows, worksheet = init()
-        header, rows, month_best = get_season_best(header, rows)
+        header, rows, season_best = get_season_best(header, rows)
 
-        """Send user ranks"""
-        user_month_point = get_user_points(rows, "all-time")
-        message = "歷史排行榜:\n"
-        for i, value in enumerate(user_month_point):
-            message += f"{i+1}. {value[0]}: {value[1]}分\n"
-        month_point_message = TextSendMessage(text=message[:-1])
+        if len(season_best) == 0:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="本季沒有分數")
+            )
+        else:
+            """Send user ranks"""
+            user_alltime_point = get_user_points(rows, "all-time")
+            message = "歷史排行榜:\n"
+            for i, value in enumerate(user_alltime_point):
+                message += f"{i+1}. {value[0]}: {value[1]}分\n"
+            alltime_point_message = TextSendMessage(text=message[:-1])
 
-        """Reset current points"""
-        header, rows = reset_user_points(header, rows, "Month Points")
-        update_sheet(header, rows, worksheet)
+            """Reset current points"""
+            header, rows = reset_user_points(header, rows, "All-time Points")
+            update_sheet(header, rows, worksheet)
 
-        reply_text = "歷史預測GOAT: "
-        for user in month_best:
-            reply_text += f"{user[0]}({user[1]}分) "
-        month_best_message = TextSendMessage(text=reply_text[:-1])
+            reply_text = "歷史預測GOAT: "
+            for user in season_best:
+                reply_text += f"{user[0]}({user[1]}分) "
+            season_best_message = TextSendMessage(text=reply_text[:-1])
 
-        line_bot_api.reply_message(
-            event.reply_token, [month_best_message, month_point_message]
-        )
+            line_bot_api.reply_message(
+                event.reply_token, [season_best_message, alltime_point_message]
+            )
 
     if msg == "規則":
         f = open("TextFiles/NBA_Rule.txt")

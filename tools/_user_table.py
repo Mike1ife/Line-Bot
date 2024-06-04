@@ -186,7 +186,7 @@ def get_user_points(rows, rank_type="week"):
 
 def get_week_best(header, rows):
     user_ranks = get_user_points(rows, "week")
-    if all([x[1] == '0' for x in user_ranks]):
+    if all([x[1] == "0" for x in user_ranks]):
         return header, rows, []
 
     point = 100.0
@@ -221,26 +221,30 @@ def get_month_best(header, rows):
 
     if weekday != 0:
         user_ranks = get_user_points(rows, "week")
-        point = 100.0
-        current_best = 0.0
-        reduction = 0.0
-        for i, user in enumerate(user_ranks):
-            if user[1] != current_best and i != 0:
-                point -= reduction
-                reduction = 0.0
+        if any([x[1] != "0" for x in user_ranks]):
+            point = 100.0
+            current_best = 0.0
+            reduction = 0.0
+            for i, user in enumerate(user_ranks):
+                if user[1] != current_best and i != 0:
+                    point -= reduction
+                    reduction = 0.0
 
-            header, rows = add_value(
-                header,
-                rows,
-                user[0],
-                "Month Points",
-                round(point * ((weekday) / 7.0)),
-            )
+                header, rows = add_value(
+                    header,
+                    rows,
+                    user[0],
+                    "Month Points",
+                    round(point * ((weekday) / 7.0)),
+                )
 
-            current_best = user[1]
-            reduction += 10
+                current_best = user[1]
+                reduction += 10
 
     user_ranks = get_user_points(rows, "month")
+    if all([x[1] == "0" for x in user_ranks]):
+        return header, rows, []
+
     point = 100.0
     total_best = 0.0
     current_best = 0.0
@@ -268,6 +272,9 @@ def get_month_best(header, rows):
 
 def get_season_best(header, rows):
     user_ranks = get_user_points(rows, "season")
+
+    if all([x[1] == "0" for x in user_ranks]):
+        return header, rows, []
 
     point = 100.0
     total_best = 0.0
