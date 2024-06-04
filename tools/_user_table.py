@@ -1,3 +1,4 @@
+import re
 from requests import get
 from gspread import authorize
 from bs4 import BeautifulSoup
@@ -314,10 +315,10 @@ def get_nba_today():
 
     data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
     soup = BeautifulSoup(data, "html.parser")
-
     scores = soup.find_all("div", class_="score-team-score")
 
-    if len(scores) != 0:
+    pattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
+    if len(scores) != 0 or time not in re.findall(pattern, data):
         return []
 
     matches = []
