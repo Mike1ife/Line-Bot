@@ -136,7 +136,7 @@ def get_match_result(header, rows):
     match_result = {}
     for team, score in zip(teams, scores):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
-        point = score.find("span", class_="scores-text uc").text.strip()
+        point = score.find("span", class_="scores-text").text.strip()
 
         match_team.append(nba_team_translations[name])
         match_point.append(int(point))
