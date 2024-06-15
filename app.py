@@ -161,6 +161,15 @@ def text_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg == "NBA每日預測":
+        user_id = event.source.user_id
+        try:
+            profile = line_bot_api.get_profile(user_id)
+            display_name = profile.display_name
+            if display_name != "林家龍":
+                line_bot_api.reply_message(event.reply_token, TextSendMessage(text="傻狗給老子閉嘴"))
+        except LineBotApiError as e:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Unknown user."))
+
         messages = []
 
         """Get GS"""
