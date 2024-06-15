@@ -568,6 +568,7 @@ def text_message(event):
             for row in rows:
                 if row[0] == display_name:
                     text_message = TextSendMessage(text=f"{display_name} 不需要註冊")
+                    line_bot_api.reply_message(event.reply_token, text_message)
 
             header, rows = add_new_user(header, rows, display_name)
             update_sheet(header, rows, worksheet)
