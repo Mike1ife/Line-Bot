@@ -166,9 +166,13 @@ def text_message(event):
             profile = line_bot_api.get_profile(user_id)
             display_name = profile.display_name
             if display_name != "林家龍":
-                line_bot_api.reply_message(event.reply_token, TextSendMessage(text="傻狗給老子閉嘴"))
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
+                )
         except LineBotApiError as e:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="Unknown user."))
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="Unknown user.")
+            )
 
         messages = []
 
@@ -561,6 +565,10 @@ def text_message(event):
         try:
             profile = line_bot_api.get_profile(user_id)
             display_name = profile.display_name
+            for row in rows:
+                if row[0] == display_name:
+                    text_message = TextSendMessage(text=f"{display_name} 不需要註冊")
+
             header, rows = add_new_user(header, rows, display_name)
             update_sheet(header, rows, worksheet)
             text_message = TextSendMessage(text=f"{display_name} 已完成註冊")
