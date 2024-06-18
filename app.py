@@ -436,7 +436,7 @@ def text_message(event):
             header, rows = reset_user_points(header, rows, "Season Points")
             update_sheet(header, rows, worksheet)
 
-            reply_text = "歷史預測GOAT: "
+            reply_text = "本季預測GOAT: "
             for user in season_best:
                 reply_text += f"{user[0]}({user[1]}分) "
             season_best_message = TextSendMessage(text=reply_text[:-1])
