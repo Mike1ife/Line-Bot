@@ -433,7 +433,7 @@ def text_message(event):
             alltime_point_message = TextSendMessage(text=message[:-1])
 
             """Reset current points"""
-            header, rows = reset_user_points(header, rows, "All-time Points")
+            header, rows = reset_user_points(header, rows, "Season Points")
             update_sheet(header, rows, worksheet)
 
             reply_text = "歷史預測GOAT: "
