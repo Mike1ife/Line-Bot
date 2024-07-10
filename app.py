@@ -648,10 +648,12 @@ def text_message(event):
 
             template_message = TemplateSendMessage(
                 alt_text="NBA猜一猜",
-                template=[TextSendMessage(text=tip), buttons_template],
+                template=buttons_template,
             )
 
-            line_bot_api.reply_message(event.reply_token, template_message)
+            line_bot_api.reply_message(
+                event.reply_token, [TextSendMessage(text=tip), template_message]
+            )
         except Exception as e:
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
