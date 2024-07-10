@@ -4,7 +4,7 @@ from gspread import authorize
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
-from tools._table import nba_team_translations
+from tools._table import NBA_TEAM_TRANSLATION
 
 static_len = 35
 
@@ -138,7 +138,7 @@ def get_match_result(header, rows):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
 
-        match_team.append(nba_team_translations[name])
+        match_team.append(NBA_TEAM_TRANSLATION[name])
         match_point.append(int(point))
 
         if match_index != 0:
@@ -328,7 +328,7 @@ def get_nba_today():
 
     for team in match_team:
         team_name = team.find("span", class_="scores-text capi pd-b-1 ff-ff")
-        team_name = nba_team_translations[team_name.text.strip()]
+        team_name = NBA_TEAM_TRANSLATION[team_name.text.strip()]
 
         team_standing = team.find("sup", class_="scores-team-record ffn-gr-10")
         team_standing = team_standing.text.strip()
@@ -349,7 +349,7 @@ def get_nba_today():
     for value in values:
         team_name, team_give = value.text.strip().split()
         match = matches[match_index]["name"]
-        team_to_give = match.index(nba_team_translations[team_name])
+        team_to_give = match.index(NBA_TEAM_TRANSLATION[team_name])
         points = [0, 0]
         points[team_to_give] = int(round(20 + float(team_give)))
         points[1 ^ team_to_give] = int(round(20 + -float(team_give)))

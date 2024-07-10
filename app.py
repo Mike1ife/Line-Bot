@@ -26,6 +26,7 @@ from datetime import datetime, timezone, timedelta
 from tools._image import check_url_exists
 from tools._user_table import *
 from tools._table import *
+from tools.utils import nba_guessing
 
 line_bot_api = LineBotApi(getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 line_handler = WebhookHandler(getenv("LINE_CHANNEL_SECRET"))
@@ -36,6 +37,8 @@ CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 GROUP_ID = "Cbb4733349bd2459a4fbe10a1068025ed"
+
+answer = ""
 
 
 # domain root
@@ -321,7 +324,7 @@ def text_message(event):
                 reply_text = f"{display_name}是{first_team}的舔狗"
             elif msg[2] == " ":
                 team_name = msg.split()[1]
-                if team_name not in nba_team_translations.values():
+                if team_name not in NBA_TEAM_TRANSLATION.values():
                     reply_text = "Unknown team"
                 else:
                     reply_text = f"{display_name}舔了{team_name}{correct[team_name]}口"
@@ -346,7 +349,7 @@ def text_message(event):
                 reply_text = f"{display_name}的傻鳥是{first_team}"
             elif msg[2] == " ":
                 team_name = msg.split()[1]
-                if team_name not in nba_team_translations.values():
+                if team_name not in NBA_TEAM_TRANSLATION.values():
                     reply_text = "Unknown team"
                 else:
                     reply_text = f"{display_name}被{team_name}肛了{wrong[team_name]}次"
@@ -623,6 +626,15 @@ def text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(text=message[:-1])
                 )
+
+    if msg == "NBA猜題":
+        global answer
+        try:
+            answer, text = nba_guessing()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+        except Exception as e:
+            error_message = TextSendMessage(text=str(e))
+            line_bot_api.reply_message(event.reply_token, error_message)
 
 
 @line_handler.add(PostbackEvent)

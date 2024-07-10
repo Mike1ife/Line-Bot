@@ -1,4 +1,4 @@
-nba_team_translations = {
+NBA_TEAM_TRANSLATION = {
     "ATL": "老鷹",
     "BOS": "塞爾提克",
     "BKN": "籃網",
@@ -63,6 +63,41 @@ NBA_TEAM_COMPLETE_NAME = {
     "爵士": "猶他爵士",
     "巫師": "華盛頓巫師",
 }
+
+NBA_TEAM_NAME = {
+    "Lakers": "湖人",
+    "Warriors": "勇士",
+    "Celtics": "塞爾提克",
+    "Nets": "籃網",
+    "Bucks": "公鹿",
+    "76ers": "七六人",
+    "Suns": "太陽",
+    "Clippers": "快艇",
+    "Jazz": "爵士",
+    "Heat": "熱火",
+    "Nuggets": "金塊",
+    "Mavericks": "小牛",
+    "Hawks": "老鷹",
+    "Knicks": "尼克",
+    "Bulls": "公牛",
+    "Hornets": "黃蜂",
+    "Raptors": "暴龍",
+    "Pacers": "溜馬",
+    "Cavaliers": "騎士",
+    "Grizzlies": "灰熊",
+    "Pelicans": "鵜鶘",
+    "Kings": "國王",
+    "Timberwolves": "灰狼",
+    "Trail Blazers": "拓荒者",
+    "Spurs": "馬刺",
+    "Rockets": "火箭",
+    "Thunder": "雷霆",
+    "Magic": "魔術",
+    "Wizards": "巫師",
+    "Pistons": "活塞",
+    "TOTAL": "賽季",
+}
+
 
 week_day = [
     "Monday",
