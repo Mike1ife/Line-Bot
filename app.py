@@ -628,16 +628,15 @@ def text_message(event):
                     event.reply_token, TextSendMessage(text=message[:-1])
                 )
 
-    if msg == "NBA猜題":
+    if msg == "NBA猜一猜":
         try:
             name, history_teams, history_game, history_stats = nba_guessing()
             # Define the buttons
-            tip = "生涯球隊: 球員生涯球隊\n上場時間: 先發場次/出場場次, 平均上場時間\n賽季平均: 得分/籃板/助攻/命中率"
+            tip = "使用提示:\n生涯球隊: 球員生涯球隊\n上場時間: 先發場次/出場場次, 平均上場時間\n賽季平均: 得分/籃板/助攻/命中率"
             buttons_template = ButtonsTemplate(
                 title="Menu",
                 text="Please select",
                 actions=[
-                    MessageAction(label="使用提示", text=tip),
                     MessageAction(label="生涯球隊", text=f"生涯球隊\n{history_teams}"),
                     MessageAction(label="上場時間", text=f"上場時間\n{history_game}"),
                     MessageAction(label="賽季平均", text=f"賽季平均\n{history_stats}"),
@@ -646,8 +645,10 @@ def text_message(event):
             )
 
             # Create the template message
+
             template_message = TemplateSendMessage(
-                alt_text="NBA猜一猜", template=buttons_template
+                alt_text="NBA猜一猜",
+                template=[TextSendMessage(text=tip), buttons_template],
             )
 
             line_bot_api.reply_message(event.reply_token, template_message)
