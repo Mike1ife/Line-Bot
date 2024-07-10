@@ -11,12 +11,10 @@ from linebot.models import (
     CarouselColumn,
     PostbackAction,
     PostbackEvent,
-    FlexSendMessage,
-    BubbleContainer,
-    BoxComponent,
-    TextComponent,
-    ButtonComponent,
-    SeparatorComponent,
+    ButtonsTemplate,
+    URIAction,
+    PostbackAction,
+    MessageAction,
 )
 
 from os import getenv
@@ -42,8 +40,6 @@ CLIENT_ID = "427bae956e65de4"
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 MY_UID = "Uba0a4dd4bcfcb11fb91a7f0ba9992843"
 GROUP_ID = "Cbb4733349bd2459a4fbe10a1068025ed"
-
-answer = ""
 
 
 # domain root
@@ -633,32 +629,26 @@ def text_message(event):
                 )
 
     if msg == "NBA猜題":
-        global answer
         try:
-            answer, content = nba_guessing()
-            flex_message = FlexSendMessage(
-                alt_text="Player Stats",
-                contents=BubbleContainer(
-                    body=BoxComponent(
-                        layout="vertical",
-                        contents=[
-                            TextComponent(
-                                text=content[0],
-                                weight="bold",
-                            ),
-                            SeparatorComponent(margin="md"),
-                            BoxComponent(
-                                layout="vertical",
-                                margin="md",
-                                contents=[
-                                    TextComponent(text=text) for text in content[1:]
-                                ],
-                            ),
-                        ],
-                    )
-                ),
+            name, history_teams, history_game, history_stats = nba_guessing()
+            # Define the buttons
+            buttons_template = ButtonsTemplate(
+                title="Menu",
+                text="Please select",
+                actions=[
+                    MessageAction(label="生涯球隊", text=f"生涯球隊\n{history_teams}"),
+                    MessageAction(label="上場時間", text=f"上場時間\n{history_game}"),
+                    MessageAction(label="賽季平均", text=f"賽季平均\n{history_stats}"),
+                    MessageAction(label="看答案", text=f"答案是 {name}"),
+                ],
             )
-            line_bot_api.reply_message(event.reply_token, flex_message)
+
+            # Create the template message
+            template_message = TemplateSendMessage(
+                alt_text="NBA猜一猜", template=buttons_template
+            )
+
+            line_bot_api.reply_message(event.reply_token, template_message)
         except Exception as e:
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
