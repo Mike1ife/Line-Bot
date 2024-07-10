@@ -12,6 +12,11 @@ from linebot.models import (
     PostbackAction,
     PostbackEvent,
     FlexSendMessage,
+    BubbleContainer,
+    BoxComponent,
+    TextComponent,
+    ButtonComponent,
+    SeparatorComponent,
 )
 
 from os import getenv
@@ -630,8 +635,30 @@ def text_message(event):
     if msg == "NBA猜題":
         global answer
         try:
-            answer, text = nba_guessing()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+            answer, content = nba_guessing()
+            flex_message = FlexSendMessage(
+                alt_text="Player Stats",
+                contents=BubbleContainer(
+                    body=BoxComponent(
+                        layout="vertical",
+                        contents=[
+                            TextComponent(
+                                text=content[0],
+                                weight="bold",
+                            ),
+                            SeparatorComponent(margin="md"),
+                            BoxComponent(
+                                layout="vertical",
+                                margin="md",
+                                contents=[
+                                    TextComponent(text=text) for text in content[1:]
+                                ],
+                            ),
+                        ],
+                    )
+                ),
+            )
+            line_bot_api.reply_message(event.reply_token, flex_message)
         except Exception as e:
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)

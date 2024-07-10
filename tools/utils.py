@@ -96,18 +96,22 @@ def nba_guessing():
                 APG = each_year.find_all("td")[6].getText().strip()
                 player_info["stats"][YEAR]["APG"] = APG
 
-    text = "{:<8} {:<8} {:<8} {:<8} {:<8}".format(
-        "賽季", "球隊", "先發/出場", "上場時間", "得分/籃板/助攻/命中率"
+    content = []
+    content.append(
+        "{:<8} {:<8} {:<8} {:<8} {:<8}".format(
+            "賽季", "球隊", "先發/出場", "上場時間", "得分/籃板/助攻/命中率"
+        )
     )
     for year, stat in player_info["stats"].items():
         TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
-        text += "\n"
-        text += "{:<8} {:<8} {:<8} {:<8} {:<8}".format(
-            year,
-            NBA_TEAM_NAME[TEAM],
-            f"{GS}/{GP}",
-            MPG,
-            f"{PPG}/{RPG}/{APG}/{FPR}%",
+        content.append(
+            "{:<8} {:<8} {:<8} {:<8} {:<8}".format(
+                year,
+                NBA_TEAM_NAME[TEAM],
+                f"{GS}/{GP}",
+                MPG,
+                f"{PPG}/{RPG}/{APG}/{FPR}%",
+            )
         )
 
-    return player_info["name"], text
+    return player_info["name"], content
