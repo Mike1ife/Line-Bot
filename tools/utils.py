@@ -42,19 +42,17 @@ def nba_guessing():
     players, team_url = get_players(teams)
     name, stats, player_url = get_stats(players)
 
-    print(team_url)
-    print(player_url)
+    # print(team_url)
+    # print(player_url)
 
-    player_info = {
-        "name": name.getText().title(),
-        "stats": defaultdict(lambda: defaultdict()),
-    }
+    player_info = {"name": name.getText().title(), "stats": []}
     for stat in stats:
         stat_type = (
             stat.find("h3", class_="stat-name uc fs-18 fs-md-14 fs-sm-14")
             .getText()
             .strip()
         )
+
         if stat_type == "SCORING":
             url = BASE + stat.attrs["href"]
             response = requests.get(url)
@@ -63,16 +61,21 @@ def nba_guessing():
                 "tr"
             )
             for each_year in all_years:
+                data = defaultdict()
                 YEAR, TEAM, GP, GS, MPG, PPG = [
                     value.getText().strip() for value in each_year.find_all("td")[:6]
                 ]
+                if TEAM == "TOTAL":
+                    continue
                 FPR = each_year.find_all("td")[10].getText().strip()
-                player_info["stats"][YEAR]["Team"] = TEAM
-                player_info["stats"][YEAR]["GP"] = GP
-                player_info["stats"][YEAR]["GS"] = GS
-                player_info["stats"][YEAR]["MPG"] = MPG
-                player_info["stats"][YEAR]["PPG"] = PPG
-                player_info["stats"][YEAR]["FPR"] = FPR
+                data["Year"] = YEAR
+                data["Team"] = TEAM
+                data["GP"] = GP
+                data["GS"] = GS
+                data["MPG"] = MPG
+                data["PPG"] = PPG
+                data["FPR"] = FPR
+                player_info["stats"].append(data)
         elif stat_type == "REBOUNDING":
             url = BASE + stat.attrs["href"]
             response = requests.get(url)
@@ -80,10 +83,14 @@ def nba_guessing():
             all_years = soup.find("tbody", class_="row-data lh-1pt43 fs-14").find_all(
                 "tr"
             )
-            for each_year in all_years:
-                YEAR = each_year.find_all("td")[0].getText().strip()
+            delta = 0
+            for i, each_year in enumerate(all_years):
+                TEAM = each_year.find_all("td")[1].getText().strip()
+                if TEAM == "TOTAL":
+                    delta += 1
+                    continue
                 RPG = each_year.find_all("td")[5].getText().strip()
-                player_info["stats"][YEAR]["RPG"] = RPG
+                player_info["stats"][i - delta]["RPG"] = RPG
         elif stat_type == "ASSISTS":
             url = BASE + stat.attrs["href"]
             response = requests.get(url)
@@ -91,17 +98,22 @@ def nba_guessing():
             all_years = soup.find("tbody", class_="row-data lh-1pt43 fs-14").find_all(
                 "tr"
             )
-            for each_year in all_years:
-                YEAR = each_year.find_all("td")[0].getText().strip()
+            delta = 0
+            for i, each_year in enumerate(all_years):
+                TEAM = each_year.find_all("td")[1].getText().strip()
+                if TEAM == "TOTAL":
+                    delta += 1
+                    continue
                 APG = each_year.find_all("td")[6].getText().strip()
-                player_info["stats"][YEAR]["APG"] = APG
+                player_info["stats"][i - delta]["APG"] = APG
 
     history_teams = ""
     history_game = ""
     history_stats = ""
-    for year, stat in player_info["stats"].items():
-        TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
-        history_teams += "{:<8} {:<8}".format(year, TEAM) + "\n"
+    for stat in player_info["stats"]:
+        year, TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
+        year = year.replace("-", "\u200B-")
+        history_teams += "{:<8} {:<8}".format(year, NBA_TEAM_NAME[TEAM]) + "\n"
         history_game += "{:<8} {:<8} {:<8}".format(year, f"{GS}/{GP}", MPG) + "\n"
         history_stats += "{:<8} {:<8}".format(year, f"{PPG}/{RPG}/{APG}/{FPR}%") + "\n"
 

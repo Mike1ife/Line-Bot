@@ -632,10 +632,12 @@ def text_message(event):
         try:
             name, history_teams, history_game, history_stats = nba_guessing()
             # Define the buttons
+            tip = "生涯球隊: 球員生涯球隊\n上場時間: 先發場次/出場場次, 平均上場時間\n賽季平均: 得分/籃板/助攻/命中率"
             buttons_template = ButtonsTemplate(
                 title="Menu",
                 text="Please select",
                 actions=[
+                    MessageAction(label="使用提示", text=tip),
                     MessageAction(label="生涯球隊", text=f"生涯球隊\n{history_teams}"),
                     MessageAction(label="上場時間", text=f"上場時間\n{history_game}"),
                     MessageAction(label="賽季平均", text=f"賽季平均\n{history_stats}"),
