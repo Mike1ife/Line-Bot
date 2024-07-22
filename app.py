@@ -84,6 +84,20 @@ def text_message(event):
         text_message = TextSendMessage(text=text)
         line_bot_api.reply_message(event.reply_token, text_message)
 
+    if msg[:2].lower() == "ai":
+        query = msg[3:]
+        resposne = requests.post(
+            "http://192.168.213.67:8000/generate",
+            headers={"Content-Type": "application/json"},
+            json={"query": query},
+        )
+        if resposne.status_code == 200:
+            text_message = TextSendMessage(text=resposne.json()["response_text"])
+            line_bot_api.reply_message(event.reply_token, text_message)
+        else:
+            text_message = TextSendMessage(text="伺服器關閉")
+            line_bot_api.reply_message(event.reply_token, text_message)
+
     if msg[:2].lower() == "yt":
         search = msg[3:]
         data = get(f"https://www.youtube.com/results?search_query={search}").text
