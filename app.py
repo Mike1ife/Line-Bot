@@ -21,7 +21,7 @@ from os import getenv
 from re import compile
 from urllib.parse import quote
 from random import choice, randint
-from requests import get
+from requests import get, post
 
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
@@ -86,7 +86,7 @@ def text_message(event):
 
     if msg[:2].lower() == "ai":
         query = msg[3:]
-        resposne = requests.post(
+        resposne = post(
             "http://192.168.213.67:8000/generate",
             headers={"Content-Type": "application/json"},
             json={"query": query},
