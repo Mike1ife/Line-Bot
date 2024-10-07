@@ -200,52 +200,55 @@ def text_message(event):
                         line_bot_api.reply_message(event.reply_token, bot_message)
                     else:
                         for match_index, match in enumerate(matches):
-                            """Match infomation"""
-                            team_name = match["name"]
-                            team_standing = match["standing"]
                             try:
-                                team_points = match["points"]
+                                """Match infomation"""
+                                team_name = match["name"]
+                                team_standing = match["standing"]
+                                try:
+                                    team_points = match["points"]
+                                except:
+                                    team_points = [20, 20]
+                                team_pos = ["客", "主"]
+    
+                                """Create template"""
+                                encoded_team1 = quote(team_name[0])
+                                encoded_team2 = quote(team_name[1])
+                                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
+                                if not check_url_exists(thumbnail_image_url):
+                                    thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
+                                    team_name.reverse()
+                                    team_standing.reverse()
+                                    team_points.reverse()
+                                    team_pos.reverse()
+    
+                                # title = 溜馬-老鷹 31/9
+                                # text = 溜馬 31分 / 老鷹 9分
+                                columns.append(
+                                    CarouselColumn(
+                                        thumbnail_image_url=thumbnail_image_url,
+                                        title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
+                                        text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
+                                        actions=[
+                                            PostbackAction(
+                                                label=team_name[0],
+                                                data=f"{team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
+                                            ),
+                                            PostbackAction(
+                                                label=team_name[1],
+                                                data=f"{team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
+                                            ),
+                                        ],
+                                    ),
+                                )
+    
+                                header, rows = modify_column_name(
+                                    header,
+                                    rows,
+                                    match_index,
+                                    f"{team_name[0]}-{team_name[1]} {team_points[0]}/{team_points[1]}",
+                                )
                             except:
-                                team_points = [20, 20]
-                            team_pos = ["客", "主"]
-
-                            """Create template"""
-                            encoded_team1 = quote(team_name[0])
-                            encoded_team2 = quote(team_name[1])
-                            thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team1}_{encoded_team2}.png"
-                            if not check_url_exists(thumbnail_image_url):
-                                thumbnail_image_url = f"https://raw.githubusercontent.com/Mike1ife/Line-Bot/main/images/merge/{encoded_team2}_{encoded_team1}.png"
-                                team_name.reverse()
-                                team_standing.reverse()
-                                team_points.reverse()
-                                team_pos.reverse()
-
-                            # title = 溜馬-老鷹 31/9
-                            # text = 溜馬 31分 / 老鷹 9分
-                            columns.append(
-                                CarouselColumn(
-                                    thumbnail_image_url=thumbnail_image_url,
-                                    title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
-                                    text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
-                                    actions=[
-                                        PostbackAction(
-                                            label=team_name[0],
-                                            data=f"{team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
-                                        ),
-                                        PostbackAction(
-                                            label=team_name[1],
-                                            data=f"{team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
-                                        ),
-                                    ],
-                                ),
-                            )
-
-                            header, rows = modify_column_name(
-                                header,
-                                rows,
-                                match_index,
-                                f"{team_name[0]}-{team_name[1]} {team_points[0]}/{team_points[1]}",
-                            )
+                                continue
 
                         """Update GS"""
                         update_sheet(header, rows, worksheet)
