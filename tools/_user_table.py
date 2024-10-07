@@ -328,7 +328,18 @@ def get_nba_today():
 
     for team in match_team:
         team_name = team.find("span", class_="scores-text capi pd-b-1 ff-ff")
-        team_name = NBA_TEAM_TRANSLATION[team_name.text.strip()]
+        try:
+            team_name = NBA_TEAM_TRANSLATION[team_name.text.strip()]
+        except:
+            if match_index == 0:
+                match_index = 1
+                continue
+            else:
+                match["name"].pop()
+                match["standing"].pop()
+                match.clear()
+                match_index = 0
+                continue
 
         team_standing = team.find("sup", class_="scores-team-record ffn-gr-10")
         team_standing = team_standing.text.strip()
@@ -336,7 +347,7 @@ def get_nba_today():
         if match_index == 0:
             match["name"] = [team_name]
             match["standing"] = [team_standing]
-        else:
+        elif "name" in match:
             match["name"].append(team_name)
             match["standing"].append(team_standing)
             matches.append(match.copy())
