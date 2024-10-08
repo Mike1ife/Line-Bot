@@ -138,7 +138,21 @@ def get_match_result(header, rows):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
 
-        match_team.append(NBA_TEAM_TRANSLATION[name])
+        if match_index==1 and len(match_point)==0:
+            match_index = 0
+            continue
+        
+        try:
+            match_team.append(NBA_TEAM_TRANSLATION[name])
+        except:
+            if match_index == 0:
+                match_index = 1
+            else:
+                match_index = 0
+            match_team.clear()
+            match_point.clear()
+            continue
+        
         match_point.append(int(point))
 
         if match_index != 0:
