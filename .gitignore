@@ -1,11 +1,2 @@
-
-imgur.txt
-test.py
-a.py
-html_viewer.py
-output.txt
 *.pyc
-rank_table_test.py
-user_table_test.py
-html_test.py
-table_test.py
+testing.py
