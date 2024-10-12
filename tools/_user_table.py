@@ -138,6 +138,9 @@ def get_match_result(header, rows):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
 
+        if point == "-":
+            continue
+
         if match_index==1 and len(match_point)==0:
             match_index = 0
             continue
