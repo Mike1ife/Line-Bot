@@ -132,15 +132,15 @@ def get_match_result(header, rows):
     scores = soup.find_all("div", class_="score-team-score")
 
     # handle cancelled match
-    a, b= None, None
-    for team in teams:
-        name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
-        if name == "NOP":
-            a = team
-        if name == "ORL":
-            b = team
-    teams.remove(a)
-    teams.remove(b)
+    # a, b= None, None
+    # for team in teams:
+    #     name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
+    #     if name == "NOP":
+    #         a = team
+    #     if name == "ORL":
+    #         b = team
+    # teams.remove(a)
+    # teams.remove(b)
 
 
     match_team = []
