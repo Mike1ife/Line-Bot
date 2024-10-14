@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -12,7 +13,6 @@ from linebot.models import (
     PostbackAction,
     PostbackEvent,
     ButtonsTemplate,
-    URIAction,
     PostbackAction,
     MessageAction,
 )
@@ -21,7 +21,6 @@ from os import getenv
 from re import compile
 from urllib.parse import quote
 from random import choice, randint
-from requests import get, post
 
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
@@ -86,7 +85,9 @@ def text_message(event):
 
     if msg[:2].lower() == "yt":
         search = msg[3:]
-        data = get(f"https://www.youtube.com/results?search_query={search}").text
+        data = requests.get(
+            f"https://www.youtube.com/results?search_query={search}"
+        ).text
         title_pattern = compile(r'"videoRenderer".*?"label":"(.*?)"')
         video_id_pattern = compile(r'"videoRenderer":{"videoId":"(.*?)"')
 
@@ -103,11 +104,11 @@ def text_message(event):
 
     if msg[:2].lower() == "gg":
         search = msg[3:]
-        data = get(f"https://www.google.com/search?q={search}&tbm=isch").text
+        data = requests.get(f"https://www.google.com/search?q={search}&tbm=isch").text
         soup = BeautifulSoup(data, "html.parser")
         img_src = soup.find("img", class_="DS1iW")["src"]
 
-        response = get(img_src)
+        response = requests.get(img_src)
         if response.status_code == 200:
             image_message = ImageSendMessage(
                 original_content_url=img_src,  # Replace with the public URL of your image
@@ -142,7 +143,7 @@ def text_message(event):
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
         time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
-        data = get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
+        data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
         soup = BeautifulSoup(data, "html.parser")
         cards = soup.find_all("div", class_="card")
 
@@ -208,7 +209,7 @@ def text_message(event):
                             except:
                                 team_points = [20, 20]
                             team_pos = ["客", "主"]
-    
+
                             """Create template"""
                             encoded_team1 = quote(team_name[0])
                             encoded_team2 = quote(team_name[1])
@@ -219,7 +220,7 @@ def text_message(event):
                                 team_standing.reverse()
                                 team_points.reverse()
                                 team_pos.reverse()
-    
+
                             # title = 溜馬-老鷹 31/9
                             # text = 溜馬 31分 / 老鷹 9分
                             columns.append(
@@ -239,7 +240,7 @@ def text_message(event):
                                     ],
                                 ),
                             )
-    
+
                             header, rows = modify_column_name(
                                 header,
                                 rows,
@@ -534,7 +535,7 @@ def text_message(event):
             team_name = NBA_TEAM_COMPLETE_NAME[msg.split()[1]]
             team_data = {}
 
-            data = get(
+            data = requests.get(
                 "https://hooptheball.com/nba-injury-report",
                 headers={"User-Agent": "Agent"},
             ).text
@@ -589,7 +590,7 @@ def text_message(event):
             line_bot_api.reply_message(event.reply_token, text_message)
 
     if msg.lower() == "lck":
-        data = get(
+        data = requests.get(
             f"https://dotesports.com/league-of-legends/news/2024-lck-spring-split-scores-standings-and-schedule"
         ).text
         soup = BeautifulSoup(data, "html.parser")
@@ -706,7 +707,7 @@ def random_message(event):
         album_id = "ZDcNFCL"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
@@ -740,7 +741,7 @@ def random_message(event):
         album_id = "698HGtx"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
@@ -756,7 +757,7 @@ def random_message(event):
         album_id = "1K6H3WS"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
@@ -772,7 +773,7 @@ def random_message(event):
         album_id = "tb0BGKk"
         endpoint = f"https://api.imgur.com/3/album/{album_id}/images"
         headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-        response = get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
             images = data["data"]
