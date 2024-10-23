@@ -142,7 +142,6 @@ def get_match_result(header, rows):
     # teams.remove(a)
     # teams.remove(b)
 
-
     match_team = []
     match_point = []
     match_result = {}
@@ -150,10 +149,10 @@ def get_match_result(header, rows):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
 
-        if match_index==1 and len(match_point)==0:
+        if match_index == 1 and len(match_point) == 0:
             match_index = 0
             continue
-        
+
         try:
             match_team.append(NBA_TEAM_TRANSLATION[name])
         except:
@@ -164,7 +163,7 @@ def get_match_result(header, rows):
             match_team.clear()
             match_point.clear()
             continue
-        
+
         match_point.append(int(point))
 
         if match_index != 0:
@@ -382,7 +381,7 @@ def get_nba_today():
         match_index = (match_index + 1) % 2
 
     match_index = 0
-    values = soup.find_all("span", class_="secondary-text status uc")
+    values = soup.find_all("span", class_="secondary-text status ffn-11 opac-5 uc")
     for value in values:
         team_name, team_give = value.text.strip().split()
         match = matches[match_index]["name"]
