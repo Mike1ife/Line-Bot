@@ -360,6 +360,14 @@ def text_message(event):
 
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
 
+    if msg == "傻鳥結算":
+        header, rows, worksheet = init()
+        rows, belief, hatred = reset_belief_hatred(header, rows)
+        update_sheet(header, rows, worksheet)
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=f"{belief}是信仰的GOAT\n{hatred}是傻鳥的GOAT")
+        )
+
     if msg == "NBA預測週最佳":
         """Get week best"""
         header, rows, worksheet = init()

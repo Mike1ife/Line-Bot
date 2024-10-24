@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 from tools._table import NBA_TEAM_TRANSLATION
+from collections import Counter
 
 static_len = 35
 
@@ -435,6 +436,33 @@ def get_user_hatred(header, rows, name):
             wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
             return wrong
     return "Unknown user"
+
+
+def reset_belief_hatred(header, rows):
+    # get most belief/hatred
+    all_user_belief, all_user_hatred = [], []
+    for row in rows:
+        correct, wrong = {}, {}
+        for i in range(static_len - 30, static_len):
+            correct[header[i]] = int(row[i].split()[0])
+            wrong[header[i]] = int(row[i].split()[1])
+        correct = dict(sorted(correct.items(), key=lambda item: item[1], reverse=True))
+        wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
+
+        belief = max(correct.keys(), key=(lambda key: correct[key]))
+        all_user_belief.append(belief)
+
+        hatred = max(wrong.keys(), key=(lambda key: wrong[key]))
+        all_user_hatred.append(hatred)
+    # Counter(all_user_belief).most_common(1) = [('塞爾提克', 6)]
+    most_belief_team = Counter(all_user_belief).most_common(1)[0][0]
+    most_hatred_team = Counter(all_user_hatred).most_common(1)[0][0]
+
+    # reset
+    for row in rows:
+        for i in range(static_len - 30, static_len):
+            row[i] = "0 0"
+    return rows, most_belief_team, most_hatred_team
 
 
 def check_user_exist(rows, name):
