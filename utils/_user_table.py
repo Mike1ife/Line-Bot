@@ -1,13 +1,13 @@
 import re
-from requests import get
+import requests
 from gspread import authorize
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
-from tools._table import NBA_TEAM_TRANSLATION
+from utils.team_table import NBA_TEAM_TRANSLATION
 from collections import Counter
 
-static_len = 35
+PREDICT_INDEX = 35
 
 
 def init():
@@ -33,21 +33,21 @@ def reset_user_points(header, rows, column):
 
 
 def reset_match(header, rows):
-    header = header[:static_len]
-    rows = [row[:static_len] for row in rows]
+    header = header[:PREDICT_INDEX]
+    rows = [row[:PREDICT_INDEX] for row in rows]
     return header, rows
 
 
 def modify_column_name(header, rows, index, new_name):
     # new column
-    if (index + static_len) == len(header):
-        header.insert(index + static_len, new_name)
+    if (index + PREDICT_INDEX) == len(header):
+        header.insert(index + PREDICT_INDEX, new_name)
         # insert empty value to each row to fill in column
         for i in range(len(rows)):
             fill_num = len(header) - len(rows[i])
             rows[i] += [""] * fill_num
     else:
-        header[index + static_len] = new_name
+        header[index + PREDICT_INDEX] = new_name
 
     return header, rows
 
@@ -115,17 +115,17 @@ def column_exist(header, column):
 
 
 def add_new_user(header, rows, name):
-    match_num = len(header) - static_len
+    match_num = len(header) - PREDICT_INDEX
     new_row = [name, "0", "0", "0", "0"] + ["0 0"] * 30 + [""] * match_num
     rows.append(new_row)
     return header, rows
 
 
 def get_match_result(header, rows):
-    if len(header) == static_len:
+    if len(header) == PREDICT_INDEX:
         return header, rows
 
-    data = get(f"https://www.foxsports.com/nba/scores").text
+    data = requests.get(f"https://www.foxsports.com/nba/scores").text
     soup = BeautifulSoup(data, "html.parser")
 
     match_index = 0
@@ -177,7 +177,7 @@ def get_match_result(header, rows):
         match_index = (match_index + 1) % 2
 
     match_index = 0
-    for match in header[static_len:]:
+    for match in header[PREDICT_INDEX:]:
         teams, points = match.split()
         try:
             winner = match_result[teams]
@@ -339,7 +339,7 @@ def get_nba_today():
         day = f"0{day}"
     time = f"{year}-{month}-{day}"
 
-    data = get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
     soup = BeautifulSoup(data, "html.parser")
     scores = soup.find_all("div", class_="score-team-score")
 
@@ -402,13 +402,13 @@ def get_user_prediction(header, rows, name_index):
         name = rows[name_index][0]
         for row in rows:
             if row[0] == name:
-                if row.count("") == len(header) - static_len:
+                if row.count("") == len(header) - PREDICT_INDEX:
                     return f"{name}還沒預測任何比賽"
                 else:
                     response = f"{name}預測的球隊:\n"
                     indices = [i for i, x in enumerate(row) if x != ""]
                     game_names = [row[i].split()[0] for i in indices]
-                    for team in game_names[static_len:]:
+                    for team in game_names[PREDICT_INDEX:]:
                         response += f"{team}\n"
                     return response[:-1]
     return "Unknown user"
@@ -418,7 +418,7 @@ def get_user_belief(header, rows, name):
     correct = {}
     for row in rows:
         if row[0] == name:
-            for i in range(static_len - 30, static_len):
+            for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
                 correct[header[i]] = int(row[i].split()[0])
             correct = dict(
                 sorted(correct.items(), key=lambda item: item[1], reverse=True)
@@ -431,7 +431,7 @@ def get_user_hatred(header, rows, name):
     wrong = {}
     for row in rows:
         if row[0] == name:
-            for i in range(static_len - 30, static_len):
+            for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
                 wrong[header[i]] = int(row[i].split()[1])
             wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
             return wrong
@@ -443,7 +443,7 @@ def reset_belief_hatred(header, rows):
     all_user_belief, all_user_hatred = [], []
     for row in rows:
         correct, wrong = {}, {}
-        for i in range(static_len - 30, static_len):
+        for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
             correct[header[i]] = int(row[i].split()[0])
             wrong[header[i]] = int(row[i].split()[1])
         correct = dict(sorted(correct.items(), key=lambda item: item[1], reverse=True))
@@ -460,7 +460,7 @@ def reset_belief_hatred(header, rows):
 
     # reset
     for row in rows:
-        for i in range(static_len - 30, static_len):
+        for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
             row[i] = "0 0"
     return rows, most_belief_team, most_hatred_team
 
@@ -488,7 +488,7 @@ def user_predicted(header, rows, name, column):
 def check_user_prediction(header, rows, name):
     for row in rows:
         if row[0] == name:
-            if row.count("") == len(header) - static_len:
+            if row.count("") == len(header) - PREDICT_INDEX:
                 return "還沒預測任何比賽"
             elif row.count("") == 0:
                 return "已經完成全部預測"

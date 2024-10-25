@@ -97,16 +97,3 @@ NBA_TEAM_NAME = {
     "Pistons": "活塞",
     "TOTAL": "賽季",
 }
-
-
-week_day = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-]
-
-month_abbreviation = ["Jan", "Feb", "March"]

@@ -1,7 +1,6 @@
 uid
 yt {anything}
 gg {anything}
-bubble sort
 抽
 抽牌
 兄弟
@@ -9,7 +8,6 @@ bubble sort
 你媽
 大小
 抽單字
-河內塔
 
 nba
 規則

@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from _table import nba_team_translations
+from utils.team_table import nba_team_translations
 
 data = requests.get(f"https://www.foxsports.com/nba/teams").text
 
