@@ -11,7 +11,7 @@ from utils._user_table import *
 from utils.team_table import NBA_TEAM_NAME, NBA_TEAM_COMPLETE_NAME
 
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
-TYPENAME = {"week": "本週", "month": "本月", "season": "本季"}
+TYPENAME = {"week": "本週", "month": "本月", "season": "本季", "all-time": "歷史"}
 TYPEFUNC = {
     "week": get_week_best,
     "month": get_month_best,
