@@ -75,7 +75,7 @@ def text_message(event):
 
     if msg[:2].lower() == "yt":
         text = get_youtube(msg)
-        line_bot_api.reply_message(event.reply_token, text_message)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
     if msg[:2].lower() == "gg":
         status_code, img_src = get_google_image(msg)
