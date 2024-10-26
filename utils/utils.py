@@ -6,9 +6,8 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from linebot.models import CarouselColumn, PostbackAction
 
-from tools._image import check_url_exists
 from utils._user_table import *
-from utils.team_table import NBA_TEAM_NAME, NBA_TEAM_COMPLETE_NAME
+from utils._team_table import NBA_TEAM_NAME, NBA_TEAM_COMPLETE_NAME
 
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 TYPENAME = {"week": "本週", "month": "本月", "season": "本季", "all-time": "歷史"}
@@ -18,6 +17,15 @@ TYPEFUNC = {
     "season": get_season_best,
 }
 NEXTTYPE = {"week": "本月", "month": "本季", "season": "歷史"}
+
+
+def check_url_exists(url):
+    try:
+        response = requests.head(url, allow_redirects=True)
+        # You can also use requests.get(url) if you want to follow redirects and check the content
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
 
 
 def get_youtube(msg):

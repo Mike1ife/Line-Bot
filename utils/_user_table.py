@@ -4,7 +4,7 @@ from gspread import authorize
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
-from utils.team_table import NBA_TEAM_TRANSLATION
+from utils._team_table import NBA_TEAM_TRANSLATION
 from collections import Counter
 
 PREDICT_INDEX = 35
