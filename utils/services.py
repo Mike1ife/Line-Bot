@@ -96,9 +96,7 @@ def text_message(event):
     if msg == "結算":
         try:
             text = get_daily_predict_result()
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=text[:-1])
-            )
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
         except Exception as e:
             error_message = TextSendMessage(text=str(e))
             bot_message = TextSendMessage(
