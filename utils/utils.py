@@ -16,7 +16,8 @@ TYPEFUNC = {
     "month": get_month_best,
     "season": get_season_best,
 }
-NEXTTYPE = {"week": "本月", "month": "本季", "season": "歷史"}
+NEXTTYPE = {"week": "month", "month": "season", "season": "all-time"}
+NEXTTYPENAME = {"week": "本月", "month": "本季", "season": "歷史"}
 
 
 def check_url_exists(url):
@@ -268,8 +269,8 @@ def get_user_type_best(type: str):
         for user in best:
             best_users += f"{user[0]}({user[1]}分) "
         """Send user ranks"""
-        user_point = get_user_points(rows, type)
-        message = f"{NEXTTYPE[type]}排行榜:\n"
+        user_point = get_user_type_point(NEXTTYPE[type])
+        message = f"{NEXTTYPENAME[type]}排行榜:\n"
         for i, value in enumerate(user_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
 
