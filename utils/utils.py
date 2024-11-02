@@ -16,6 +16,7 @@ TYPEFUNC = {
     "month": get_month_best,
     "season": get_season_best,
 }
+TYPECOL = {"week": "Week Points", "month": "Month Points", "season": "Year Points"}
 NEXTTYPE = {"week": "month", "month": "season", "season": "all-time"}
 NEXTTYPENAME = {"week": "本月", "month": "本季", "season": "歷史"}
 
@@ -277,7 +278,7 @@ def get_user_type_best(type: str):
         type_rank = message[:-1]
 
         """Reset current points"""
-        header, rows = reset_user_points(header, rows, "Week Points")
+        header, rows = reset_user_points(header, rows, TYPECOL[type])
         update_sheet(header, rows, worksheet)
 
         return best_users, type_rank
