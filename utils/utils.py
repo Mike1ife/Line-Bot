@@ -270,9 +270,10 @@ def get_user_type_best(type: str):
         for user in best:
             best_users += f"{user[0]}({user[1]}分) "
         """Send user ranks"""
-        user_point = get_user_type_point(NEXTTYPE[type])
+        user_type_point = get_user_points(rows, NEXTTYPE[type])
+
         message = f"{NEXTTYPENAME[type]}排行榜:\n"
-        for i, value in enumerate(user_point):
+        for i, value in enumerate(user_type_point):
             message += f"{i+1}. {value[0]}: {value[1]}分\n"
 
         type_rank = message[:-1]
