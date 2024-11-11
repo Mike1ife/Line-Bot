@@ -132,23 +132,17 @@ def get_match_result(header, rows):
     teams = soup.find_all("div", class_="score-team-name abbreviation")
     scores = soup.find_all("div", class_="score-team-score")
 
-    # handle cancelled match
-    # a, b = None, None
-    # for team in teams:
-    #     name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
-    #     if name == "CHA":
-    #         a = team
-    #     if name == "PHI":
-    #         b = team
-    # teams.remove(a)
-    # teams.remove(b)
-
     match_team = []
     match_point = []
     match_result = {}
     for team, score in zip(teams, scores):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
+
+        # handle cancelled match
+        # cancelled_teams = ["CHA", "PHI"]
+        # if name in cancelled_teams:
+        #   continue
 
         # handle finished games bug (as unfinished)
         # finished_points = [105, 107]
