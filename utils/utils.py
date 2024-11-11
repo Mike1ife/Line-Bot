@@ -269,14 +269,18 @@ def get_user_type_best(type: str):
         best_users = f"{TYPENAME[type]}預測GOAT: "
         for user in best:
             best_users += f"{user[0]}({user[1]}分) "
-        """Send user ranks"""
-        type_rank = get_user_type_point(NEXTTYPE[type])
+
+        """Send next_type ranks"""
+        type_point = get_user_points(rows, NEXTTYPE[type])
+        type_rank = f"{TYPENAME[type]}排行榜:\n"
+        for i, value in enumerate(type_point):
+            type_rank += f"{i+1}. {value[0]}: {value[1]}分\n"
 
         """Reset current points"""
         header, rows = reset_user_points(header, rows, TYPECOL[type])
         update_sheet(header, rows, worksheet)
 
-        return best_users, type_rank
+        return best_users, type_rank[:-1]
 
 
 def get_user_type_point(type: str):
