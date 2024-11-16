@@ -83,6 +83,7 @@ def get_nba_scoreboard():
 
     score_text = ""
     for card in cards:
+        state = card.find("span", class_="during").text.strip()
         team_names = [
             team.find("span", class_="team_name").text.strip()
             for team in card.find_all("div", class_="team")
@@ -92,9 +93,7 @@ def get_nba_scoreboard():
             for team in card.find_all("div", class_="team")
         ]
 
-        score_text += (
-            f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]}\n"
-        )
+        score_text += f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]} ({state})\n"
     return score_text[:-1]
 
 
