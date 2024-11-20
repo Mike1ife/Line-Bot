@@ -18,7 +18,6 @@ TYPEFUNC = {
 }
 TYPECOL = {"week": "Week Points", "month": "Month Points", "season": "Year Points"}
 NEXTTYPE = {"week": "month", "month": "season", "season": "all-time"}
-NEXTTYPENAME = {"week": "本月", "month": "本季", "season": "歷史"}
 
 
 def check_url_exists(url):
@@ -271,7 +270,7 @@ def get_user_type_best(type: str):
 
         """Send next_type ranks"""
         type_point = get_user_points(rows, NEXTTYPE[type])
-        type_rank = f"{TYPENAME[type]}排行榜:\n"
+        type_rank = f"{TYPENAME[NEXTTYPE[type]]}排行榜:\n"
         for i, value in enumerate(type_point):
             type_rank += f"{i+1}. {value[0]}: {value[1]}分\n"
 
