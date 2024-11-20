@@ -145,7 +145,7 @@ def get_match_result(header, rows):
         #   continue
 
         # handle finished games bug (as unfinished)
-        # finished_points = [105, 107]
+        # finished_points = [117, 120]
         # if point == "-":
         #     point = finished_points[match_index]
 
@@ -230,7 +230,7 @@ def get_week_best(header, rows):
             point -= reduction
             reduction = 0.0
 
-        print(user[0], user[1], point, current_best)
+        # print(user[0], user[1], point, current_best)
 
         header, rows = add_value(header, rows, user[0], "Month Points", point)
 
