@@ -259,3 +259,12 @@ def random_message(event):
                 original_content_url=image_url, preview_image_url=image_url
             ),
         )
+
+    if "goat" in msg:
+        image_url = get_random_picture("8mbzNPn")
+        line_bot_api.reply_message(
+            event.reply_token,
+            ImageSendMessage(
+                original_content_url=image_url, preview_image_url=image_url
+            ),
+        )
