@@ -544,11 +544,11 @@ def get_player_stat_prediction():
                     actions=[
                         PostbackAction(
                             label="大盤",
-                            data="",
+                            data="大盤",
                         ),
                         PostbackAction(
                             label="小盤",
-                            data="",
+                            data="小盤",
                         ),
                     ],
                 ),
