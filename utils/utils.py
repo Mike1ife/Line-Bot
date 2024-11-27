@@ -148,11 +148,11 @@ def get_nba_match_prediction():
                     actions=[
                         PostbackAction(
                             label=team_name[0],
-                            data=f"{team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
+                            data=f"NBA球隊預測 {team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
                         ),
                         PostbackAction(
                             label=team_name[1],
-                            data=f"{team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
+                            data=f"NBA球隊預測 {team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
                         ),
                     ],
                 ),
@@ -170,7 +170,9 @@ def get_nba_match_prediction():
         return text, columns
 
 
-def get_postback_message(username, winner, loser, winner_point, loser_point):
+def get_nba_match_prediction_postback(
+    username, winner, loser, winner_point, loser_point
+):
     """Get GS"""
     header, rows, worksheet = init()
 
@@ -192,6 +194,83 @@ def get_postback_message(username, winner, loser, winner_point, loser_point):
         text = f"{username}預測{winner}贏{loser}!"
         # Modify GS
         header, rows = modify_value(header, rows, username, column, winner)
+
+    update_sheet(header, rows, worksheet)
+    return text
+
+
+def get_player_stat_prediction():
+    header, rows, worksheet = init()
+
+    data = requests.get(f"https://www.foxsports.com/odds/nba/props").text
+    soup = BeautifulSoup(data, "html.parser")
+    bets = soup.find_all("div", class_="odds-component-prop-bet")
+
+    columns = []
+    for bet in bets:
+        title = bet.find("h2", class_="pb-name fs-30").text.strip()
+        players = bet.find_all("div", class_="prop-bet-data pointer prop-future")
+        for player_index, player in enumerate(players):
+            img_src, name, match, avg, target, odds = _get_player_bet_info(player)
+            # title = Anthony Edwards
+            # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
+            # button1 = 大盤
+            # button2 = 小盤
+            columns.append(
+                CarouselColumn(
+                    thumbnail_image_url=img_src,
+                    title=name,
+                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {10-odds}分",
+                    actions=[
+                        PostbackAction(
+                            label="大盤",
+                            data=f"NBA球員預測 {name} {BET_NAME[title]}{target} {odds} {10-odds} 大盤",
+                        ),
+                        PostbackAction(
+                            label="小盤",
+                            data=f"NBA球員預測 {name} {BET_NAME[title]}{target} {odds} {10-odds} 小盤",
+                        ),
+                    ],
+                ),
+            )
+
+            header, rows = modify_column_name(
+                header,
+                rows,
+                player_index,
+                f"{name} {BET_NAME[title]}{target} {odds}/{10-odds}",
+            )
+
+    update_sheet(header, rows, worksheet)
+    return columns
+
+
+def get_player_stat_prediction_postback(
+    username, player, target, over_point, under_point, predict
+):
+    """Get GS"""
+    header, rows, worksheet = init()
+
+    text = ""
+    """Locate column"""
+    # Anthony Edwards 得分26.5 4/6
+    column = f"{player} {target} {over_point}/{under_point}"
+
+    """Create user if needed"""
+    if not check_user_exist(rows, username):
+        header, rows = add_new_user(header, rows, username)
+
+    """User have predicted"""
+    if user_predicted(header, rows, username, column):
+        text = f"{username}已經預測{player}的盤了!"
+    else:
+        """First time predict"""
+        if predict == "大盤":
+            text = f"{username}預測{player}{target[:2]}超過{target[2:]}!"
+            header, rows = modify_value(header, rows, username, column, "over")
+        elif predict == "小盤":
+            text = f"{username}預測{player}{target[:2]}低於{target[2:]}!"
+            header, rows = modify_value(header, rows, username, column, "under")
 
     update_sheet(header, rows, worksheet)
     return text
@@ -515,42 +594,3 @@ def _get_player_bet_info(player):
 def _get_match_translation(match):
     away, _, home, _, _, _ = match.split()
     return f"{NBA_TEAM_TRANSLATION[away]}(客) - {NBA_TEAM_TRANSLATION[home]}(主)"
-
-
-def get_player_stat_prediction():
-    data = requests.get(f"https://www.foxsports.com/odds/nba/props").text
-    soup = BeautifulSoup(data, "html.parser")
-    bets = soup.find_all("div", class_="odds-component-prop-bet")
-
-    columns = []
-    for bet in bets:
-        title = bet.find("h2", class_="pb-name fs-30").text.strip()
-        players = bet.find_all("div", class_="prop-bet-data pointer prop-future")
-        for player in players:
-            img_src, name, match, avg, target, odds = _get_player_bet_info(player)
-            # print(BET_NAME[title], name, match, avg, target, odds)
-            # title = Anthony Edwards
-            # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
-            # button1 = 大盤
-            # button2 = 小盤
-            # print(
-            #     f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分 / 小盤 ({BET_NAME[title]}低於{target}) {10-odds}分"
-            # )
-            columns.append(
-                CarouselColumn(
-                    thumbnail_image_url=img_src,
-                    title=name,
-                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分 / 小盤 ({BET_NAME[title]}低於{target}) {10-odds}分",
-                    actions=[
-                        PostbackAction(
-                            label="大盤",
-                            data="大盤",
-                        ),
-                        PostbackAction(
-                            label="小盤",
-                            data="小盤",
-                        ),
-                    ],
-                ),
-            )
-    return columns

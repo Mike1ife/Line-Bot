@@ -2,7 +2,10 @@ from linebot.exceptions import LineBotApiError
 from linebot.models import TextSendMessage
 
 from config import line_bot_api
-from utils.utils import get_postback_message
+from utils.utils import (
+    get_nba_match_prediction_postback,
+    get_player_stat_prediction_postback,
+)
 from utils.services import text_message, random_message
 
 
@@ -23,6 +26,12 @@ def handle_postback(event):
 
     """Get user prediction"""
     data = event.postback.data
-    winner, loser, winner_point, loser_point = data.split()
-    text = get_postback_message(username, winner, loser, winner_point, loser_point)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    # NBA球隊預測: winner, loser, winner_point, loser_point
+    # NBA球員預測: player, target, over_point, under_point, predict (Anthony Edwards 得分26.5 4 6 大盤)
+    postback_type, *params = data.split()
+    if postback_type == "NBA球隊預測":
+        text = get_nba_match_prediction_postback(username, *params)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    elif postback_type == "NBA球員預測":
+        text = get_player_stat_prediction_postback(username, *params)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
