@@ -199,6 +199,27 @@ def get_nba_match_prediction_postback(
     return text
 
 
+def _get_player_bet_info(player):
+    img_src = player.find("img").get("src")
+    name = player.find("img").get("alt")
+    match = player.find("div", class_="ffn-gr-11").text
+    avg = player.find("span", class_="ffn-gr-11").text
+    target = player.find("div", class_="fs-30").text
+    _odds_msg = (
+        player.find("span", class_="pd-r-2").text
+        + " "
+        + player.find("span", class_="cl-og").text
+    )
+    _odds_items = _odds_msg.split()
+    odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
+    return img_src, name, _get_match_translation(match), avg.split()[0], target, odds
+
+
+def _get_match_translation(match):
+    away, _, home, _, _, _ = match.split()
+    return f"{NBA_TEAM_TRANSLATION[away]}(客) - {NBA_TEAM_TRANSLATION[home]}(主)"
+
+
 def get_player_stat_prediction():
     header, rows, worksheet = init()
 
@@ -573,24 +594,3 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
-
-
-def _get_player_bet_info(player):
-    img_src = player.find("img").get("src")
-    name = player.find("img").get("alt")
-    match = player.find("div", class_="ffn-gr-11").text
-    avg = player.find("span", class_="ffn-gr-11").text
-    target = player.find("div", class_="fs-30").text
-    _odds_msg = (
-        player.find("span", class_="pd-r-2").text
-        + " "
-        + player.find("span", class_="cl-og").text
-    )
-    _odds_items = _odds_msg.split()
-    odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
-    return img_src, name, _get_match_translation(match), avg.split()[0], target, odds
-
-
-def _get_match_translation(match):
-    away, _, home, _, _, _ = match.split()
-    return f"{NBA_TEAM_TRANSLATION[away]}(客) - {NBA_TEAM_TRANSLATION[home]}(主)"
