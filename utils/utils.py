@@ -228,10 +228,11 @@ def get_player_stat_prediction():
     bets = soup.find_all("div", class_="odds-component-prop-bet")
 
     columns = []
+    column_id = 0
     for bet in bets:
         title = bet.find("h2", class_="pb-name fs-30").text.strip()
         players = bet.find_all("div", class_="prop-bet-data pointer prop-future")
-        for player_index, player in enumerate(players):
+        for player in players:
             img_src, name, match, avg, target, odds = _get_player_bet_info(player)
             # title = Anthony Edwards
             # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
@@ -258,9 +259,10 @@ def get_player_stat_prediction():
             header, rows = modify_column_name(
                 header,
                 rows,
-                player_index,
+                column_id,
                 f"{name} {BET_NAME[title]}{target} {odds}/{10-odds}",
             )
+            column_id += 1
 
     update_sheet(header, rows, worksheet)
     return columns
