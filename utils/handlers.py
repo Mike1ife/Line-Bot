@@ -28,7 +28,7 @@ def handle_postback(event):
     data = event.postback.data
     # NBA球隊預測: winner, loser, winner_point, loser_point
     # NBA球員預測: player, target, over_point, under_point, predict (Anthony Edwards 得分26.5 4 6 大盤)
-    postback_type, *params = data.split()
+    postback_type, *params = data.split(";")
     if postback_type == "NBA球隊預測":
         text = get_nba_match_prediction_postback(username, *params)
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))

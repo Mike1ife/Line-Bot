@@ -148,11 +148,11 @@ def get_nba_match_prediction():
                     actions=[
                         PostbackAction(
                             label=team_name[0],
-                            data=f"NBA球隊預測 {team_name[0]} {team_name[1]} {team_points[0]} {team_points[1]}",
+                            data=f"NBA球隊預測;{team_name[0]};{team_name[1]};{team_points[0]};{team_points[1]}",
                         ),
                         PostbackAction(
                             label=team_name[1],
-                            data=f"NBA球隊預測 {team_name[1]} {team_name[0]} {team_points[1]} {team_points[0]}",
+                            data=f"NBA球隊預測;{team_name[1]};{team_name[0]};{team_points[1]};{team_points[0]}",
                         ),
                     ],
                 ),
@@ -246,11 +246,11 @@ def get_player_stat_prediction():
                     actions=[
                         PostbackAction(
                             label="大盤",
-                            data=f"NBA球員預測 {name} {BET_NAME[title]}{target} {odds} {10-odds} 大盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{10-odds};大盤",
                         ),
                         PostbackAction(
                             label="小盤",
-                            data=f"NBA球員預測 {name} {BET_NAME[title]}{target} {odds} {10-odds} 小盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{10-odds};小盤",
                         ),
                     ],
                 ),
