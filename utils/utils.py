@@ -188,10 +188,10 @@ def get_nba_match_prediction_postback(
 
     """User have predicted"""
     if user_predicted(header, rows, username, column):
-        text = f"{username}已經預測{winner}/{loser}了!"
+        text = f"{username}已經預測{winner}/{loser}了！"
     else:
         """First time predict"""
-        text = f"{username}預測{winner}贏{loser}!"
+        text = f"{username}預測{winner}贏{loser}！"
         # Modify GS
         header, rows = modify_value(header, rows, username, column, winner)
 
@@ -285,14 +285,14 @@ def get_player_stat_prediction_postback(
 
     """User have predicted"""
     if user_predicted(header, rows, username, column):
-        text = f"{username}已經預測{player}的盤了!"
+        text = f"{username}已經預測{player}的盤了！"
     else:
         """First time predict"""
         if predict == "大盤":
-            text = f"{username}預測{player}{target[:2]}超過{target[2:]}!"
+            text = f"{username}預測{player}{target[:2]}超過{target[2:]}！"
             header, rows = modify_value(header, rows, username, column, "over")
         elif predict == "小盤":
-            text = f"{username}預測{player}{target[:2]}低於{target[2:]}!"
+            text = f"{username}預測{player}{target[:2]}低於{target[2:]}！"
             header, rows = modify_value(header, rows, username, column, "under")
 
     update_sheet(header, rows, worksheet)
