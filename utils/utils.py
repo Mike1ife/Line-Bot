@@ -19,6 +19,12 @@ TYPEFUNC = {
 TYPECOL = {"week": "Week Points", "month": "Month Points", "season": "Year Points"}
 NEXTTYPE = {"week": "month", "month": "season", "season": "all-time"}
 
+BET_NAME = {
+    "PLAYER POINTS": "得分",
+    "PLAYER REBOUNDS": "籃板",
+    "PLAYER STEALS": "抄截",
+}
+
 
 def check_url_exists(url):
     try:
@@ -132,7 +138,7 @@ def get_nba_match_prediction():
                 team_points.reverse()
                 team_pos.reverse()
 
-            # title = 溜馬-老鷹 31/9
+            # title = 溜馬(主) 1-11 - 老鷹(客) 5-6
             # text = 溜馬 31分 / 老鷹 9分
             columns.append(
                 CarouselColumn(
@@ -488,3 +494,63 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
+
+
+def _get_player_bet_info(player):
+    img_src = player.find("img").get("src")
+    name = player.find("img").get("alt")
+    match = player.find("div", class_="ffn-gr-11").text
+    avg = player.find("span", class_="ffn-gr-11").text
+    target = player.find("div", class_="fs-30").text
+    _odds_msg = (
+        player.find("span", class_="pd-r-2").text
+        + " "
+        + player.find("span", class_="cl-og").text
+    )
+    _odds_items = _odds_msg.split()
+    odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
+    return img_src, name, _get_match_translation(match), avg.split()[0], target, odds
+
+
+def _get_match_translation(match):
+    away, _, home, _, _, _ = match.split()
+    return f"{NBA_TEAM_TRANSLATION[away]}(客) - {NBA_TEAM_TRANSLATION[home]}(主)"
+
+
+def get_player_stat_prediction():
+    data = requests.get(f"https://www.foxsports.com/odds/nba/props").text
+    soup = BeautifulSoup(data, "html.parser")
+    bets = soup.find_all("div", class_="odds-component-prop-bet")
+
+    columns = []
+    for bet in bets:
+        title = bet.find("h2", class_="pb-name fs-30").text.strip()
+        players = bet.find_all("div", class_="prop-bet-data pointer prop-future")
+        for player in players:
+            img_src, name, match, avg, target, odds = _get_player_bet_info(player)
+            # print(BET_NAME[title], name, match, avg, target, odds)
+            # title = Anthony Edwards
+            # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
+            # button1 = 大盤
+            # button2 = 小盤
+            # print(
+            #     f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分 / 小盤 ({BET_NAME[title]}低於{target}) {10-odds}分"
+            # )
+            columns.append(
+                CarouselColumn(
+                    thumbnail_image_url=img_src,
+                    title=name,
+                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分 / 小盤 ({BET_NAME[title]}低於{target}) {10-odds}分",
+                    actions=[
+                        PostbackAction(
+                            label="大盤",
+                            data="",
+                        ),
+                        PostbackAction(
+                            label="小盤",
+                            data="",
+                        ),
+                    ],
+                ),
+            )
+    return columns

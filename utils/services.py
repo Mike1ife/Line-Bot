@@ -212,6 +212,32 @@ def text_message(event):
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
 
+    if msg == "NBA球員預測":
+        user_id = event.source.user_id
+        if username not in ["林家龍", "戴廣逸"]:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
+            )
+        else:
+            try:
+                columns = get_player_stat_prediction()
+                if columns is not None:
+                    messages = []
+                    for i in range(0, len(columns), 10):
+                        carousel_template = CarouselTemplate(
+                            columns=columns[i : i + 10]
+                        )
+                        template_message = TemplateSendMessage(
+                            alt_text="每日數據預測", template=carousel_template
+                        )
+                        messages.append(template_message)
+
+                    line_bot_api.reply_message(event.reply_token, messages)
+            except Exception as e:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text=str(e))
+                )
+
 
 def random_message(event):
     msg = event.message.text

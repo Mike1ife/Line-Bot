@@ -3,12 +3,12 @@ from linebot.models import TextSendMessage
 
 from config import line_bot_api
 from utils.utils import get_postback_message
-from utils.services import random_message, text_message
+from utils.services import text_message, random_message
 
 
 def handle_message(event):
-    random_message(event)
     text_message(event)
+    random_message(event)
 
 
 def handle_postback(event):
