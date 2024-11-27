@@ -323,6 +323,7 @@ def get_team_injury(msg):
             ).text
             soup = BeautifulSoup(data, "html.parser")
             teams = soup.find_all("h3", class_=None)
+
             for team in teams[1:]:
                 team_players = []
                 table = team.find_next_sibling("table")
@@ -332,12 +333,12 @@ def get_team_injury(msg):
                     reason = row.find_all("td")[-2].text.strip()
                     Return = row.find_all("td")[-1].text.strip()
                     team_players.append(f"{player_name} {reason}\n({Return})")
-                team_data[team.text] = team_players
-
+                team_data[team.text.strip()] = team_players
             text = f"{team_name}傷病名單:\n"
             try:
                 for player in team_data[team_name]:
-                    text += f"{player}\n"
+                    name, reason, time = player.strip().split("\n")
+                    text += f"{name.strip()} {reason.strip()} {time.strip()}\n"
                 return text[:-1]
             except KeyError:
                 return f"{team_name}沒有傷兵"
