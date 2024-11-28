@@ -1,4 +1,4 @@
-NBA_TEAM_TRANSLATION = {
+NBA_ABBR_ENG_TO_ABBR_CN = {
     "ATL": "老鷹",
     "BOS": "塞爾提克",
     "BKN": "籃網",
@@ -31,7 +31,7 @@ NBA_TEAM_TRANSLATION = {
     "WAS": "巫師",
 }
 
-NBA_TEAM_COMPLETE_NAME = {
+NBA_ABBR_CN_TO_FULL_CN = {
     "老鷹": "亞特蘭大老鷹",
     "塞爾提克": "波士頓塞爾提克",
     "籃網": "布魯克林籃網",
@@ -64,7 +64,7 @@ NBA_TEAM_COMPLETE_NAME = {
     "巫師": "華盛頓巫師",
 }
 
-NBA_TEAM_NAME = {
+NBA_TEAM_NAME_ENG_TO_ABBR_CN = {
     "Lakers": "湖人",
     "Warriors": "勇士",
     "Celtics": "塞爾提克",
@@ -96,4 +96,37 @@ NBA_TEAM_NAME = {
     "Wizards": "巫師",
     "Pistons": "活塞",
     "TOTAL": "賽季",
+}
+
+NBA_ABBR_CN_TO_FULL_ENG = {
+    "老鷹": "atlanta hawks",
+    "塞爾提克": "boston celtics",
+    "籃網": "brooklyn nets",
+    "黃蜂": "charlotte hornets",
+    "公牛": "chicago bulls",
+    "騎士": "cleveland cavaliers",
+    "獨行俠": "dallas mavericks",
+    "金塊": "denver nuggets",
+    "活塞": "detroit pistons",
+    "勇士": "golden state warriors",
+    "火箭": "houston rockets",
+    "溜馬": "indiana pacers",
+    "快艇": "la clippers",
+    "湖人": "los angeles lakers",
+    "灰熊": "memphis grizzlies",
+    "熱火": "miami heat",
+    "公鹿": "milwaukee bucks",
+    "灰狼": "minnesota timberwolves",
+    "鵜鶘": "new orleans pelicans",
+    "尼克": "new york knicks",
+    "雷霆": "oklahoma city thunder",
+    "魔術": "orlando magic",
+    "76人": "philadelphia 76ers",
+    "太陽": "phoenix suns",
+    "拓荒者": "portland trail blazers",
+    "國王": "sacramento kings",
+    "馬刺": "san antonio spurs",
+    "暴龍": "toronto raptors",
+    "爵士": "utah jazz",
+    "巫師": "washington wizards",
 }

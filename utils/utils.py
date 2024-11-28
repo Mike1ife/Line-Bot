@@ -7,7 +7,11 @@ from datetime import datetime, timezone, timedelta
 from linebot.models import CarouselColumn, PostbackAction
 
 from utils._user_table import *
-from utils._team_table import NBA_TEAM_NAME, NBA_TEAM_COMPLETE_NAME
+from utils._team_table import (
+    NBA_ABBR_ENG_TO_ABBR_CN,
+    NBA_TEAM_NAME_ENG_TO_ABBR_CN,
+    NBA_ABBR_CN_TO_FULL_CN,
+)
 
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 TYPENAME = {"week": "本週", "month": "本月", "season": "本季", "all-time": "歷史"}
@@ -217,7 +221,7 @@ def _get_player_bet_info(player):
 
 def _get_match_translation(match):
     away, _, home, _, _, _ = match.split()
-    return f"{NBA_TEAM_TRANSLATION[away]}(客) - {NBA_TEAM_TRANSLATION[home]}(主)"
+    return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]}(客) - {NBA_ABBR_ENG_TO_ABBR_CN[home]}(主)"
 
 
 def get_player_stat_prediction(match_count):
@@ -337,7 +341,7 @@ def get_user_most_belief(msg, username):
         text = f"{username}是{first_team}的舔狗"
     elif msg[2] == " ":
         team_name = msg.split()[1]
-        if team_name not in NBA_TEAM_TRANSLATION.values():
+        if team_name not in NBA_ABBR_ENG_TO_ABBR_CN.values():
             text = "Unknown team"
         else:
             text = f"{username}舔了{team_name}{correct[team_name]}口"
@@ -354,7 +358,7 @@ def get_user_most_hatred(msg, username):
         text = f"{username}的傻鳥是{first_team}"
     elif msg[2] == " ":
         team_name = msg.split()[1]
-        if team_name not in NBA_TEAM_TRANSLATION.values():
+        if team_name not in NBA_ABBR_ENG_TO_ABBR_CN.values():
             text = "Unknown team"
         else:
             text = f"{username}被{team_name}肛了{wrong[team_name]}次"
@@ -427,7 +431,7 @@ def get_team_injury(msg):
         return "使用方式: 傷病 {球隊}"
     elif msg[:2] == "傷病":
         try:
-            team_name = NBA_TEAM_COMPLETE_NAME[msg.split()[1]]
+            team_name = NBA_ABBR_CN_TO_FULL_CN[msg.split()[1]]
             team_data = {}
 
             data = requests.get(
@@ -578,7 +582,9 @@ def get_nba_guessing():
     for stat in player_info["stats"]:
         year, TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
         year = year.replace("-", "\u200B-")
-        history_teams += "{:<8} {:<8}".format(year, NBA_TEAM_NAME[TEAM]) + "\n"
+        history_teams += (
+            "{:<8} {:<8}".format(year, NBA_TEAM_NAME_ENG_TO_ABBR_CN[TEAM]) + "\n"
+        )
         history_game += "{:<8} {:<8} {:<8}".format(year, f"{GS}/{GP}", MPG) + "\n"
         history_stats += "{:<8} {:<8}".format(year, f"{PPG}/{RPG}/{APG}/{FPR}%") + "\n"
 

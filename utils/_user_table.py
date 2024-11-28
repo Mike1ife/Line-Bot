@@ -4,7 +4,7 @@ from gspread import authorize
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
-from utils._team_table import NBA_TEAM_TRANSLATION
+from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
 from collections import Counter
 
 PREDICT_INDEX = 35
@@ -93,7 +93,7 @@ def count_points(header, rows):
             # team: 公牛 30
             elif i >= 34 and header[i].count(" ") == 1:
                 predicted_team = value
-                if predicted_team not in NBA_TEAM_TRANSLATION.values():
+                if predicted_team not in NBA_ABBR_ENG_TO_ABBR_CN.values():
                     continue
 
                 winner, winner_point = header[i].split()
@@ -160,7 +160,7 @@ def get_match_result(header, rows):
             continue
 
         try:
-            match_team.append(NBA_TEAM_TRANSLATION[name])
+            match_team.append(NBA_ABBR_ENG_TO_ABBR_CN[name])
         except:
             if match_index == 0:
                 match_index = 1
@@ -395,7 +395,7 @@ def get_nba_today():
     for team in match_team:
         team_name = team.find("span", class_="scores-text capi pd-b-1 ff-ff")
         try:
-            team_name = NBA_TEAM_TRANSLATION[team_name.text.strip()]
+            team_name = NBA_ABBR_ENG_TO_ABBR_CN[team_name.text.strip()]
         except:
             if match_index == 0:
                 match_index = 1
@@ -426,7 +426,7 @@ def get_nba_today():
     for value in values:
         team_name, team_give = value.text.strip().split()
         match = matches[match_index]["name"]
-        team_to_give = match.index(NBA_TEAM_TRANSLATION[team_name])
+        team_to_give = match.index(NBA_ABBR_ENG_TO_ABBR_CN[team_name])
         points = [0, 0]
         points[team_to_give] = int(round(20 + float(team_give)))
         points[1 ^ team_to_give] = int(round(20 + -float(team_give)))
