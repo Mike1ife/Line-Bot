@@ -220,7 +220,7 @@ def _get_match_translation(match):
     return f"{NBA_TEAM_TRANSLATION[away]}(客) - {NBA_TEAM_TRANSLATION[home]}(主)"
 
 
-def get_player_stat_prediction():
+def get_player_stat_prediction(match_count):
     header, rows, worksheet = init()
 
     data = requests.get(f"https://www.foxsports.com/odds/nba/props").text
@@ -259,7 +259,7 @@ def get_player_stat_prediction():
             header, rows = modify_column_name(
                 header,
                 rows,
-                column_id,
+                column_id + match_count,
                 f"{name} {BET_NAME[title]}{target} {odds}/{10-odds}",
             )
             column_id += 1
@@ -290,10 +290,14 @@ def get_player_stat_prediction_postback(
         """First time predict"""
         if predict == "大盤":
             text = f"{username}預測{player}{target[:2]}超過{target[2:]}！"
-            header, rows = modify_value(header, rows, username, column, "over")
+            header, rows = modify_value(
+                header, rows, username, column, f"{player} {predict}"
+            )
         elif predict == "小盤":
             text = f"{username}預測{player}{target[:2]}低於{target[2:]}！"
-            header, rows = modify_value(header, rows, username, column, "under")
+            header, rows = modify_value(
+                header, rows, username, column, f"{player} {predict}"
+            )
 
     update_sheet(header, rows, worksheet)
     return text
@@ -304,6 +308,7 @@ def get_daily_predict_result():
     header, rows, worksheet = init()
     """Get yesterday winner team"""
     header, rows = get_match_result(header, rows)
+    header, rows = get_player_result(header, rows)
 
     """Calculate points"""
     header, rows = count_points(header, rows)

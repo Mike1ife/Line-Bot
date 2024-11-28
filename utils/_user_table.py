@@ -90,7 +90,8 @@ def count_points(header, rows):
                 user_name = value
             elif header[i] == "Week Points":
                 user_points = int(value)
-            elif i >= 34:
+            # team: 公牛 30
+            elif i >= 34 and header[i].count(" ") == 1:
                 predicted_team = value
                 if predicted_team not in NBA_TEAM_TRANSLATION.values():
                     continue
@@ -103,6 +104,11 @@ def count_points(header, rows):
                 header, rows = add_belief_count(
                     header, rows, user_name, predicted_team, is_winner=is_winner
                 )
+            # player: Anthony Edwards 大盤 4
+            elif i >= 34 and header[i].count(" ") >= 2:
+                prediction = value
+                if prediction in header[i]:
+                    user_points += int(header[i].split()[-1])
 
         header, rows = modify_value(
             header, rows, user_name, "Week Points", str(user_points)
@@ -177,6 +183,8 @@ def get_match_result(header, rows):
 
     match_index = 0
     for match in header[PREDICT_INDEX:]:
+        if match.count(" ") >= 2:
+            break
         teams, points = match.split()
         try:
             winner = match_result[teams]
@@ -196,6 +204,39 @@ def get_match_result(header, rows):
         )
 
         match_index += 1
+
+    return header, rows
+
+
+def get_player_result(header, rows):
+    for i in range(PREDICT_INDEX, len(header)):
+        # Original: Anthony Edwards 得分26.5 4/6
+        # Aim: Anthony Edwards 大盤 6
+        if header[i].count(" ") >= 2:
+            header_items = header[i].split()
+            player = " ".join(header_items[:-2])
+            stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
+            over_point, under_point = header_items[-1].split("/")
+
+            data = requests.get(
+                f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-')}-player-game-log"
+            ).text
+            soup = BeautifulSoup(data, "html.parser")
+            container = soup.find("tbody", class_="row-data lh-1pt43 fs-14")
+            game = container.find("tr")
+
+            DATA_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
+            value = int(
+                game.find("td", {"data-index": DATA_INDEX[stat_type]}).text.strip()
+            )
+
+            if value >= target:
+                new_header = f"{player} 大盤 {over_point}"
+            else:
+                new_header = f"{player} 小盤 {under_point}"
+            header, rows = modify_column_name(
+                header, rows, i - PREDICT_INDEX, new_header
+            )
 
     return header, rows
 
@@ -406,7 +447,7 @@ def get_user_prediction(header, rows, name_index):
                 else:
                     response = f"{name}預測的球隊:\n"
                     indices = [i for i, x in enumerate(row) if x != ""]
-                    game_names = [row[i].split()[0] for i in indices]
+                    game_names = [row[i] for i in indices]
                     for team in game_names[PREDICT_INDEX:]:
                         response += f"{team}\n"
                     return response[:-1]
@@ -492,8 +533,14 @@ def check_user_prediction(header, rows, name):
             elif row.count("") == 0:
                 return "已經完成全部預測"
             else:
+                game_names = []
                 indices = [i for i, x in enumerate(row) if x == ""]
-                game_names = [header[i].split()[0] for i in indices]
+                for i in indices:
+                    hearder_items = header[i].split()
+                    if len(hearder_items) == 2:
+                        game_names.append(hearder_items[0])
+                    else:
+                        game_names.append(" ".join(hearder_items[:-2]))
                 response = "還沒預測:\n"
                 for game_name in game_names:
                     response += f"{game_name}\n"
