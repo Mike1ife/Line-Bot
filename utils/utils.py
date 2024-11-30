@@ -90,6 +90,7 @@ def get_nba_scoreboard():
     soup = BeautifulSoup(data, "html.parser")
     cards = soup.find_all("div", class_="card")
 
+    # get team scoreboard
     score_text = ""
     for card in cards:
         state = card.find("span", class_="during").text.strip()
@@ -103,6 +104,34 @@ def get_nba_scoreboard():
         ]
 
         score_text += f"{team_names[0]} {team_scores[0]} - {team_names[1]} {team_scores[1]} ({state})\n"
+
+    # get player stat
+    header, rows, worksheet = init()
+    for i in range(PREDICT_INDEX, len(header)):
+        # Anthony Edwards 得分26.5 4/6
+        if header[i].count(" ") >= 2:
+            header_items = header[i].split()
+            player = " ".join(header_items[:-2])
+            stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
+
+            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-')}-player-game-log"
+            url = url.replace("jr.", "jr")
+
+            data = requests.get(url).text
+            soup = BeautifulSoup(data, "html.parser")
+            container = soup.find("tbody", class_="row-data lh-1pt43 fs-14")
+            game = container.find("tr")
+            against = game.find("a", class_="table-entity-name ff-ffc").text.strip()
+
+            DATA_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
+            value = int(
+                game.find("td", {"data-index": DATA_INDEX[stat_type]}).text.strip()
+            )
+
+            score_text += (
+                f"{player} vs. {NBA_ABBR_ENG_TO_ABBR_CN[against]} {stat_type} {value}\n"
+            )
+
     return score_text[:-1]
 
 
