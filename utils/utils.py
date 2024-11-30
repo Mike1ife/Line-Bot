@@ -114,8 +114,7 @@ def get_nba_scoreboard():
             player = " ".join(header_items[:-2])
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
 
-            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-').replace('.', ''}-player-game-log"
-
+            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-').replace('.', '')}-player-game-log"
             data = requests.get(url).text
             soup = BeautifulSoup(data, "html.parser")
             container = soup.find("tbody", class_="row-data lh-1pt43 fs-14")
@@ -127,9 +126,7 @@ def get_nba_scoreboard():
                 game.find("td", {"data-index": DATA_INDEX[stat_type]}).text.strip()
             )
 
-            score_text += (
-                f"{player} vs. {NBA_ABBR_ENG_TO_ABBR_CN[against]} {stat_type} {value}\n"
-            )
+            score_text += f"{player} vs. {NBA_ABBR_ENG_TO_ABBR_CN[against.replace('@', '')]} {stat_type} {value}\n"
 
     return score_text[:-1]
 

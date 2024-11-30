@@ -219,8 +219,7 @@ def get_player_result(header, rows):
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
             over_point, under_point = header_items[-1].split("/")
 
-            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-')}-player-game-log"
-            url = url.replace("jr.", "jr")
+            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-').replace('.', '')}-player-game-log"
 
             data = requests.get(url).text
             soup = BeautifulSoup(data, "html.parser")
