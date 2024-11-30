@@ -114,8 +114,7 @@ def get_nba_scoreboard():
             player = " ".join(header_items[:-2])
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
 
-            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-')}-player-game-log"
-            url = url.replace("jr.", "jr")
+            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-').replace('.', ''}-player-game-log"
 
             data = requests.get(url).text
             soup = BeautifulSoup(data, "html.parser")
