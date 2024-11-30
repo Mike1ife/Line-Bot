@@ -107,7 +107,8 @@ def count_points(header, rows):
             # player: Anthony Edwards 大盤 4
             elif i >= 34 and header[i].count(" ") >= 2:
                 prediction = value
-                if prediction in header[i]:
+                # Anthony Edwards 大盤
+                if prediction != "" and prediction in header[i]:
                     user_points += int(header[i].split()[-1])
 
         header, rows = modify_value(
