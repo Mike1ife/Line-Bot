@@ -1,4 +1,5 @@
 import re
+import json
 import requests
 from gspread import authorize
 from bs4 import BeautifulSoup
@@ -219,7 +220,9 @@ def get_player_result(header, rows):
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
             over_point, under_point = header_items[-1].split("/")
 
-            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-').replace('.', '')}-player-game-log"
+            with open("player_link.json", "r", encoding="utf-8") as f:
+                player_url_table = json.load(f)
+            url = player_url_table[player]
 
             data = requests.get(url).text
             soup = BeautifulSoup(data, "html.parser")

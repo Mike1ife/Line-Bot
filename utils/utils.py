@@ -114,7 +114,10 @@ def get_nba_scoreboard():
             player = " ".join(header_items[:-2])
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
 
-            url = f"https://www.foxsports.com/nba/{player.lower().replace(' ', '-').replace('.', '')}-player-game-log"
+            with open("player_link.json", "r", encoding="utf-8") as f:
+                player_url_table = json.load(f)
+            url = player_url_table[player]
+
             data = requests.get(url).text
             soup = BeautifulSoup(data, "html.parser")
             container = soup.find("tbody", class_="row-data lh-1pt43 fs-14")
@@ -126,7 +129,12 @@ def get_nba_scoreboard():
                 game.find("td", {"data-index": DATA_INDEX[stat_type]}).text.strip()
             )
 
-            score_text += f"{player} vs. {NBA_ABBR_ENG_TO_ABBR_CN[against.replace('@', '')]} {stat_type} {value}\n"
+            if value >= target:
+                res = "大盤"
+            else:
+                res = "小盤"
+
+            score_text += f"{player} {stat_type} {value} ({res})\n"
 
     return score_text[:-1]
 
@@ -632,3 +640,6 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
+
+
+print(get_nba_scoreboard())
