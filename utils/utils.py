@@ -114,7 +114,7 @@ def get_nba_scoreboard():
             player = " ".join(header_items[:-2])
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
 
-            with open("player_link.json", "r", encoding="utf-8") as f:
+            with open("utils/player_link.json", "r", encoding="utf-8") as f:
                 player_url_table = json.load(f)
             url = player_url_table[player]
 
@@ -640,6 +640,3 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
-
-
-print(get_nba_scoreboard())
