@@ -220,7 +220,7 @@ def get_player_result(header, rows):
             stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
             over_point, under_point = header_items[-1].split("/")
 
-            with open("player_link.json", "r", encoding="utf-8") as f:
+            with open("utils/player_link.json", "r", encoding="utf-8") as f:
                 player_url_table = json.load(f)
             url = player_url_table[player]
 
