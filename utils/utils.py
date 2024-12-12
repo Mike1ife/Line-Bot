@@ -457,6 +457,7 @@ def get_others_prediction(msg):
             return text
         except:
             return "錯誤使用方式"
+        
 
 def get_team_injury(msg):
     if msg == "傷病":
@@ -465,9 +466,20 @@ def get_team_injury(msg):
         try:
             team_name = NBA_ABBR_CN_TO_FULL_CN[msg.split()[1]]
             team_data = {}
-
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
-            data = requests.get("https://hooptheball.com/nba-injury-report", headers=headers).text
+            '''
+            data = requests.get(
+                "https://hooptheball.com/nba-injury-report",
+                headers={"User-Agent": "Agent"},
+            ).text
+            '''
+            data = requests.get(
+                "https://hooptheball.com/nba-injury-report",
+                headers={"User-Agent":
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)\
+                        AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/115.0.0.0 Safari/537.36"}, #避免被阻擋
+            ).text
+            
             soup = BeautifulSoup(data, "html.parser")
             teams = soup.find_all("h3", class_=None)
 
@@ -477,6 +489,7 @@ def get_team_injury(msg):
                 rows = table.find_all("tr", class_="TableBase-bodyTr")
                 for row in rows:
                     player_name = row.find("td").text.strip()
+                    # player_name = row.find("td").text
                     reason = row.find_all("td")[-2].text.strip()
                     Return = row.find_all("td")[-1].text.strip()
                     # 調整此處只使用兩行結構
@@ -486,10 +499,13 @@ def get_team_injury(msg):
             text = f"{team_name}傷病名單:\n"
             try:
                 for player in team_data[team_name]:
+                    '''
+                    name, reason, time = player.strip().split("\n")
+                    text += f"{name.strip()} {reason.strip()} {time.strip()}\n"
+                    '''
                     lines = player.strip().split("\n")
-                    # lines[0]範例: "Cody Zeller 個人原因"
+                    # lines[0]範例: "Luka Doncic 個人原因"
                     # lines[1]範例: "(預計缺陣至少到 12月 21)"
-
                     parts = lines[0].split(" ", 1)  # 只切一次, parts[0] = name, parts[1] = reason
                     name = parts[0]
                     reason = parts[1]
@@ -502,44 +518,6 @@ def get_team_injury(msg):
         except Exception as e:
             return "錯誤使用方式"
 
-
-"""
-def get_team_injury(msg):
-    if msg == "傷病":
-        return "使用方式: 傷病 {球隊}"
-    elif msg[:2] == "傷病":
-        try:
-            team_name = NBA_ABBR_CN_TO_FULL_CN[msg.split()[1]]
-            team_data = {}
-
-            data = requests.get(
-                "https://hooptheball.com/nba-injury-report",
-                headers={"User-Agent": "Agent"},
-            ).text
-            soup = BeautifulSoup(data, "html.parser")
-            teams = soup.find_all("h3", class_=None)
-
-            for team in teams[1:]:
-                team_players = []
-                table = team.find_next_sibling("table")
-                rows = table.find_all("tr", class_="TableBase-bodyTr")
-                for row in rows:
-                    player_name = row.find("td").text
-                    reason = row.find_all("td")[-2].text.strip()
-                    Return = row.find_all("td")[-1].text.strip()
-                    team_players.append(f"{player_name} {reason}\n({Return})")
-                team_data[team.text.strip()] = team_players
-            text = f"{team_name}傷病名單:\n"
-            try:
-                for player in team_data[team_name]:
-                    name, reason, time = player.strip().split("\n")
-                    text += f"{name.strip()} {reason.strip()} {time.strip()}\n"
-                return text[:-1]
-            except KeyError:
-                return f"{team_name}沒有傷兵"
-        except Exception as e:
-            return "錯誤使用方式"
-"""
 
 def get_user_registered(username):
     header, rows, worksheet = init()
