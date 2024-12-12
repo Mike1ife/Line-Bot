@@ -466,10 +466,8 @@ def get_team_injury(msg):
             team_name = NBA_ABBR_CN_TO_FULL_CN[msg.split()[1]]
             team_data = {}
 
-            data = requests.get(
-                "https://hooptheball.com/nba-injury-report",
-                headers={"User-Agent": "Agent"}
-            ).text
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
+            data = requests.get("https://hooptheball.com/nba-injury-report", headers=headers).text
             soup = BeautifulSoup(data, "html.parser")
             teams = soup.find_all("h3", class_=None)
 
