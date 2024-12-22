@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
 from collections import Counter
+from collections import defaultdict
 
 PREDICT_INDEX = 35
 
@@ -83,20 +84,20 @@ def add_value(header, rows, name, column, value):
 
 
 def count_points(header, rows):
-    add_points = {} # record the points added for each user
+    add_points = defaultdict(int) # record the points added for each user
     for row in rows:
         user_points = 0
         user_name = ""
-        old_points = 0 # old points of the user
+        
         for i, value in enumerate(row):
             if header[i] == "Name":
                 user_name = value
             elif header[i] == "Week Points":
-                old_points = int(value)
-                user_points = old_points
-        for i, value in enumerate(row):    
+                
+                user_points = int(value)
+                  
             # team: 公牛 30
-            if i >= 34 and header[i].count(" ") == 1:
+            elif i >= 34 and header[i].count(" ") == 1:
                 predicted_team = value
                 if predicted_team not in NBA_ABBR_ENG_TO_ABBR_CN.values():
                     continue
@@ -106,6 +107,7 @@ def count_points(header, rows):
                 is_winner = predicted_team == winner
                 if is_winner:
                     user_points += int(winner_point)
+                    add_points[user_name] += int(winner_point)
                 header, rows = add_belief_count(
                     header, rows, user_name, predicted_team, is_winner=is_winner
                 )
@@ -115,15 +117,12 @@ def count_points(header, rows):
                 # Anthony Edwards 大盤
                 if prediction != "" and prediction in header[i]:
                     user_points += int(header[i].split()[-1])
-
-        add = user_points - old_points
-        add_points[user_name] = add
+                    add_points[user_name] +=  int(header[i].split()[-1])
         
         header, rows = modify_value(
             header, rows, user_name, "Week Points", str(user_points)
         )
     return header, rows, add_points
-
 
 def column_exist(header, column):
     return True if column in header else False
@@ -252,18 +251,12 @@ def get_player_result(header, rows):
     return header, rows
 
 
-def get_user_points(rows, rank_type="week", add_points=None):
+def get_user_points(rows, rank_type="week"):
     mapping = {"week": 1, "month": 2, "season": 3, "all-time": 4}
     users_info = []
     
     for row in rows:
-        user_name = row[0]
-        points = int(row[mapping[rank_type]])
-        if add_points and (user_name in add_points):
-            add = add_points[user_name]
-        else:
-            add = 0
-        users_info.append((user_name, points, add))
+        users_info.append([row[0], row[mapping[rank_type]]])
     user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
 
     return user_ranks
