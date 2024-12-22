@@ -348,15 +348,19 @@ def get_daily_predict_result():
     header, rows = get_player_result(header, rows)
 
     """Calculate points"""
-    header, rows = count_points(header, rows)
+    header, rows, add_points = count_points(header, rows)
     header, rows = reset_match(header, rows)
     update_sheet(header, rows, worksheet)
 
     """Send user results"""
-    user_ranks = get_user_points(rows, "week")
+    user_ranks = get_user_points(rows, "week", add_points=add_points)
     text = "預測排行榜:\n"
-    for i, value in enumerate(user_ranks):
-        text += f"{i+1}. {value[0]}: {value[1]}分\n"
+    for i, (uname, total_pts, add) in enumerate(user_ranks):
+        text += f"{i+1}. {uname}: {total_pts}分"
+        if add > 0:
+            text += f" (+{add})\n"
+        else:
+            text += "\n"
     return text[:-1]
 
 
