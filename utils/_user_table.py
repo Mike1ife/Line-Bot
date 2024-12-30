@@ -464,6 +464,86 @@ def get_user_prediction(header, rows, name_index):
                     return response[:-1]
     return "Unknown user"
 
+def shorten_common_prefix(a_str, b_str):
+    """
+    a_str = "Zach LaVine 大盤"
+    b_str = "Zach LaVine 小盤"
+    => "Zach LaVine 大盤 (小盤)"
+    """
+    # 兩者都空
+    if not a_str and not b_str:
+        return ""
+    # 一方空
+    if not a_str and b_str:
+        return f"( {b_str} )"
+    if a_str and not b_str:
+        return f"{a_str} ( )"
+    # 找出相同的前綴
+    a_words = a_str.split()
+    b_words = b_str.split()
+    idx = 0
+    while idx < min(len(a_words), len(b_words)) and a_words[idx] == b_words[idx]:
+        idx += 1
+
+    if idx == 0:
+        # 無相同前綴
+        return f"{a_str} ({b_str})"
+    else:
+        # 有相同前綴
+        prefix = " ".join(a_words[:idx])
+        suffix_a = " ".join(a_words[idx:])
+        suffix_b = " ".join(b_words[idx:])
+
+        if suffix_a == "" and suffix_b == "":
+            # 完全相同
+            return a_str
+        elif suffix_a != "" and suffix_b != "":
+            return f"{prefix} {suffix_a} ({suffix_b})"
+        elif suffix_a == "" and suffix_b != "":
+            return f"{prefix} ({suffix_b})"
+        else: 
+            return f"{prefix} {suffix_a} ( )"
+
+
+def compare_user_prediction(header, rows, index_a, index_b):
+    """
+    比較 rows[index_a] 和 rows[index_b] 的預測
+    """
+    # 判斷是否超出範圍
+    if index_a >= len(rows) or index_b >= len(rows):
+        return "比對錯誤，未知使用者"
+
+    row_a = rows[index_a]
+    row_b = rows[index_b]
+    name_a = row_a[0]
+    name_b = row_b[0]
+
+    # 都沒預測
+    if (row_a.count("") == len(header) - PREDICT_INDEX) and (row_b.count("") == len(header) - PREDICT_INDEX):
+        return f"{name_a} 和 {name_b} 都還沒預測任何比賽"
+
+    lines = []
+    # 從 PREDICT_INDEX比較到最後
+    for col_index in range(PREDICT_INDEX, len(header)):
+        predict_a = row_a[col_index].strip()
+        predict_b = row_b[col_index].strip()
+        # 兩方都空，不輸出
+        if not predict_a and not predict_b:
+            continue
+        # 相同只印一次
+        if predict_a == predict_b:
+            lines.append(predict_a)
+        else:
+            # 不同，省略前綴
+            merged = shorten_common_prefix(predict_a, predict_b)
+            lines.append(merged)
+    # 無任何差異
+    if not lines:
+        return f"{name_a} 與 {name_b} 預測相同"
+    # 輸出結果
+    response = f"{name_a} 與 {name_b} 的不同預測：\n"
+    response += "\n".join(lines)
+    return response
 
 def get_user_belief(header, rows, name):
     correct = {}
