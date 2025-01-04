@@ -348,17 +348,17 @@ def get_daily_predict_result():
     header, rows = get_player_result(header, rows)
 
     """Calculate points"""
-    header, rows, add_points= count_points(header, rows)
+    header, rows, add_points = count_points(header, rows)
     header, rows = reset_match(header, rows)
     update_sheet(header, rows, worksheet)
 
     """Send user results"""
     user_ranks = get_user_points(rows, "week")
     text = "預測排行榜:\n"
-    for i, (value) in enumerate(user_ranks):
-        text += f"{i+1}. {value[0]}: {value[1]}分"
-        if add_points[value[0]] > 0:
-            text += f" (+{add_points[value[0]]})\n"
+    for i, (username, point) in enumerate(user_ranks):
+        text += f"{i+1}. {username}: {point}分"
+        if add_points[username] > 0:
+            text += f" (+{add_points[username]})\n"
         else:
             text += "\n"
     return text[:-1]
@@ -453,7 +453,7 @@ def get_others_prediction(msg):
         for i, row in enumerate(rows):
             text += f"{i}.{row[0]}\n"
         return text.rstrip()
-     
+
     pattern_compare = r"^跟盤\s+(\d+)\s*比較\s*跟盤\s+(\d+)$"
     match = re.match(pattern_compare, msg.strip())
     if match:
@@ -469,7 +469,7 @@ def get_others_prediction(msg):
             return get_user_prediction(header, rows, name_index)
         except:
             return "錯誤使用方式"
-        
+
 
 def get_team_injury(msg):
     if msg == "傷病":
@@ -478,20 +478,21 @@ def get_team_injury(msg):
         try:
             team_name = NBA_ABBR_CN_TO_FULL_CN[msg.split()[1]]
             team_data = {}
-            '''
+            """
             data = requests.get(
                 "https://hooptheball.com/nba-injury-report",
                 headers={"User-Agent": "Agent"},
             ).text
-            '''
+            """
             data = requests.get(
                 "https://hooptheball.com/nba-injury-report",
-                headers={"User-Agent":
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)\
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)\
                         AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/115.0.0.0 Safari/537.36"}, #避免被阻擋
+                        Chrome/115.0.0.0 Safari/537.36"
+                },  # 避免被阻擋
             ).text
-            
+
             soup = BeautifulSoup(data, "html.parser")
             teams = soup.find_all("h3", class_=None)
 
@@ -511,14 +512,16 @@ def get_team_injury(msg):
             text = f"{team_name}傷病名單:\n"
             try:
                 for player in team_data[team_name]:
-                    '''
+                    """
                     name, reason, time = player.strip().split("\n")
                     text += f"{name.strip()} {reason.strip()} {time.strip()}\n"
-                    '''
+                    """
                     lines = player.strip().split("\n")
                     # lines[0]範例: "Luka Doncic 個人原因"
                     # lines[1]範例: "(預計缺陣至少到 12月 21)"
-                    parts = lines[0].split(" ", 1)  # 只切一次, parts[0] = name, parts[1] = reason
+                    parts = lines[0].split(
+                        " ", 1
+                    )  # 只切一次, parts[0] = name, parts[1] = reason
                     name = parts[0]
                     reason = parts[1]
                     time = lines[1].strip("()")

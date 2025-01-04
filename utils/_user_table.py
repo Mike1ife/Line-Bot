@@ -6,8 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
-from collections import Counter
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 PREDICT_INDEX = 35
 
@@ -84,18 +83,16 @@ def add_value(header, rows, name, column, value):
 
 
 def count_points(header, rows):
-    add_points = defaultdict(int) # record the points added for each user
+    add_points = defaultdict(int)  # record the points added for each user
     for row in rows:
         user_points = 0
         user_name = ""
-        
+
         for i, value in enumerate(row):
             if header[i] == "Name":
                 user_name = value
             elif header[i] == "Week Points":
-                
                 user_points = int(value)
-                  
             # team: 公牛 30
             elif i >= 34 and header[i].count(" ") == 1:
                 predicted_team = value
@@ -117,12 +114,13 @@ def count_points(header, rows):
                 # Anthony Edwards 大盤
                 if prediction != "" and prediction in header[i]:
                     user_points += int(header[i].split()[-1])
-                    add_points[user_name] +=  int(header[i].split()[-1])
-        
+                    add_points[user_name] += int(header[i].split()[-1])
+
         header, rows = modify_value(
             header, rows, user_name, "Week Points", str(user_points)
         )
     return header, rows, add_points
+
 
 def column_exist(header, column):
     return True if column in header else False
@@ -254,9 +252,9 @@ def get_player_result(header, rows):
 def get_user_points(rows, rank_type="week"):
     mapping = {"week": 1, "month": 2, "season": 3, "all-time": 4}
     users_info = []
-    
+
     for row in rows:
-        users_info.append([row[0], row[mapping[rank_type]]])
+        users_info.append((row[0], row[mapping[rank_type]]))
     user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
 
     return user_ranks
@@ -464,6 +462,7 @@ def get_user_prediction(header, rows, name_index):
                     return response[:-1]
     return "Unknown user"
 
+
 def shorten_common_prefix(a_str, b_str):
     """
     a_str = "Zach LaVine 大盤"
@@ -501,7 +500,7 @@ def shorten_common_prefix(a_str, b_str):
             return f"{prefix} {suffix_a} ({suffix_b})"
         elif suffix_a == "" and suffix_b != "":
             return f"{prefix} ({suffix_b})"
-        else: 
+        else:
             return f"{prefix} {suffix_a} ( )"
 
 
@@ -519,7 +518,9 @@ def compare_user_prediction(header, rows, index_a, index_b):
     name_b = row_b[0]
 
     # 都沒預測
-    if (row_a.count("") == len(header) - PREDICT_INDEX) and (row_b.count("") == len(header) - PREDICT_INDEX):
+    if (row_a.count("") == len(header) - PREDICT_INDEX) and (
+        row_b.count("") == len(header) - PREDICT_INDEX
+    ):
         return f"{name_a} 和 {name_b} 都還沒預測任何比賽"
 
     lines = []
@@ -544,6 +545,7 @@ def compare_user_prediction(header, rows, index_a, index_b):
     response = f"{name_a} 與 {name_b} 的不同預測：\n"
     response += "\n".join(lines)
     return response
+
 
 def get_user_belief(header, rows, name):
     correct = {}
