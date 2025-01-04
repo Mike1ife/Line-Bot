@@ -509,6 +509,7 @@ def compare_user_prediction(header, rows, index_a, index_b):
     """
     比較 rows[index_a] 和 rows[index_b] 的預測
     """
+    any_diff = False
     # 判斷是否超出範圍
     if index_a >= len(rows) or index_b >= len(rows):
         return "比對錯誤，未知使用者"
@@ -535,11 +536,12 @@ def compare_user_prediction(header, rows, index_a, index_b):
             lines.append(predict_a)
         else:
             # 不同，省略前綴
+            any_diff = True
             merged = shorten_common_prefix(predict_a, predict_b)
             lines.append(merged)
     # 無任何差異
-    if not lines:
-        return f"{name_a} 與 {name_b} 預測相同"
+    if not any_diff:
+        return f"{name_a} 與 {name_b} 的預測相同。"
     # 輸出結果
     response = f"{name_a} 與 {name_b} 的不同預測：\n"
     response += "\n".join(lines)
