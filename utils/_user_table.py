@@ -140,26 +140,23 @@ def get_match_result(header, rows):
     data = requests.get(f"https://www.foxsports.com/nba/scores").text
     soup = BeautifulSoup(data, "html.parser")
 
-    match_index = 0
     teams = soup.find_all("div", class_="score-team-name abbreviation")
+    cancelled_teams = [] # 比賽取消隊伍 ["LAL","DAL"]
+    if cancelled_teams:
+        teams = [
+            team for team in teams
+            if (team_name_tag := team.find('span', class_='scores-text capi pd-b-1 ff-ff')) and 
+                team_name_tag.text.strip() not in cancelled_teams
+        ]
     scores = soup.find_all("div", class_="score-team-score")
-
     match_team = []
     match_point = []
     match_result = {}
+    match_index = 0
+    
     for team, score in zip(teams, scores):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
-
-        # handle cancelled match
-        # cancelled_teams = ["CHA", "PHI"]
-        # if name in cancelled_teams:
-        #   continue
-
-        # handle finished games bug (as unfinished)
-        # finished_points = [117, 120]
-        # if point == "-":
-        #     point = finished_points[match_index]
 
         if match_index == 1 and len(match_point) == 0:
             match_index = 0
