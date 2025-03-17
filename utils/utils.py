@@ -154,6 +154,9 @@ def get_nba_match_prediction():
     if len(matches) == 0:
         return "明天沒有比賽", None
     else:
+        UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+        TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+        Tomorrow = TWnow + timedelta(days=1)
         for match_index, match in enumerate(matches):
             """Match infomation"""
             gametime = match["gametime"]
@@ -186,11 +189,11 @@ def get_nba_match_prediction():
                     actions=[
                         PostbackAction(
                             label=team_name[0],
-                            data=f"NBA球隊預測;{team_name[0]};{team_name[1]};{team_points[0]};{team_points[1]};{gametime}",
+                            data=f"NBA球隊預測;{team_name[0]};{team_name[1]};{team_points[0]};{team_points[1]};{Tomorrow.year}-{Tomorrow.month}-{Tomorrow.day}-{gametime}",
                         ),
                         PostbackAction(
                             label=team_name[1],
-                            data=f"NBA球隊預測;{team_name[1]};{team_name[0]};{team_points[1]};{team_points[0]};{gametime}",
+                            data=f"NBA球隊預測;{team_name[1]};{team_name[0]};{team_points[1]};{team_points[0]};{Tomorrow.year}-{Tomorrow.month}-{Tomorrow.day}-{gametime}",
                         ),
                     ],
                 ),
@@ -213,6 +216,17 @@ def get_nba_match_prediction_postback(
 ):
     """Get GS"""
     header, rows, worksheet = init()
+
+    """Check if the game is already started"""
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
+    time_format = "%Y-%m-%d-%H:%M"
+
+    if datetime.strptime(timenow, time_format) > datetime.strptime(
+        gametime, time_format
+    ):
+        return f"{winner}-{loser} 的比賽已經開始了"
 
     text = ""
     """Locate column"""
