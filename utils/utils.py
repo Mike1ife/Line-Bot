@@ -84,6 +84,12 @@ def get_nba_scoreboard():
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+
+    # if over 19:00, grab tomorrow schedule
+    TW7pm = TWnow.replace(hour=19, minute=0, second=0, microsecond=0)
+    if TWnow > TW7pm:
+        TWnow += timedelta(days=1)
+
     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
     data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
@@ -211,6 +217,14 @@ def get_nba_match_prediction():
         return text, columns
 
 
+def _compare_timestring(timestr1, timestr2):
+    time_format = "%Y-%m-%d-%H:%M"
+
+    return datetime.strptime(timestr1, time_format) > datetime.strptime(
+        timestr2, time_format
+    )
+
+
 def get_nba_match_prediction_postback(
     username, winner, loser, winner_point, loser_point, gametime
 ):
@@ -221,11 +235,8 @@ def get_nba_match_prediction_postback(
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
     timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
-    time_format = "%Y-%m-%d-%H:%M"
 
-    if datetime.strptime(timenow, time_format) > datetime.strptime(
-        gametime, time_format
-    ):
+    if _compare_timestring(timenow, gametime):
         return f"{winner}-{loser} 的比賽已經開始了"
 
     text = ""
@@ -667,7 +678,7 @@ def get_nba_guessing():
     history_stats = ""
     for stat in player_info["stats"]:
         year, TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
-        year = year.replace("-", "\u200B-")
+        year = year.replace("-", "\u200b-")
         history_teams += (
             "{:<8} {:<8}".format(year, NBA_TEAM_NAME_ENG_TO_ABBR_CN[TEAM]) + "\n"
         )

@@ -383,6 +383,12 @@ def _get_nba_gametime():
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+
+    # if over 19:00, grab tomorrow schedule
+    TW7pm = TWnow.replace(hour=19, minute=0, second=0, microsecond=0)
+    if TWnow > TW7pm:
+        TWnow += timedelta(days=1)
+
     time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
 
     data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
