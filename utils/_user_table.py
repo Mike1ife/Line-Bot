@@ -141,19 +141,24 @@ def get_match_result(header, rows):
     soup = BeautifulSoup(data, "html.parser")
 
     teams = soup.find_all("div", class_="score-team-name abbreviation")
-    cancelled_teams = [] # 比賽取消隊伍 ["LAL","DAL"]
+    cancelled_teams = []  # 比賽取消隊伍 ["LAL","DAL"]
     if cancelled_teams:
         teams = [
-            team for team in teams
-            if (team_name_tag := team.find('span', class_='scores-text capi pd-b-1 ff-ff')) and 
-                team_name_tag.text.strip() not in cancelled_teams
+            team
+            for team in teams
+            if (
+                team_name_tag := team.find(
+                    "span", class_="scores-text capi pd-b-1 ff-ff"
+                )
+            )
+            and team_name_tag.text.strip() not in cancelled_teams
         ]
     scores = soup.find_all("div", class_="score-team-score")
     match_team = []
     match_point = []
     match_result = {}
     match_index = 0
-    
+
     for team, score in zip(teams, scores):
         name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
         point = score.find("span", class_="scores-text").text.strip()
@@ -374,6 +379,24 @@ def get_season_best(header, rows):
     return header, rows, season_best
 
 
+def _get_nba_gametime():
+    time = None
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
+
+    data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
+    soup = BeautifulSoup(data, "html.parser")
+    cards = soup.find_all("div", class_="card")
+
+    # get team scoreboard
+    gametimes = []
+    for card in cards:
+        gametimes.append(card.find("span", class_="during").text.strip())
+
+    return gametimes
+
+
 def get_nba_today():
     time = None
     UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
@@ -393,52 +416,39 @@ def get_nba_today():
     if len(scores) != 0 or time not in re.findall(pattern, data):
         return []
 
+    gametimes = _get_nba_gametime()
+    matches_info = soup.find_all("a", class_="score-chip pregame")
     matches = []
-    match = {}
-    match_index = 0
-    match_team = soup.find_all("div", class_="score-team-name abbreviation")
+    for match_info, gametime in zip(matches_info, gametimes):
+        teams = match_info.find("div", class_="teams").find_all(
+            "div", class_="score-team-row"
+        )
+        odds = match_info.find(
+            "span", class_="secondary-text status ffn-11 opac-5 uc"
+        ).text
+        odds_teamname, odds_teamgive = odds.strip().split()
+        match = {
+            "name": ["", ""],
+            "standing": ["", ""],
+            "point": [0, 0],
+            "gametime": gametime,
+        }
+        for i, team in enumerate(teams):
+            team_info = team.find("div", class_="score-team-name abbreviation")
+            teamname = team_info.find(
+                "span", class_="scores-text capi pd-b-1 ff-ff"
+            ).text
+            teamstanding = team_info.find(
+                "sup", class_="scores-team-record ffn-gr-10"
+            ).text
+            match["name"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamname]
+            match["standing"][i] = teamstanding
 
-    for team in match_team:
-        team_name = team.find("span", class_="scores-text capi pd-b-1 ff-ff")
-        try:
-            team_name = NBA_ABBR_ENG_TO_ABBR_CN[team_name.text.strip()]
-        except:
-            if match_index == 0:
-                match_index = 1
-                continue
-            else:
-                match["name"].pop()
-                match["standing"].pop()
-                match.clear()
-                match_index = 0
-                continue
+            if teamname == odds_teamname:
+                match["point"][i] = int(round(20 + float(odds_teamgive)))
+                match["point"][1 ^ i] = int(round(20 + -float(odds_teamgive)))
 
-        team_standing = team.find("sup", class_="scores-team-record ffn-gr-10")
-        team_standing = team_standing.text.strip()
-
-        if match_index == 0:
-            match["name"] = [team_name]
-            match["standing"] = [team_standing]
-        elif "name" in match:
-            match["name"].append(team_name)
-            match["standing"].append(team_standing)
-            matches.append(match.copy())
-            match.clear()
-
-        match_index = (match_index + 1) % 2
-
-    match_index = 0
-    values = soup.find_all("span", class_="secondary-text status ffn-11 opac-5 uc")
-    for value in values:
-        team_name, team_give = value.text.strip().split()
-        match = matches[match_index]["name"]
-        team_to_give = match.index(NBA_ABBR_ENG_TO_ABBR_CN[team_name])
-        points = [0, 0]
-        points[team_to_give] = int(round(20 + float(team_give)))
-        points[1 ^ team_to_give] = int(round(20 + -float(team_give)))
-
-        matches[match_index]["points"] = points
-        match_index += 1
+        matches.append(match)
 
     return matches
 

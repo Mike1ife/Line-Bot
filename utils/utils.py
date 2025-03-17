@@ -156,6 +156,7 @@ def get_nba_match_prediction():
     else:
         for match_index, match in enumerate(matches):
             """Match infomation"""
+            gametime = match["gametime"]
             team_name = match["name"]
             team_standing = match["standing"]
             try:
@@ -176,20 +177,20 @@ def get_nba_match_prediction():
                 team_pos.reverse()
 
             # title = 溜馬(主) 1-11 - 老鷹(客) 5-6
-            # text = 溜馬 31分 / 老鷹 9分
+            # text = 7:30\n溜馬 31分 / 老鷹 9分
             columns.append(
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
                     title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
-                    text=f"{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
+                    text=f"{gametime}\n{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
                     actions=[
                         PostbackAction(
                             label=team_name[0],
-                            data=f"NBA球隊預測;{team_name[0]};{team_name[1]};{team_points[0]};{team_points[1]}",
+                            data=f"NBA球隊預測;{team_name[0]};{team_name[1]};{team_points[0]};{team_points[1]};{gametime}",
                         ),
                         PostbackAction(
                             label=team_name[1],
-                            data=f"NBA球隊預測;{team_name[1]};{team_name[0]};{team_points[1]};{team_points[0]}",
+                            data=f"NBA球隊預測;{team_name[1]};{team_name[0]};{team_points[1]};{team_points[0]};{gametime}",
                         ),
                     ],
                 ),
@@ -208,7 +209,7 @@ def get_nba_match_prediction():
 
 
 def get_nba_match_prediction_postback(
-    username, winner, loser, winner_point, loser_point
+    username, winner, loser, winner_point, loser_point, gametime
 ):
     """Get GS"""
     header, rows, worksheet = init()
@@ -678,3 +679,14 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
+
+
+def _testing_get_time():
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    year, month, day = TWnow.year, TWnow.month, TWnow.day
+    if month < 10:
+        month = f"0{month}"
+    if day < 10:
+        day = f"0{day}"
+    time = f"{year}-{month}-{day}"
