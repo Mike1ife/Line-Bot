@@ -436,7 +436,7 @@ def get_nba_today():
         match = {
             "name": ["", ""],
             "standing": ["", ""],
-            "point": [0, 0],
+            "points": [0, 0],
             "gametime": gametime,
         }
         for i, team in enumerate(teams):
@@ -451,8 +451,8 @@ def get_nba_today():
             match["standing"][i] = teamstanding
 
             if teamname == odds_teamname:
-                match["point"][i] = int(round(20 + float(odds_teamgive)))
-                match["point"][1 ^ i] = int(round(20 + -float(odds_teamgive)))
+                match["points"][i] = int(round(20 + float(odds_teamgive)))
+                match["points"][1 ^ i] = int(round(20 + -float(odds_teamgive)))
 
         matches.append(match)
 
