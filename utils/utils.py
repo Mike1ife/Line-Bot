@@ -473,7 +473,7 @@ def get_user_type_point(type: str):
 
 
 def get_prediction_comparison(msg):
-    if msg.strip() == "跟盤":
+    if msg.strip() == "比較":
         header, rows, worksheet = init()
         text = "使用方式:\n比較 id id\n"
         for i, row in enumerate(rows):
@@ -484,7 +484,7 @@ def get_prediction_comparison(msg):
         try:
             _, index_a, index_b = msg.split()
             header, rows, worksheet = init()
-            return compare_user_prediction(header, rows, index_a, index_b)
+            return compare_user_prediction(header, rows, int(index_a), int(index_b))
         except:
             return "錯誤使用方式"
 
