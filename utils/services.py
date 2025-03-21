@@ -178,6 +178,10 @@ def text_message(event):
         text = get_others_prediction(msg)
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
+    if msg[:2] == "比較":
+        text = get_prediction_comparison(msg)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+
     if msg[:2] == "傷病":
         text = get_team_injury(msg)
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))

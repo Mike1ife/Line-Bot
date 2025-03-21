@@ -472,6 +472,23 @@ def get_user_type_point(type: str):
     return text[:-1]
 
 
+def get_prediction_comparison(msg):
+    if msg.strip() == "跟盤":
+        header, rows, worksheet = init()
+        text = "使用方式:\n比較 id id\n"
+        for i, row in enumerate(rows):
+            text += f"{i}.{row[0]}\n"
+        return text.rstrip()
+
+    if msg.startswith("比較 "):
+        try:
+            _, index_a, index_b = msg.split()
+            header, rows, worksheet = init()
+            return compare_user_prediction(header, rows, index_a, index_b)
+        except:
+            return "錯誤使用方式"
+
+
 def get_others_prediction(msg):
     if msg.strip() == "跟盤":
         header, rows, worksheet = init()
@@ -479,14 +496,6 @@ def get_others_prediction(msg):
         for i, row in enumerate(rows):
             text += f"{i}.{row[0]}\n"
         return text.rstrip()
-
-    pattern_compare = r"^跟盤\s+(\d+)\s*比較\s*跟盤\s+(\d+)$"
-    match = re.match(pattern_compare, msg.strip())
-    if match:
-        index_a = int(match.group(1))
-        index_b = int(match.group(2))
-        header, rows, worksheet = init()
-        return compare_user_prediction(header, rows, index_a, index_b)
 
     if msg.startswith("跟盤 "):
         try:

@@ -12,6 +12,7 @@ gg {anything}
 nba
 規則
 跟盤
+比較
 傷病
 檢查
 信仰
