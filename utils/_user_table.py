@@ -429,10 +429,16 @@ def get_nba_today():
         teams = match_info.find("div", class_="teams").find_all(
             "div", class_="score-team-row"
         )
-        odds = match_info.find(
-            "span", class_="secondary-text status ffn-11 opac-5 uc"
-        ).text
-        odds_teamname, odds_teamgive = odds.strip().split()
+        match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
+        match_page_data = requests.get(match_page_link).text
+        match_page_soup = BeautifulSoup(match_page_data, "html.parser")
+        match_page_odd_container = match_page_soup.find(
+            "div", class_="odds-row-container"
+        )
+        odds = match_page_odd_container.find_all(
+            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+        )
+
         match = {
             "name": ["", ""],
             "standing": ["", ""],
@@ -449,10 +455,7 @@ def get_nba_today():
             ).text
             match["name"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamname]
             match["standing"][i] = teamstanding
-
-            if teamname == odds_teamname:
-                match["points"][i] = int(round(20 + float(odds_teamgive)))
-                match["points"][1 ^ i] = int(round(20 + -float(odds_teamgive)))
+            match["points"][i] = int(round(20 + float(odds[i].text.strip())))
 
         matches.append(match)
 
