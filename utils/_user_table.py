@@ -179,10 +179,10 @@ def get_match_result(header, rows):
             continue
 
         # handle finished games bug (as unfinished)
-        finished_points = [112, 104]
-        if point == "-":
-            point = finished_points[match_index]
-        
+        # finished_points = [112, 104]
+        # if point == "-":
+        #     point = finished_points[match_index]
+
         match_point.append(int(point))
 
         if match_index != 0:
