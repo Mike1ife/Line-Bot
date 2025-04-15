@@ -283,7 +283,7 @@ def _get_player_bet_info(player, title):
     )
     _odds_items = _odds_msg.split()
     odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
-    return img_src, name, _get_match_translation(match), avg.split()[0], target, odds
+    return img_src, name, _get_match_translation(match), avg.split()[0], target, 2*odds
 
 
 def _get_match_translation(match):
@@ -315,7 +315,7 @@ def get_player_stat_prediction(match_count):
                 CarouselColumn(
                     thumbnail_image_url=img_src,
                     title=name,
-                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds*2}分\n小盤 ({BET_NAME[title]}低於{target}) {20-odds}分",
+                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {20-odds}分",
                     actions=[
                         PostbackAction(
                             label="大盤",
