@@ -262,11 +262,19 @@ def get_nba_match_prediction_postback(
     return text
 
 
-def _get_player_bet_info(player):
+def _get_player_bet_info(player, title):
     img_src = player.find("img").get("src")
     name = player.find("img").get("alt")
     match = player.find("div", class_="ffn-gr-11").text
-    avg = player.find("span", class_="ffn-gr-11").text
+
+    with open("utils/player_link.json", "r", encoding="utf-8") as f:
+        player_url_table = json.load(f)
+
+    player_page = requests.get(player_url_table[name].replace("game-log", "stats")).text
+    player_soup = BeautifulSoup(player_page, "html.parser")
+    title_to_class = {"PLAYER POINTS": 0, "PLAYER REBOUNDS": 1, "PLAYER STEALS": 4}
+    player_stats = player_soup.find_all("a", class_="stats-overview")
+    avg = player_stats[title_to_class[title]].find("div", class_="fs-54 fs-sm-40").text
     target = player.find("div", class_="fs-30").text
     _odds_msg = (
         player.find("span", class_="pd-r-2").text
@@ -296,7 +304,9 @@ def get_player_stat_prediction(match_count):
         title = bet.find("h2", class_="pb-name fs-30").text.strip()
         players = bet.find_all("div", class_="prop-bet-data pointer prop-future")
         for player in players:
-            img_src, name, match, avg, target, odds = _get_player_bet_info(player)
+            img_src, name, match, avg, target, odds = _get_player_bet_info(
+                player, title
+            )
             # title = Anthony Edwards
             # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
             # button1 = 大盤
@@ -713,14 +723,3 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
-
-
-def _testing_get_time():
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    year, month, day = TWnow.year, TWnow.month, TWnow.day
-    if month < 10:
-        month = f"0{month}"
-    if day < 10:
-        day = f"0{day}"
-    time = f"{year}-{month}-{day}"
