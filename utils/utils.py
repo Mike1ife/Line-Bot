@@ -171,7 +171,7 @@ def get_nba_match_prediction():
             try:
                 team_points = match["points"]
             except:
-                team_points = [20, 20]
+                team_points = [30, 30]
             team_pos = ["客", "主"]
 
             """Create template"""
@@ -305,15 +305,15 @@ def get_player_stat_prediction(match_count):
                 CarouselColumn(
                     thumbnail_image_url=img_src,
                     title=name,
-                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {10-odds}分",
+                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds*2}分\n小盤 ({BET_NAME[title]}低於{target}) {20-odds}分",
                     actions=[
                         PostbackAction(
                             label="大盤",
-                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{10-odds};大盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{20-odds};大盤",
                         ),
                         PostbackAction(
                             label="小盤",
-                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{10-odds};小盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{20-odds};小盤",
                         ),
                     ],
                 ),

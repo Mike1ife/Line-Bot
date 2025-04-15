@@ -460,7 +460,7 @@ def get_nba_today():
             ).text
             match["name"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamname]
             match["standing"][i] = teamstanding
-            match["points"][i] = int(round(20 + float(odds[i].text.strip())))
+            match["points"][i] = int(round(30 + float(odds[i].text.strip())))
 
         matches.append(match)
 
