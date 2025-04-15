@@ -333,7 +333,7 @@ def get_player_stat_prediction(match_count):
                 header,
                 rows,
                 column_id + match_count,
-                f"{name} {BET_NAME[title]}{target} {odds}/{10-odds}",
+                f"{name} {BET_NAME[title]}{target} {odds}/{15-odds}",
             )
             column_id += 1
 
