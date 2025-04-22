@@ -145,7 +145,7 @@ def get_nba_scoreboard():
     return score_text[:-1]
 
 
-def get_nba_match_prediction():
+def get_nba_match_prediction(playoffs=False):
     """Get GS"""
     header, rows, worksheet = init()
     text = get_user_type_point("week")
@@ -174,6 +174,10 @@ def get_nba_match_prediction():
                 team_points = [30, 30]
             team_pos = ["客", "主"]
 
+            game_id = ""
+            if playoffs:
+                game_id = "Game " + match["game_id"] + "\n"
+
             """Create template"""
             encoded_team1 = quote(team_name[0])
             encoded_team2 = quote(team_name[1])
@@ -191,7 +195,7 @@ def get_nba_match_prediction():
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
                     title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
-                    text=f"{gametime}\n{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
+                    text=f"{game_id}{gametime}\n{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
                     actions=[
                         PostbackAction(
                             label=team_name[0],

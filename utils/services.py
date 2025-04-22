@@ -71,7 +71,7 @@ def text_message(event):
             )
         else:
             try:
-                text, team_columns = get_nba_match_prediction()
+                text, team_columns = get_nba_match_prediction(playoffs=True)
                 if team_columns is None:
                     line_bot_api.reply_message(
                         event.reply_token, TextSendMessage(text=text)
