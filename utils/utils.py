@@ -155,7 +155,10 @@ def get_nba_match_prediction(playoffs=False):
 
     """Get NBA Today"""
     columns = []
-    matches = get_nba_today()
+    if playoffs:
+        matches = get_nba_playoffs()
+    else:
+        matches = get_nba_today()
 
     if len(matches) == 0:
         return "明天沒有比賽", None
@@ -287,7 +290,14 @@ def _get_player_bet_info(player, title):
     )
     _odds_items = _odds_msg.split()
     odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
-    return img_src, name, _get_match_translation(match), avg.split()[0], target, int(1.5*odds)
+    return (
+        img_src,
+        name,
+        _get_match_translation(match),
+        avg.split()[0],
+        target,
+        int(1.5 * odds),
+    )
 
 
 def _get_match_translation(match):
