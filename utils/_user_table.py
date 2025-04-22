@@ -500,7 +500,7 @@ def get_nba_playoffs():
         ).text.strip()
 
         standing_info = standing_text.split()
-        game_id = standing_text[1]
+        game_id = standing_info[1]
         # GM 4 TIED 2-2
         if standing_info[2] == "TIED":
             tie = standing_info[-1].split("-")[0]
