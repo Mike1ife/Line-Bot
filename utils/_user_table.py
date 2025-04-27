@@ -183,7 +183,7 @@ def get_match_result(header, rows):
         # if point == "-":
         #     point = finished_points[match_index]
 
-        # match_point.append(int(point))
+        match_point.append(int(point))
 
         if match_index != 0:
             match_result["-".join(match_team)] = match_team[
