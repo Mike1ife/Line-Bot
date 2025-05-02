@@ -156,7 +156,7 @@ def get_nba_match_prediction(playoffs=False):
     """Get NBA Today"""
     columns = []
     if playoffs:
-        matches = get_nba_playoffs()
+        match_page, matches = get_nba_playoffs()
     else:
         matches = get_nba_today()
 
@@ -221,7 +221,7 @@ def get_nba_match_prediction(playoffs=False):
 
         """Update GS"""
         update_sheet(header, rows, worksheet)
-        return text, columns
+        return text, columns, match_page
 
 
 def _compare_timestring(timestr1, timestr2):
@@ -305,7 +305,7 @@ def _get_match_translation(match):
     return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]}(客) - {NBA_ABBR_ENG_TO_ABBR_CN[home]}(主)"
 
 
-def get_player_stat_prediction(match_count):
+def get_player_stat_prediction(match_count, match_page):
     header, rows, worksheet = init()
 
     data = requests.get(f"https://www.foxsports.com/odds/nba/props").text

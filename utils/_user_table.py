@@ -495,7 +495,7 @@ def get_nba_playoffs():
     gametimes = _get_nba_gametime()
     matches_info = soup.find_all("a", class_="score-chip-playoff pregame")
     matches = []
-
+    return_page = [30, ""]  # Get the match page of the most intense game
     for match_info, gametime in zip(matches_info, gametimes):
         team1 = match_info.find("img", class_="team-logo-1").attrs["alt"]
         team2 = match_info.find("img", class_="team-logo-2").attrs["alt"]
@@ -544,10 +544,12 @@ def get_nba_playoffs():
             int(round(30 + float(odds[0].text.strip()))),
             int(round(30 + float(odds[1].text.strip()))),
         ]
+        if abs(float(odds[0].text.strip())) < return_page[0]:
+            return_page[1] = match_page_link
 
         matches.append(match)
 
-    return matches
+    return matches, return_page[1] + "?tab=odds"
 
 
 def get_user_prediction(header, rows, name_index):
