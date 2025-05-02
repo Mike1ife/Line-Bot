@@ -312,6 +312,9 @@ def get_player_stat_prediction(match_count, match_page, match_time):
     soup = BeautifulSoup(data, "html.parser")
     bets = soup.find_all("div", class_="odds-component-prop-bet")
 
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    Tomorrow = TWnow + timedelta(days=1)
     columns = []
     column_id = 0
     for bet in bets:
@@ -333,11 +336,11 @@ def get_player_stat_prediction(match_count, match_page, match_time):
                     actions=[
                         PostbackAction(
                             label="大盤",
-                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{15-odds};大盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{15-odds};大盤;{Tomorrow.year}-{Tomorrow.month}-{Tomorrow.day}-{match_time}",
                         ),
                         PostbackAction(
                             label="小盤",
-                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{15-odds};小盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{15-odds};小盤;{Tomorrow.year}-{Tomorrow.month}-{Tomorrow.day}-{match_time}",
                         ),
                     ],
                 ),
@@ -356,8 +359,15 @@ def get_player_stat_prediction(match_count, match_page, match_time):
 
 
 def get_player_stat_prediction_postback(
-    username, player, target, over_point, under_point, predict
+    username, player, target, over_point, under_point, predict, match_time
 ):
+    """Check if the game is already started"""
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
+    if _compare_timestring(timenow, match_time):
+        return f"{player} 的比賽已經開始了"
+
     """Get GS"""
     header, rows, worksheet = init()
 
