@@ -399,10 +399,15 @@ def _get_nba_gametime():
     data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
     soup = BeautifulSoup(data, "html.parser")
     cards = soup.find_all("div", class_="card")
-
     # get team scoreboard
     gametimes = []
     for card in cards:
+        x = card.find("span", class_="team_score").text.strip()
+        try:
+            if "4" in x:
+                continue
+        except:
+            pass
         gametimes.append(card.find("span", class_="during").text.strip())
 
     return gametimes
