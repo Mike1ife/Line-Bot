@@ -71,14 +71,16 @@ def text_message(event):
             )
         else:
             try:
-                text, team_columns, match_page = get_nba_match_prediction(playoffs=True)
+                text, team_columns, match_page, match_time = get_nba_match_prediction(
+                    playoffs=True
+                )
                 if team_columns is None:
                     line_bot_api.reply_message(
                         event.reply_token, TextSendMessage(text=text)
                     )
                 else:
                     player_columns = get_player_stat_prediction(
-                        len(team_columns), match_page
+                        len(team_columns), match_page, match_time
                     )
                     columns = team_columns + player_columns
                     messages = [TextMessage(text=text)]

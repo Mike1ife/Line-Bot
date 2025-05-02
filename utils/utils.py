@@ -156,7 +156,7 @@ def get_nba_match_prediction(playoffs=False):
     """Get NBA Today"""
     columns = []
     if playoffs:
-        match_page, matches = get_nba_playoffs()
+        matches, match_page, match_time = get_nba_playoffs()
     else:
         matches = get_nba_today()
 
@@ -221,7 +221,7 @@ def get_nba_match_prediction(playoffs=False):
 
         """Update GS"""
         update_sheet(header, rows, worksheet)
-        return text, columns, match_page
+        return text, columns, match_page, match_time
 
 
 def _compare_timestring(timestr1, timestr2):
@@ -305,10 +305,10 @@ def _get_match_translation(match):
     return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]}(客) - {NBA_ABBR_ENG_TO_ABBR_CN[home]}(主)"
 
 
-def get_player_stat_prediction(match_count, match_page):
+def get_player_stat_prediction(match_count, match_page, match_time):
     header, rows, worksheet = init()
 
-    data = requests.get(f"https://www.foxsports.com/odds/nba/props").text
+    data = requests.get(match_page).text
     soup = BeautifulSoup(data, "html.parser")
     bets = soup.find_all("div", class_="odds-component-prop-bet")
 
@@ -322,14 +322,14 @@ def get_player_stat_prediction(match_count, match_page):
                 player, title
             )
             # title = Anthony Edwards
-            # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
+            # text = 場均得分 28.0\n7:00 國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
             # button1 = 大盤
             # button2 = 小盤
             columns.append(
                 CarouselColumn(
                     thumbnail_image_url=img_src,
                     title=name,
-                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {15-odds}分",
+                    text=f"場均{BET_NAME[title]} {avg}\n{match_time} {match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {15-odds}分",
                     actions=[
                         PostbackAction(
                             label="大盤",
