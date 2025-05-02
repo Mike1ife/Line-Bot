@@ -222,6 +222,13 @@ def text_message(event):
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
 
+    if msg == "時間":
+        data = requests.get("https://www.foxsports.com/nba/scores").text
+        soup = BeautifulSoup(data, "html.parser")
+        t = soup.find("span", class_="time ffn-gr-11").text.strip()
+        m = TextSendMessage(text=t)
+        line_bot_api.reply_message(event.reply_token, m)
+
 
 def random_message(event):
     msg = event.message.text
