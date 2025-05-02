@@ -384,33 +384,12 @@ def get_season_best(header, rows):
     return header, rows, season_best
 
 
-def _get_nba_gametime():
-    time = None
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-
-    # if over 19:00, grab tomorrow schedule
-    TW7pm = TWnow.replace(hour=19, minute=0, second=0, microsecond=0)
-    if TWnow > TW7pm:
-        TWnow += timedelta(days=1)
-
-    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
-
-    data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
-    soup = BeautifulSoup(data, "html.parser")
-    cards = soup.find_all("div", class_="card")
-    # get team scoreboard
-    gametimes = []
-    for card in cards:
-        x = card.find("span", class_="team_score").text.strip()
-        try:
-            if "4" in x:
-                continue
-        except:
-            pass
-        gametimes.append(card.find("span", class_="during").text.strip())
-
-    return gametimes
+def _utc_to_tw_time(utc_gametime):
+    # gametime = "1:00 AM"
+    utc_time = datetime.strptime(utc_gametime, "%I:%M %p").replace(tzinfo=timezone.utc)
+    tw_time = utc_time.astimezone(timezone(timedelta(hours=8)))
+    tw_gametime = tw_time.strftime("%H:%M")
+    return tw_gametime
 
 
 def get_nba_today():
@@ -432,14 +411,16 @@ def get_nba_today():
     if len(scores) != 0 or time not in re.findall(pattern, data):
         return []
 
-    gametimes = _get_nba_gametime()
     matches_info = soup.find_all("a", class_="score-chip pregame")
     matches = []
 
-    for match_info, gametime in zip(matches_info, gametimes):
+    for match_info in matches_info:
         teams = match_info.find("div", class_="teams").find_all(
             "div", class_="score-team-row"
         )
+        utc_gametime = match_info.find("span", class_="time ffn-gr-11").text.strip()
+        gametime = _utc_to_tw_time(utc_gametime)
+
         match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
         match_page_data = requests.get(match_page_link).text
         match_page_soup = BeautifulSoup(match_page_data, "html.parser")
@@ -492,7 +473,6 @@ def get_nba_playoffs():
     if len(scores) != 0 or time not in re.findall(pattern, data):
         return []
 
-    gametimes = _get_nba_gametime()
     matches_info = soup.find_all("a", class_="score-chip-playoff pregame")
     matches = []
     return_page = [
@@ -500,9 +480,11 @@ def get_nba_playoffs():
         "",
         "",
     ]  # Get the match page and match time of the most intensive game
-    for match_info, gametime in zip(matches_info, gametimes):
+    for match_info in matches_info:
         team1 = match_info.find("img", class_="team-logo-1").attrs["alt"]
         team2 = match_info.find("img", class_="team-logo-2").attrs["alt"]
+        utc_gametime = match_info.find("span", class_="time ffn-gr-11").text.strip()
+        gametime = _utc_to_tw_time(utc_gametime)
 
         standing_text = match_info.find(
             "div", class_="playoff-game-info ffn-gr-11 uc fs-sm-10"
