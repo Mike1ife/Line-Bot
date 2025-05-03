@@ -302,7 +302,7 @@ def _get_player_bet_info(player, title):
 
 def _get_match_translation(match):
     away, _, home, _, _, _ = match.split()
-    return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]}(客) - {NBA_ABBR_ENG_TO_ABBR_CN[home]}(主)"
+    return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]} @ {NBA_ABBR_ENG_TO_ABBR_CN[home]}"
 
 
 def get_player_stat_prediction(match_count, match_page, match_time):
