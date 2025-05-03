@@ -359,14 +359,14 @@ def get_player_stat_prediction(match_count, match_page, match_time):
 
 
 def get_player_stat_prediction_postback(
-    username, player, target, over_point, under_point, predict
+    username, player, target, over_point, under_point, predict, match_time
 ):
     """Check if the game is already started"""
-    # UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    # TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    # timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
-    # if _compare_timestring(timenow, match_time):
-    #     return f"{player} 的比賽已經開始了"
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
+    if _compare_timestring(timenow, match_time):
+        return f"{player} 的比賽已經開始了"
 
     """Get GS"""
     header, rows, worksheet = init()
