@@ -386,7 +386,7 @@ def get_season_best(header, rows):
 
 def _utc_to_tw_time(utc_gametime):
     # gametime = "1:00 AM"
-    utc_time = datetime.strptime(utc_gametime, "%I:%M %p").replace(tzinfo=timezone.utc)
+    utc_time = datetime.strptime(utc_gametime, "%I:%M%p").replace(tzinfo=timezone.utc)
     tw_time = utc_time.astimezone(timezone(timedelta(hours=8)))
     tw_gametime = tw_time.strftime("%H:%M")
     return tw_gametime
