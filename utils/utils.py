@@ -145,7 +145,7 @@ def get_nba_scoreboard():
     return score_text[:-1]
 
 
-def get_nba_match_prediction():
+def get_nba_match_prediction(playoffs=False):
     """Get GS"""
     header, rows, worksheet = init()
     text = get_user_type_point("week")
@@ -155,7 +155,10 @@ def get_nba_match_prediction():
 
     """Get NBA Today"""
     columns = []
-    matches = get_nba_today()
+    if playoffs:
+        matches, match_page, match_time = get_nba_playoffs()
+    else:
+        matches = get_nba_today()
 
     if len(matches) == 0:
         return "明天沒有比賽", None
@@ -171,8 +174,12 @@ def get_nba_match_prediction():
             try:
                 team_points = match["points"]
             except:
-                team_points = [20, 20]
+                team_points = [30, 30]
             team_pos = ["客", "主"]
+
+            game_id = ""
+            if playoffs:
+                game_id = "Game " + match["game_id"] + "\n"
 
             """Create template"""
             encoded_team1 = quote(team_name[0])
@@ -191,7 +198,7 @@ def get_nba_match_prediction():
                 CarouselColumn(
                     thumbnail_image_url=thumbnail_image_url,
                     title=f"{team_name[0]}({team_pos[0]}) {team_standing[0]} - {team_name[1]}({team_pos[1]}) {team_standing[1]}",
-                    text=f"{gametime}\n{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
+                    text=f"{game_id}{gametime}\n{team_name[0]} {team_points[0]}分 / {team_name[1]} {team_points[1]}分",
                     actions=[
                         PostbackAction(
                             label=team_name[0],
@@ -214,7 +221,7 @@ def get_nba_match_prediction():
 
         """Update GS"""
         update_sheet(header, rows, worksheet)
-        return text, columns
+        return text, columns, match_page, match_time
 
 
 def _compare_timestring(timestr1, timestr2):
@@ -262,11 +269,19 @@ def get_nba_match_prediction_postback(
     return text
 
 
-def _get_player_bet_info(player):
+def _get_player_bet_info(player, title):
     img_src = player.find("img").get("src")
     name = player.find("img").get("alt")
     match = player.find("div", class_="ffn-gr-11").text
-    avg = player.find("span", class_="ffn-gr-11").text
+
+    with open("utils/player_link.json", "r", encoding="utf-8") as f:
+        player_url_table = json.load(f)
+
+    player_page = requests.get(player_url_table[name].replace("game-log", "stats")).text
+    player_soup = BeautifulSoup(player_page, "html.parser")
+    title_to_class = {"PLAYER POINTS": 0, "PLAYER REBOUNDS": 1, "PLAYER STEALS": 4}
+    player_stats = player_soup.find_all("a", class_="stats-overview")
+    avg = player_stats[title_to_class[title]].find("div", class_="fs-54 fs-sm-40").text
     target = player.find("div", class_="fs-30").text
     _odds_msg = (
         player.find("span", class_="pd-r-2").text
@@ -275,7 +290,14 @@ def _get_player_bet_info(player):
     )
     _odds_items = _odds_msg.split()
     odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
-    return img_src, name, _get_match_translation(match), avg.split()[0], target, odds
+    return (
+        img_src,
+        name,
+        _get_match_translation(match),
+        avg.split()[0],
+        target,
+        int(1.5 * odds),
+    )
 
 
 def _get_match_translation(match):
@@ -283,37 +305,42 @@ def _get_match_translation(match):
     return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]}(客) - {NBA_ABBR_ENG_TO_ABBR_CN[home]}(主)"
 
 
-def get_player_stat_prediction(match_count):
+def get_player_stat_prediction(match_count, match_page, match_time):
     header, rows, worksheet = init()
 
-    data = requests.get(f"https://www.foxsports.com/odds/nba/props").text
+    data = requests.get(match_page).text
     soup = BeautifulSoup(data, "html.parser")
     bets = soup.find_all("div", class_="odds-component-prop-bet")
 
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    Tomorrow = TWnow + timedelta(days=1)
     columns = []
     column_id = 0
     for bet in bets:
         title = bet.find("h2", class_="pb-name fs-30").text.strip()
         players = bet.find_all("div", class_="prop-bet-data pointer prop-future")
         for player in players:
-            img_src, name, match, avg, target, odds = _get_player_bet_info(player)
+            img_src, name, match, avg, target, odds = _get_player_bet_info(
+                player, title
+            )
             # title = Anthony Edwards
-            # text = 場均得分 28.0\n國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
+            # text = 場均得分 28.0\n7:00 國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
             # button1 = 大盤
             # button2 = 小盤
             columns.append(
                 CarouselColumn(
                     thumbnail_image_url=img_src,
                     title=name,
-                    text=f"場均{BET_NAME[title]} {avg}\n{match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {10-odds}分",
+                    text=f"場均{BET_NAME[title]} {avg}\n{match_time} {match}\n大盤 ({BET_NAME[title]}超過{target}) {odds}分\n小盤 ({BET_NAME[title]}低於{target}) {15-odds}分",
                     actions=[
                         PostbackAction(
                             label="大盤",
-                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{10-odds};大盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{15-odds};大盤;{Tomorrow.year}-{Tomorrow.month}-{Tomorrow.day}-{match_time}",
                         ),
                         PostbackAction(
                             label="小盤",
-                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{10-odds};小盤",
+                            data=f"NBA球員預測;{name};{BET_NAME[title]}{target};{odds};{15-odds};小盤;{Tomorrow.year}-{Tomorrow.month}-{Tomorrow.day}-{match_time}",
                         ),
                     ],
                 ),
@@ -323,7 +350,7 @@ def get_player_stat_prediction(match_count):
                 header,
                 rows,
                 column_id + match_count,
-                f"{name} {BET_NAME[title]}{target} {odds}/{10-odds}",
+                f"{name} {BET_NAME[title]}{target} {odds}/{15-odds}",
             )
             column_id += 1
 
@@ -334,6 +361,13 @@ def get_player_stat_prediction(match_count):
 def get_player_stat_prediction_postback(
     username, player, target, over_point, under_point, predict
 ):
+    """Check if the game is already started"""
+    # UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    # TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    # timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
+    # if _compare_timestring(timenow, match_time):
+    #     return f"{player} 的比賽已經開始了"
+
     """Get GS"""
     header, rows, worksheet = init()
 
@@ -713,14 +747,3 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
-
-
-def _testing_get_time():
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    year, month, day = TWnow.year, TWnow.month, TWnow.day
-    if month < 10:
-        month = f"0{month}"
-    if day < 10:
-        day = f"0{day}"
-    time = f"{year}-{month}-{day}"

@@ -179,10 +179,10 @@ def get_match_result(header, rows):
             continue
 
         # handle finished games bug (as unfinished)
-        finished_points = [112, 104]
-        if point == "-":
-            point = finished_points[match_index]
-        
+        # finished_points = [104, 116]
+        # if point == "-":
+        #     point = finished_points[match_index]
+
         match_point.append(int(point))
 
         if match_index != 0:
@@ -384,28 +384,12 @@ def get_season_best(header, rows):
     return header, rows, season_best
 
 
-def _get_nba_gametime():
-    time = None
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-
-    # if over 19:00, grab tomorrow schedule
-    TW7pm = TWnow.replace(hour=19, minute=0, second=0, microsecond=0)
-    if TWnow > TW7pm:
-        TWnow += timedelta(days=1)
-
-    time = f"{TWnow.year}-{TWnow.month}-{TWnow.day}"
-
-    data = requests.get(f"https://tw-nba.udn.com/nba/schedule_boxscore/{time}").text
-    soup = BeautifulSoup(data, "html.parser")
-    cards = soup.find_all("div", class_="card")
-
-    # get team scoreboard
-    gametimes = []
-    for card in cards:
-        gametimes.append(card.find("span", class_="during").text.strip())
-
-    return gametimes
+def _utc_to_tw_time(utc_gametime):
+    # gametime = "1:00 AM"
+    utc_time = datetime.strptime(utc_gametime, "%I:%M %p").replace(tzinfo=timezone.utc)
+    tw_time = utc_time.astimezone(timezone(timedelta(hours=8)))
+    tw_gametime = tw_time.strftime("%H:%M")
+    return tw_gametime
 
 
 def get_nba_today():
@@ -427,17 +411,26 @@ def get_nba_today():
     if len(scores) != 0 or time not in re.findall(pattern, data):
         return []
 
-    gametimes = _get_nba_gametime()
     matches_info = soup.find_all("a", class_="score-chip pregame")
     matches = []
-    for match_info, gametime in zip(matches_info, gametimes):
+
+    for match_info in matches_info:
         teams = match_info.find("div", class_="teams").find_all(
             "div", class_="score-team-row"
         )
-        odds = match_info.find(
-            "span", class_="secondary-text status ffn-11 opac-5 uc"
-        ).text
-        odds_teamname, odds_teamgive = odds.strip().split()
+        utc_gametime = match_info.find("span", class_="time ffn-gr-11").text.strip()
+        gametime = _utc_to_tw_time(utc_gametime)
+
+        match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
+        match_page_data = requests.get(match_page_link).text
+        match_page_soup = BeautifulSoup(match_page_data, "html.parser")
+        match_page_odd_container = match_page_soup.find(
+            "div", class_="odds-row-container"
+        )
+        odds = match_page_odd_container.find_all(
+            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+        )
+
         match = {
             "name": ["", ""],
             "standing": ["", ""],
@@ -454,14 +447,96 @@ def get_nba_today():
             ).text
             match["name"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamname]
             match["standing"][i] = teamstanding
-
-            if teamname == odds_teamname:
-                match["points"][i] = int(round(20 + float(odds_teamgive)))
-                match["points"][1 ^ i] = int(round(20 + -float(odds_teamgive)))
+            match["points"][i] = int(round(30 + float(odds[i].text.strip())))
 
         matches.append(match)
 
     return matches
+
+
+def get_nba_playoffs():
+    time = None
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    year, month, day = TWnow.year, TWnow.month, TWnow.day
+    if month < 10:
+        month = f"0{month}"
+    if day < 10:
+        day = f"0{day}"
+    time = f"{year}-{month}-{day}"
+
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
+    soup = BeautifulSoup(data, "html.parser")
+    scores = soup.find_all("div", class_="score-team-score")
+
+    pattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
+    if len(scores) != 0 or time not in re.findall(pattern, data):
+        return []
+
+    matches_info = soup.find_all("a", class_="score-chip-playoff pregame")
+    matches = []
+    return_page = [
+        30,
+        "",
+        "",
+    ]  # Get the match page and match time of the most intensive game
+    for match_info in matches_info:
+        team1 = match_info.find("img", class_="team-logo-1").attrs["alt"]
+        team2 = match_info.find("img", class_="team-logo-2").attrs["alt"]
+        utc_gametime = match_info.find("span", class_="time ffn-gr-11").text.strip()
+        gametime = _utc_to_tw_time(utc_gametime)
+
+        standing_text = match_info.find(
+            "div", class_="playoff-game-info ffn-gr-11 uc fs-sm-10"
+        ).text.strip()
+
+        standing_info = standing_text.split()
+        game_id = standing_info[1]
+        # GM 4 TIED 2-2
+        if standing_info[2] == "TIED":
+            tie = standing_info[-1].split("-")[0]
+            teamstandings = [tie, tie]
+        # GM 5 LAL LEADS 3-1
+        else:
+            leading_team = standing_info[2]
+            teamstandings_text = standing_info[-1]
+            s1, s2 = teamstandings_text.split("-")
+            if leading_team == team1:
+                teamstandings = [s1, s2]
+            else:
+                teamstandings = [s2, s1]
+
+        match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
+        match_page_data = requests.get(match_page_link).text
+        match_page_soup = BeautifulSoup(match_page_data, "html.parser")
+        match_page_odd_container = match_page_soup.find(
+            "div", class_="odds-row-container"
+        )
+        odds = match_page_odd_container.find_all(
+            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+        )
+
+        match = {
+            "name": ["", ""],
+            "standing": ["", ""],
+            "points": [0, 0],
+            "game_id": game_id,
+            "gametime": gametime,
+        }
+
+        match["name"] = [NBA_ABBR_ENG_TO_ABBR_CN[team1], NBA_ABBR_ENG_TO_ABBR_CN[team2]]
+        match["standing"] = teamstandings
+        match["points"] = [
+            int(round(30 + float(odds[0].text.strip()))),
+            int(round(30 + float(odds[1].text.strip()))),
+        ]
+        if abs(float(odds[0].text.strip())) < return_page[0]:
+            return_page[1] = match_page_link
+            return_page[2] = gametime
+
+        matches.append(match)
+
+    return matches, return_page[1] + "?tab=odds", return_page[2]
 
 
 def get_user_prediction(header, rows, name_index):
