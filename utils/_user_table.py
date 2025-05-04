@@ -498,13 +498,18 @@ def get_nba_playoffs():
             teamstandings = [tie, tie]
         # GM 5 LAL LEADS 3-1
         else:
-            leading_team = standing_info[2]
-            teamstandings_text = standing_info[-1]
-            s1, s2 = teamstandings_text.split("-")
-            if leading_team == team1:
-                teamstandings = [s1, s2]
-            else:
-                teamstandings = [s2, s1]
+            try:
+                leading_team = standing_info[2]
+                teamstandings_text = standing_info[-1]
+                s1, s2 = teamstandings_text.split("-")
+                if leading_team == team1:
+                    teamstandings = [s1, s2]
+                else:
+                    teamstandings = [s2, s1]
+            except:
+                # CONF SEMIS GAME 1
+                game_id = standing_info[-1]
+                teamstandings = [0, 0]
 
         match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
         match_page_data = requests.get(match_page_link).text
