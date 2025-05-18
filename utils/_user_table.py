@@ -471,7 +471,7 @@ def get_nba_playoffs():
 
     pattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if len(scores) != 0 or time not in re.findall(pattern, data):
-        return []
+        return [], None, None
 
     matches_info = soup.find_all("a", class_="score-chip-playoff pregame")
     matches = []
