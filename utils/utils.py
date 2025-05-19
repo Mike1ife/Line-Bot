@@ -161,7 +161,7 @@ def get_nba_match_prediction(playoffs=False):
         matches = get_nba_today()
 
     if len(matches) == 0:
-        return "明天沒有比賽", None
+        return "明天沒有比賽", None, None, None
     else:
         UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
