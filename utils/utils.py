@@ -722,9 +722,7 @@ def get_nba_guessing():
     for stat in player_info["stats"]:
         year, TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
         year = year.replace("-", "\u200b-")
-        history_teams += (
-            "{:<8} {:<8}".format(year, NBA_TEAM_NAME_ENG_TO_ABBR_CN[TEAM]) + "\n"
-        )
+        history_teams += "{:<8} {:<8}".format(year, TEAM) + "\n"
         history_game += "{:<8} {:<8} {:<8}".format(year, f"{GS}/{GP}", MPG) + "\n"
         history_stats += "{:<8} {:<8}".format(year, f"{PPG}/{RPG}/{APG}/{FPR}%") + "\n"
 
