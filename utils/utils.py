@@ -779,19 +779,20 @@ def get_gimy_search(keyword):
         img = details["style"]
         img_src = img[img.index("(") + 1 : img.index(")")]
 
-        columns.append(
-            CarouselColumn(
-                thumbnail_image_url=img_src,
-                title=title,
-                text=video_year,
-                actions=[
-                    PostbackAction(
-                        label="片源",
-                        data=f"Gimy;{title};{video_source_url}",
-                    ),
-                ],
-            ),
-        )
+        if title and img_src and video_year and video_source_url:
+            columns.append(
+                CarouselColumn(
+                    thumbnail_image_url=img_src,
+                    title=title,
+                    text=video_year,
+                    actions=[
+                        PostbackAction(
+                            label="片源",
+                            data=f"Gimy;{title};{video_source_url}",
+                        ),
+                    ],
+                ),
+            )
 
     return "Vedios", columns
 
