@@ -752,17 +752,24 @@ def get_gimy_search(keyword):
         return "Inst", "使用方式: gimy {片名}"
     keyword = keyword.split()[1]
     url = f"https://gimy.ai/search/-------------.html?wd={keyword}"
-    data = requests.get(url).text
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.google.com/",
+    }
+
+    data = requests.get(url, headers=headers).text
     soup = BeautifulSoup(data, "html.parser")
     gimy_search_page = soup.find_all("a", class_="video-pic loading")
     video_list = gimy_search_page[:10]
     if not video_list:
-        return "None", data
+        return "None", "共找到 0 個相關影片"
 
     columns = []
     for video in video_list:
         video_url = "https://gimy.ai" + video["href"]
-        video_data = requests.get(video_url).text
+        video_data = requests.get(video_url, headers=headers).text
         video_data_soup = BeautifulSoup(video_data, "html.parser")
 
         video_year = video_data_soup.find_all(
