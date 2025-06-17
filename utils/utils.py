@@ -757,7 +757,7 @@ def get_gimy_search(keyword):
     gimy_search_page = soup.find_all("a", class_="video-pic loading")
     video_list = gimy_search_page[:10]
     if not video_list:
-        return "None", url
+        return "None", data
 
     columns = []
     for video in video_list:
