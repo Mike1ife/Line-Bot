@@ -222,7 +222,7 @@ def text_message(event):
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
 
-    if msg[:2] == "gimy":
+    if msg[:4] == "gimy":
         rets = get_gimy_search(keyword=msg)
         if rets[0] == "Inst" or rets == "None":
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=rets[1]))
