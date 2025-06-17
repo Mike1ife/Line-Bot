@@ -747,3 +747,52 @@ def get_random_picture(album_id):
             random_image = random.choice(images)
             image_url = random_image["link"]
             return image_url
+
+
+def get_gimy_search(keyword):
+    if keyword == "gimy":
+        return "Inst", "使用方式: gimy {片名}"
+    keyword = keyword.split()[1]
+    url = f"https://gimy.ai/search/-------------.html?wd={keyword}"
+    data = requests.get(url).text
+    soup = BeautifulSoup(data, "html.parser")
+    gimy_search_page = soup.find_all("a", class_="video-pic loading")
+    video_list = gimy_search_page[:10]
+    if not video_list:
+        return "None", "共找到 0 個相關影片"
+
+    columns = []
+    for video in video_list:
+        video_url = "https://gimy.ai" + video["href"]
+        video_data = requests.get(video_url).text
+        video_data_soup = BeautifulSoup(video_data, "html.parser")
+
+        video_year = video_data_soup.find_all(
+            "li", class_="col-md-6 col-sm-6 col-xs-12 text hidden-xs"
+        )[2].text.strip()
+
+        video_source = video_data_soup.find("ul", class_="clearfix fade in active")
+        video_source_url = "https://gimy.ai" + video_source.find("a")["href"]
+
+        details = video_data_soup.find("div", class_="details-pic").find(
+            "a", class_="video-pic"
+        )
+        title = details["title"]
+        img = details["style"]
+        img_src = img[img.index("(") + 1 : img.index(")")]
+
+        columns.append(
+            CarouselColumn(
+                thumbnail_image_url=img_src,
+                title=title,
+                text=video_year,
+                actions=[
+                    PostbackAction(
+                        label="片源",
+                        data=f"Gimy;{title};{video_source_url}",
+                    ),
+                ],
+            ),
+        )
+
+    return "Vedios", columns
