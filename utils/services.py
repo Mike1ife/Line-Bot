@@ -222,17 +222,17 @@ def text_message(event):
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
 
-    if msg[:4] == "gimy":
-        rets = get_gimy_search(keyword=msg)
-        if rets[0] == "Inst" or rets[0] == "None":
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=rets[1]))
-        else:
-            video_columns = rets[1]
-            carousel_template = CarouselTemplate(columns=video_columns[:10])
-            template_message = TemplateSendMessage(
-                alt_text="Gimy片源", template=carousel_template
-            )
-            line_bot_api.reply_message(event.reply_token, template_message)
+    # if msg[:4] == "gimy":
+    #     rets = get_gimy_search(keyword=msg)
+    #     if rets[0] == "Inst" or rets[0] == "None":
+    #         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=rets[1]))
+    #     else:
+    #         video_columns = rets[1]
+    #         carousel_template = CarouselTemplate(columns=video_columns[:10])
+    #         template_message = TemplateSendMessage(
+    #             alt_text="Gimy片源", template=carousel_template
+    #         )
+    #         line_bot_api.reply_message(event.reply_token, template_message)
 
     # if msg == "時間":
     #     data = requests.get("https://www.foxsports.com/nba/scores").text
