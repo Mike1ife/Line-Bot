@@ -161,7 +161,7 @@ def get_nba_match_prediction(playoffs=False):
         matches = get_nba_today()
 
     if len(matches) == 0:
-        return "明天沒有比賽", None
+        return "明天沒有比賽", None, None, None
     else:
         UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
         TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
@@ -302,7 +302,7 @@ def _get_player_bet_info(player, title):
 
 def _get_match_translation(match):
     away, _, home, _, _, _ = match.split()
-    return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]}(客) - {NBA_ABBR_ENG_TO_ABBR_CN[home]}(主)"
+    return f"{NBA_ABBR_ENG_TO_ABBR_CN[away]} @ {NBA_ABBR_ENG_TO_ABBR_CN[home]}"
 
 
 def get_player_stat_prediction(match_count, match_page, match_time):
@@ -359,14 +359,14 @@ def get_player_stat_prediction(match_count, match_page, match_time):
 
 
 def get_player_stat_prediction_postback(
-    username, player, target, over_point, under_point, predict
+    username, player, target, over_point, under_point, predict, match_time
 ):
     """Check if the game is already started"""
-    # UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    # TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    # timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
-    # if _compare_timestring(timenow, match_time):
-    #     return f"{player} 的比賽已經開始了"
+    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
+    timenow = f"{TWnow.year}-{TWnow.month}-{TWnow.day}-{TWnow.hour}:{TWnow.minute}"
+    if _compare_timestring(timenow, match_time):
+        return f"{player} 的比賽已經開始了"
 
     """Get GS"""
     header, rows, worksheet = init()
@@ -722,9 +722,7 @@ def get_nba_guessing():
     for stat in player_info["stats"]:
         year, TEAM, GP, GS, MPG, PPG, FPR, RPG, APG = stat.values()
         year = year.replace("-", "\u200b-")
-        history_teams += (
-            "{:<8} {:<8}".format(year, NBA_TEAM_NAME_ENG_TO_ABBR_CN[TEAM]) + "\n"
-        )
+        history_teams += "{:<8} {:<8}".format(year, TEAM) + "\n"
         history_game += "{:<8} {:<8} {:<8}".format(year, f"{GS}/{GP}", MPG) + "\n"
         history_stats += "{:<8} {:<8}".format(year, f"{PPG}/{RPG}/{APG}/{FPR}%") + "\n"
 

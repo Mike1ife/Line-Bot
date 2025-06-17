@@ -386,7 +386,7 @@ def get_season_best(header, rows):
 
 def _utc_to_tw_time(utc_gametime):
     # gametime = "1:00 AM"
-    utc_time = datetime.strptime(utc_gametime, "%I:%M %p").replace(tzinfo=timezone.utc)
+    utc_time = datetime.strptime(utc_gametime, "%I:%M%p").replace(tzinfo=timezone.utc)
     tw_time = utc_time.astimezone(timezone(timedelta(hours=8)))
     tw_gametime = tw_time.strftime("%H:%M")
     return tw_gametime
@@ -471,7 +471,7 @@ def get_nba_playoffs():
 
     pattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if len(scores) != 0 or time not in re.findall(pattern, data):
-        return []
+        return [], None, None
 
     matches_info = soup.find_all("a", class_="score-chip-playoff pregame")
     matches = []
@@ -498,13 +498,18 @@ def get_nba_playoffs():
             teamstandings = [tie, tie]
         # GM 5 LAL LEADS 3-1
         else:
-            leading_team = standing_info[2]
-            teamstandings_text = standing_info[-1]
-            s1, s2 = teamstandings_text.split("-")
-            if leading_team == team1:
-                teamstandings = [s1, s2]
-            else:
-                teamstandings = [s2, s1]
+            try:
+                leading_team = standing_info[2]
+                teamstandings_text = standing_info[-1]
+                s1, s2 = teamstandings_text.split("-")
+                if leading_team == team1:
+                    teamstandings = [s1, s2]
+                else:
+                    teamstandings = [s2, s1]
+            except:
+                # CONF SEMIS GAME 1
+                game_id = standing_info[-1]
+                teamstandings = [0, 0]
 
         match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
         match_page_data = requests.get(match_page_link).text
