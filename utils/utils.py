@@ -794,3 +794,7 @@ def get_gimy_search(keyword):
         )
 
     return "Vedios", columns
+
+
+def get_gimy_search_postback_handler(title, source_url):
+    return f"{title}: {source_url}"

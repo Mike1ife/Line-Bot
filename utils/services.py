@@ -228,7 +228,7 @@ def text_message(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=rets[1]))
         else:
             video_columns = rets[1]
-            carousel_template = CarouselTemplate(columns=video_columns)
+            carousel_template = CarouselTemplate(columns=video_columns[:10])
             template_message = TemplateSendMessage(
                 alt_text="Gimy片源", template=carousel_template
             )

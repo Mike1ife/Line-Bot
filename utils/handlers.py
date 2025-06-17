@@ -5,6 +5,7 @@ from config import line_bot_api
 from utils.utils import (
     get_nba_match_prediction_postback,
     get_player_stat_prediction_postback,
+    get_gimy_search_postback_handler,
 )
 from utils.services import text_message, random_message
 
@@ -34,4 +35,7 @@ def handle_postback(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
     elif postback_type == "NBA球員預測":
         text = get_player_stat_prediction_postback(username, *params)
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    elif postback_type == "Gimy":
+        text = get_gimy_search_postback_handler(*params)
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
