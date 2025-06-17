@@ -224,7 +224,7 @@ def text_message(event):
 
     if msg[:4] == "gimy":
         rets = get_gimy_search(keyword=msg)
-        if rets[0] == "Inst" or rets == "None":
+        if rets[0] == "Inst" or rets[0] == "None":
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=rets[1]))
         else:
             video_columns = rets[1]
