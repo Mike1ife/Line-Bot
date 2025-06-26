@@ -496,7 +496,7 @@ def get_user_type_best(type: str):
 
 
 def get_user_type_point(type: str):
-    user_points = get_user_points(type=type)
+    user_points = get_user_points(rank_type=type)
     text = f"{TYPENAME[type]}排行榜:\n"
     for i, (name, point) in enumerate(user_points.items()):
         text += f"{i+1}. {name}: {point}分\n"
