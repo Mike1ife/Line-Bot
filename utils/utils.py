@@ -496,14 +496,19 @@ def get_user_type_best(type: str):
 
 
 def get_user_type_point(type: str):
-    """Get points"""
-    header, rows, worksheet = init()
-    """Send user ranks"""
-    user_month_point = get_user_points(rows, type)
+    user_points = get_user_points(type=type)
     text = f"{TYPENAME[type]}排行榜:\n"
-    for i, value in enumerate(user_month_point):
-        text += f"{i+1}. {value[0]}: {value[1]}分\n"
+    for i, (name, point) in enumerate(user_points.items()):
+        text += f"{i+1}. {name}: {point}分\n"
     return text[:-1]
+    # """Get points"""
+    # header, rows, worksheet = init()
+    # """Send user ranks"""
+    # user_month_point = get_user_points(rows, type)
+    # text = f"{TYPENAME[type]}排行榜:\n"
+    # for i, value in enumerate(user_month_point):
+    #     text += f"{i+1}. {value[0]}: {value[1]}分\n"
+    # return text[:-1]
 
 
 def get_prediction_comparison(msg):

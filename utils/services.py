@@ -163,19 +163,19 @@ def text_message(event):
             )
 
     if msg == "週排行":
-        text = get_user_type_point("week")
+        text = get_user_type_point("week_points")
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
     if msg == "月排行":
-        text = get_user_type_point("month")
+        text = get_user_type_point("month_points")
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
     if msg == "季排行":
-        text = get_user_type_point("season")
+        text = get_user_type_point("year_points")
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
     if msg == "總排行":
-        text = get_user_type_point("all-time")
+        text = get_user_type_point("alltime_points")
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
 
     if msg[:2] == "跟盤":
