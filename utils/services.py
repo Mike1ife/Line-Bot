@@ -222,9 +222,9 @@ def text_message(event):
             error_message = TextSendMessage(text=str(e))
             line_bot_api.reply_message(event.reply_token, error_message)
 
-        if msg.lower() == "news":
-            message = TextSendMessage(text=get_hupu_news())
-            line_bot_api.reply_message(event.reply_token, message)
+    if msg.lower() == "news":
+        message = TextSendMessage(text=get_hupu_news())
+        line_bot_api.reply_message(event.reply_token, message)
 
 
 def random_message(event):
