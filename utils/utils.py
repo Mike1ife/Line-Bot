@@ -747,62 +747,14 @@ def get_random_picture(album_id):
             return image_url
 
 
-# def get_gimy_search(keyword):
-#     if keyword == "gimy":
-#         return "Inst", "使用方式: gimy {片名}"
-#     keyword = keyword.split()[1]
-#     url = f"https://gimy.ai/search/-------------.html?wd={keyword}"
-
-#     headers = {
-#         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-#         "Accept-Language": "en-US,en;q=0.9",
-#         "Referer": "https://www.google.com/",
-#     }
-
-#     data = requests.get(url, headers=headers).text
-#     soup = BeautifulSoup(data, "html.parser")
-#     gimy_search_page = soup.find_all("a", class_="video-pic loading")
-#     video_list = gimy_search_page[:10]
-#     if not video_list:
-#         return "None", data
-
-#     columns = []
-#     for video in video_list:
-#         video_url = "https://gimy.ai" + video["href"]
-#         video_data = requests.get(video_url, headers=headers).text
-#         video_data_soup = BeautifulSoup(video_data, "html.parser")
-
-#         video_year = video_data_soup.find_all(
-#             "li", class_="col-md-6 col-sm-6 col-xs-12 text hidden-xs"
-#         )[2].text.strip()
-
-#         video_source = video_data_soup.find("ul", class_="clearfix fade in active")
-#         video_source_url = "https://gimy.ai" + video_source.find("a")["href"]
-
-#         details = video_data_soup.find("div", class_="details-pic").find(
-#             "a", class_="video-pic"
-#         )
-#         title = details["title"]
-#         img = details["style"]
-#         img_src = img[img.index("(") + 1 : img.index(")")]
-
-#         if title and img_src and video_year and video_source_url:
-#             columns.append(
-#                 CarouselColumn(
-#                     thumbnail_image_url=img_src,
-#                     title=title,
-#                     text=video_year,
-#                     actions=[
-#                         PostbackAction(
-#                             label="片源",
-#                             data=f"Gimy;{title};{video_source_url}",
-#                         ),
-#                     ],
-#                 ),
-#             )
-
-#     return "Vedios", columns
-
-
-# def get_gimy_search_postback_handler(title, source_url):
-#     return f"{title}: {source_url}"
+def get_hupu_news():
+    data = requests.get("https://bbs.hupu.com/all-nba").text
+    soup = BeautifulSoup(data, "html.parser")
+    newsThread = soup.find_all("span", class_="t-title")
+    top5News = []
+    for news in newsThread:
+        title = news.text.strip()
+        if "[流言板]" in title:
+            top5News.append(title.replace("[流言板]", ""))
+        if len(top5News) == 5:
+            return "\n".join(top5News)
