@@ -1,8 +1,6 @@
 import re
 import json
-import psycopg
 import requests
-from config import DB_CONN_STR
 from gspread import authorize
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
@@ -258,25 +256,15 @@ def get_player_result(header, rows):
     return header, rows
 
 
-def get_user_points(rows=None, rank_type="week_points"):
-    points = {}
+def get_user_points(rows, rank_type="week"):
+    mapping = {"week": 1, "month": 2, "season": 3, "all-time": 4}
+    users_info = []
 
-    with psycopg.connect(DB_CONN_STR) as conn:
-        with conn.cursor() as cur:
-            cur.execute(f"SELECT name, {rank_type} FROM LeaderBoard")
-            for name, point in cur.fetchall():
-                points[name] = point
+    for row in rows:
+        users_info.append((row[0], row[mapping[rank_type]]))
+    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
 
-    return points
-
-    # mapping = {"week": 1, "month": 2, "season": 3, "all-time": 4}
-    # users_info = []
-
-    # for row in rows:
-    #     users_info.append((row[0], row[mapping[rank_type]]))
-    # user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
-
-    # return user_ranks
+    return user_ranks
 
 
 def get_week_best(header, rows):

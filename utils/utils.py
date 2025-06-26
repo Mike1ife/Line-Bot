@@ -14,13 +14,7 @@ from utils._team_table import (
 )
 
 ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
-# TYPENAME = {"week": "本週", "month": "本月", "season": "本季", "all-time": "歷史"}
-TYPENAME = {
-    "week_points": "本週",
-    "month_points": "本月",
-    "year_points": "本季",
-    "alltime_points": "歷史",
-}
+TYPENAME = {"week": "本週", "month": "本月", "season": "本季", "all-time": "歷史"}
 TYPEFUNC = {
     "week": get_week_best,
     "month": get_month_best,
@@ -502,19 +496,14 @@ def get_user_type_best(type: str):
 
 
 def get_user_type_point(type: str):
-    user_points = get_user_points(rank_type=type)
+    """Get points"""
+    header, rows, worksheet = init()
+    """Send user ranks"""
+    user_month_point = get_user_points(rows, type)
     text = f"{TYPENAME[type]}排行榜:\n"
-    for i, (name, point) in enumerate(user_points.items()):
-        text += f"{i+1}. {name}: {point}分\n"
+    for i, value in enumerate(user_month_point):
+        text += f"{i+1}. {value[0]}: {value[1]}分\n"
     return text[:-1]
-    # """Get points"""
-    # header, rows, worksheet = init()
-    # """Send user ranks"""
-    # user_month_point = get_user_points(rows, type)
-    # text = f"{TYPENAME[type]}排行榜:\n"
-    # for i, value in enumerate(user_month_point):
-    #     text += f"{i+1}. {value[0]}: {value[1]}分\n"
-    # return text[:-1]
 
 
 def get_prediction_comparison(msg):
