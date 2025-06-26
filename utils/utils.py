@@ -748,13 +748,14 @@ def get_random_picture(album_id):
 
 
 def get_hupu_news():
-    data = requests.get("https://bbs.hupu.com/all-nba").text
+    data = requests.get("https://bbs.hupu.com/4860").text
     soup = BeautifulSoup(data, "html.parser")
-    newsThread = soup.find_all("span", class_="t-title")
+
+    newsThread = soup.find_all("a", class_="p-title")
     top5News = []
-    for news in newsThread:
+    for news in newsThread[:5]:
         title = news.text.strip()
-        if "[流言板]" in title:
-            top5News.append(title.replace("[流言板]", ""))
-        if len(top5News) == 5:
-            return "\n".join(top5News)
+        top5News.append(title.replace("[流言板]", ""))
+
+    spliter = "\n" + "-" * 53 + "\n"
+    return spliter.join(top5News)
