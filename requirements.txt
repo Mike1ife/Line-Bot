@@ -4,5 +4,4 @@ requests
 datetime
 beautifulsoup4
 pillow
-gspread
-google-auth
+psycopg[binary]

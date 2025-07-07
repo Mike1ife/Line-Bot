@@ -1,747 +1,724 @@
 import re
 import json
 import requests
-from gspread import authorize
+import psycopg
 from bs4 import BeautifulSoup
-from datetime import datetime, timezone, timedelta
-from google.oauth2.service_account import Credentials
+from config import DATABASE_URL
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
-from collections import Counter, defaultdict
+from datetime import datetime, timezone, timedelta
 
-PREDICT_INDEX = 35
+STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 
 
-def init():
-    scope = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = Credentials.from_service_account_file("user_table.json", scopes=scope)
-    gs = authorize(creds)
+def get_user_points(rankType: str, isSorted: bool = True):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT name, {rankType} FROM LeaderBoard ORDER BY id;")
+            userPoints = cur.fetchall()
 
-    sheet = gs.open_by_url(
-        "https://docs.google.com/spreadsheets/d/1QajQuyDTjBiaoj1ucQOfbZu99ChWLIRffABoKFohw3A/edit?hl=zh-tw#gid=0"
+    return (
+        sorted(userPoints, key=lambda x: x[1], reverse=True) if isSorted else userPoints
     )
-    worksheet = sheet.get_worksheet(0)
-    data = worksheet.get_all_values()
-
-    header, rows = data[0], data[1:]
-    return header, rows, worksheet
 
 
-def reset_user_points(header, rows, column):
-    all_user_name = [row[0] for row in rows]
-    for user_name in all_user_name:
-        header, rows = modify_value(header, rows, user_name, column, 0)
-    return header, rows
+def column_exist(column: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            # get column names
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'leaderboard'
+                ORDER BY ordinal_position
+            """
+            )
+            columns = [row[0] for row in cur.fetchall()]
+            return column in columns
 
 
-def reset_match(header, rows):
-    header = header[:PREDICT_INDEX]
-    rows = [row[:PREDICT_INDEX] for row in rows]
-    return header, rows
+def insert_columns(newColumns: list):
+    addClauses = ",\n".join(
+        [f"ADD COLUMN \"{col}\" TEXT DEFAULT ''" for col in newColumns]
+    )
+    sql = f"ALTER TABLE LeaderBoard\n{addClauses}"
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+        conn.commit()
 
 
-def modify_column_name(header, rows, index, new_name):
-    # new column
-    if (index + PREDICT_INDEX) == len(header):
-        header.insert(index + PREDICT_INDEX, new_name)
-        # insert empty value to each row to fill in column
-        for i in range(len(rows)):
-            fill_num = len(header) - len(rows[i])
-            rows[i] += [""] * fill_num
-    else:
-        header[index + PREDICT_INDEX] = new_name
-
-    return header, rows
-
-
-def modify_value(header, rows, name, column, winner):
-    for i, row in enumerate(rows):
-        if row[0] == name:
-            row[header.index(column)] = winner
-            break
-    return header, rows
-
-
-def add_belief_count(header, rows, name, predicted_team, is_winner):
-    for row in rows:
-        if row[0] == name:
-            index = header.index(predicted_team)
-            correct, wrong = row[index].split()
-            if is_winner:
-                correct = int(correct) + 1
-            else:
-                wrong = int(wrong) + 1
-            row[index] = f"{correct} {wrong}"
-            return header, rows
-
-
-def add_value(header, rows, name, column, value):
-    for i, row in enumerate(rows):
-        if row[0] == name:
-            row[header.index(column)] = int(value) + int(row[header.index(column)])
-            break
-    return header, rows
-
-
-def count_points(header, rows):
-    add_points = defaultdict(int)  # record the points added for each user
-    for row in rows:
-        user_points = 0
-        user_name = ""
-
-        for i, value in enumerate(row):
-            if header[i] == "Name":
-                user_name = value
-            elif header[i] == "Week Points":
-                user_points = int(value)
-            # team: 公牛 30
-            elif i >= 34 and header[i].count(" ") == 1:
-                predicted_team = value
-                if predicted_team not in NBA_ABBR_ENG_TO_ABBR_CN.values():
-                    continue
-
-                winner, winner_point = header[i].split()
-
-                is_winner = predicted_team == winner
-                if is_winner:
-                    user_points += int(winner_point)
-                    add_points[user_name] += int(winner_point)
-                header, rows = add_belief_count(
-                    header, rows, user_name, predicted_team, is_winner=is_winner
+def rename_columns(renameMap: dict):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            for oldName, newName in renameMap.items():
+                cur.execute(
+                    f'ALTER TABLE LeaderBoard RENAME COLUMN "{oldName}" TO "{newName}"'
                 )
-            # player: Anthony Edwards 大盤 4
-            elif i >= 34 and header[i].count(" ") >= 2:
-                prediction = value
-                # Anthony Edwards 大盤
-                if prediction != "" and prediction in header[i]:
-                    user_points += int(header[i].split()[-1])
-                    add_points[user_name] += int(header[i].split()[-1])
-
-        header, rows = modify_value(
-            header, rows, user_name, "Week Points", str(user_points)
-        )
-    return header, rows, add_points
+        conn.commit()
 
 
-def column_exist(header, column):
-    return True if column in header else False
+def update_columns(updateColumns: list, updateStrategy: list, updateMap: dict):
+    names = list(updateMap.keys())
+    setClauses = []
+    caseValues = []
+
+    for idx, col in enumerate(updateColumns):
+        strategy = updateStrategy[idx]
+        if strategy == "a":  # add
+            caseBlock = f'"{col}" = "{col}" + CASE name\n'
+        elif strategy == "w":  # overwrite
+            caseBlock = f'"{col}" = CASE name\n'
+
+        for name in names:
+            val = updateMap[name][idx]
+            caseBlock += "    WHEN %s THEN %s\n"
+            caseValues.extend([name, val])
+        caseBlock += "END"
+        setClauses.append(caseBlock)
+
+    setSQL = ",\n".join(setClauses)
+    whereSQL = ", ".join(["%s"] * len(names))
+
+    sql = f"""
+        UPDATE LeaderBoard
+        SET
+        {setSQL}
+        WHERE name IN ({whereSQL})
+    """
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql, caseValues + names)
+        conn.commit()
 
 
-def add_new_user(header, rows, name):
-    match_num = len(header) - PREDICT_INDEX
-    new_row = [name, "0", "0", "0", "0"] + ["0 0"] * 30 + [""] * match_num
-    rows.append(new_row)
-    return header, rows
+def reset_user_points(rankType: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"UPDATE LeaderBoard SET {rankType} = 0")
+        conn.commit()
 
 
-def get_match_result(header, rows):
-    if len(header) == PREDICT_INDEX:
-        return header, rows
-
-    data = requests.get(f"https://www.foxsports.com/nba/scores").text
-    soup = BeautifulSoup(data, "html.parser")
-
-    teams = soup.find_all("div", class_="score-team-name abbreviation")
-    cancelled_teams = []  # 比賽取消隊伍 ["LAL","DAL"]
-    if cancelled_teams:
-        teams = [
-            team
-            for team in teams
-            if (
-                team_name_tag := team.find(
-                    "span", class_="scores-text capi pd-b-1 ff-ff"
-                )
-            )
-            and team_name_tag.text.strip() not in cancelled_teams
-        ]
-    scores = soup.find_all("div", class_="score-team-score")
-    match_team = []
-    match_point = []
-    match_result = {}
-    match_index = 0
-
-    for team, score in zip(teams, scores):
-        name = team.find("span", class_="scores-text capi pd-b-1 ff-ff").text.strip()
-        point = score.find("span", class_="scores-text").text.strip()
-
-        if match_index == 1 and len(match_point) == 0:
-            match_index = 0
-            continue
-
-        try:
-            match_team.append(NBA_ABBR_ENG_TO_ABBR_CN[name])
-        except:
-            if match_index == 0:
-                match_index = 1
-            else:
-                match_index = 0
-            match_team.clear()
-            match_point.clear()
-            continue
-
-        # handle finished games bug (as unfinished)
-        # finished_points = [104, 116]
-        # if point == "-":
-        #     point = finished_points[match_index]
-
-        match_point.append(int(point))
-
-        if match_index != 0:
-            match_result["-".join(match_team)] = match_team[
-                int(match_point[1] > match_point[0])
-            ]
-            match_team.clear()
-            match_point.clear()
-
-        match_index = (match_index + 1) % 2
-
-    match_index = 0
-    for match in header[PREDICT_INDEX:]:
-        if match.count(" ") >= 2:
-            break
-        teams, points = match.split()
-        try:
-            winner = match_result[teams]
-        except:
-            temp = teams
-            temp = temp.split("-")
-            temp.reverse()
-            winner = match_result["-".join(temp)]
-
-        teams = teams.split("-")
-        points = points.split("/")
-
-        winner_point = points[teams.index(winner)]
-
-        header, rows = modify_column_name(
-            header, rows, match_index, f"{winner} {winner_point}"
-        )
-
-        match_index += 1
-
-    return header, rows
-
-
-def get_player_result(header, rows):
-    for i in range(PREDICT_INDEX, len(header)):
-        # Original: Anthony Edwards 得分26.5 4/6
-        # Aim: Anthony Edwards 大盤 6
-        if header[i].count(" ") >= 2:
-            header_items = header[i].split()
-            player = " ".join(header_items[:-2])
-            stat_type, target = header_items[-2][:2], float(header_items[-2][2:])
-            over_point, under_point = header_items[-1].split("/")
-
-            with open("utils/player_link.json", "r", encoding="utf-8") as f:
-                player_url_table = json.load(f)
-            url = player_url_table[player]
-
-            data = requests.get(url).text
-            soup = BeautifulSoup(data, "html.parser")
-            container = soup.find("tbody", class_="row-data lh-1pt43 fs-14")
-            game = container.find("tr")
-
-            DATA_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
-            value = int(
-                game.find("td", {"data-index": DATA_INDEX[stat_type]}).text.strip()
-            )
-
-            if value >= target:
-                new_header = f"{player} 大盤 {over_point}"
-            else:
-                new_header = f"{player} 小盤 {under_point}"
-            header, rows = modify_column_name(
-                header, rows, i - PREDICT_INDEX, new_header
-            )
-
-    return header, rows
-
-
-def get_user_points(rows, rank_type="week"):
-    mapping = {"week": 1, "month": 2, "season": 3, "all-time": 4}
-    users_info = []
-
-    for row in rows:
-        users_info.append((row[0], row[mapping[rank_type]]))
-    user_ranks = sorted(users_info, key=lambda x: int(x[1]), reverse=True)
-
-    return user_ranks
-
-
-def get_week_best(header, rows):
-    user_ranks = get_user_points(rows, "week")
-    if all([x[1] == "0" for x in user_ranks]):
-        return header, rows, []
-
-    point = 100.0
-    total_best = 0.0
-    current_best = 0.0
-    reduction = 0.0
-    week_best = []
-    for i, user in enumerate(user_ranks):
-        if i == 0:
-            total_best = user[1]
-            week_best.append(user)
-        elif user[1] == total_best:
-            week_best.append(user)
-        elif user[1] != current_best:
-            point -= reduction
-            reduction = 0.0
-
-        # print(user[0], user[1], point, current_best)
-
-        header, rows = add_value(header, rows, user[0], "Month Points", point)
-
-        current_best = user[1]
-        reduction += 10
-
-    return header, rows, week_best
-
-
-def get_month_best(header, rows):
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
+def _pre_settle_week_points():
+    UTCnow = datetime.now(timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    weekday = TWnow.weekday()
+    weekday = TWnow.weekday()  # 0-index, i.e. Monday=0, Sunday=6
+    if weekday == 0:
+        return
+    userDayPoints = get_user_points(rankType="day_points", isSorted=False)
+    userWeekPoints = get_user_points(rankType="week_points", isSorted=False)
+    userPoints = []
+    for i in range(len(userDayPoints)):
+        name, dayPoint = userDayPoints[i]
+        weekPoint = userWeekPoints[i][1]
+        userPoints.append([name, dayPoint, weekPoint - dayPoint])
+    if all(prevPoint == 0 for _, _, prevPoint in userPoints):
+        print("no week points")
+        return
+    # weekPoint = prevPoint + dayPoint
+    userPoints.sort(key=lambda x: x[2], reverse=True)
 
-    if weekday != 0:
-        user_ranks = get_user_points(rows, "week")
-        if any([x[1] != "0" for x in user_ranks]):
-            point = 100.0
-            current_best = 0.0
-            reduction = 0.0
-            for i, user in enumerate(user_ranks):
-                if user[1] != current_best and i != 0:
-                    point -= reduction
-                    reduction = 0.0
-
-                header, rows = add_value(
-                    header,
-                    rows,
-                    user[0],
-                    "Month Points",
-                    round(point * ((weekday) / 7.0)),
-                )
-
-                current_best = user[1]
-                reduction += 10
-
-    user_ranks = get_user_points(rows, "month")
-    if all([x[1] == "0" for x in user_ranks]):
-        return header, rows, []
-
-    point = 100.0
-    total_best = 0.0
-    current_best = 0.0
-    reduction = 0.0
-    month_best = []
-    for i, user in enumerate(user_ranks):
-        if i == 0:
-            total_best = user[1]
-            month_best.append(user)
-        elif user[1] == total_best:
-            month_best.append(user)
-        elif user[1] != current_best:
-            point -= reduction
-            reduction = 0.0
-
-        # print(user[0], user[1], point, current_best)
-
-        header, rows = add_value(header, rows, user[0], "Year Points", point)
-
-        current_best = user[1]
+    monthPoint = 100
+    currBestPoint = 0
+    reduction = 0
+    partial = weekday / 7
+    updateMap = {}
+    for name, dayPoint, prevPoint in userPoints:
+        if prevPoint != currBestPoint:
+            monthPoint -= reduction
+            reduction = 0
+        updateMap[name] = [dayPoint, int(monthPoint * partial)]
+        currBestPoint = prevPoint
         reduction += 10
 
-    return header, rows, month_best
+    # write dayPoint to week_points
+    # add monthPoint to month_points
+    update_columns(
+        updateColumns=["week_points", "month_points"],
+        updateStrategy=["w", "a"],
+        updateMap=updateMap,
+    )
 
 
-def get_season_best(header, rows):
-    user_ranks = get_user_points(rows, "season")
+def get_type_best(rankType: str, nextRankType: str):
+    if rankType == "month_points":
+        _pre_settle_week_points()
 
-    if all([x[1] == "0" for x in user_ranks]):
-        return header, rows, []
-
-    point = 100.0
-    total_best = 0.0
-    current_best = 0.0
-    reduction = 0.0
-    season_best = []
-    for i, user in enumerate(user_ranks):
-        if i == 0:
-            total_best = user[1]
-            season_best.append(user)
-        elif user[1] == total_best:
-            season_best.append(user)
-        elif user[1] != current_best:
-            point -= reduction
-            reduction = 0.0
-
-        print(user[0], user[1], point, current_best)
-
-        header, rows = add_value(header, rows, user[0], "All-time Points", point)
-
-        current_best = user[1]
-        reduction += 10
-
-    return header, rows, season_best
-
-
-def _utc_to_tw_time(utc_gametime):
-    # gametime = "1:00 AM"
-    utc_time = datetime.strptime(utc_gametime, "%I:%M%p").replace(tzinfo=timezone.utc)
-    tw_time = utc_time.astimezone(timezone(timedelta(hours=8)))
-    tw_gametime = tw_time.strftime("%H:%M")
-    return tw_gametime
-
-
-def get_nba_today():
-    time = None
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    year, month, day = TWnow.year, TWnow.month, TWnow.day
-    if month < 10:
-        month = f"0{month}"
-    if day < 10:
-        day = f"0{day}"
-    time = f"{year}-{month}-{day}"
-
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
-    soup = BeautifulSoup(data, "html.parser")
-    scores = soup.find_all("div", class_="score-team-score")
-
-    pattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
-    if len(scores) != 0 or time not in re.findall(pattern, data):
+    userPoints = get_user_points(rankType=rankType)
+    if all(user[1] == 0 for user in userPoints):
         return []
 
-    matches_info = soup.find_all("a", class_="score-chip pregame")
-    matches = []
+    nextRankPoint = 100
+    rankBestPoint = 0
+    currBestPoint = 0
+    reduction = 0
+    rankBest = []
+    updateMap = {}
+    for name, point in userPoints:
+        if point >= rankBestPoint:
+            rankBestPoint = point
+            rankBest.append((name, point))
+        elif point != currBestPoint:
+            nextRankPoint -= reduction
+            reduction = 0
 
-    for match_info in matches_info:
-        teams = match_info.find("div", class_="teams").find_all(
-            "div", class_="score-team-row"
-        )
-        utc_gametime = match_info.find("span", class_="time ffn-gr-11").text.strip()
-        gametime = _utc_to_tw_time(utc_gametime)
+        updateMap[name] = [0, nextRankPoint]
+        currBestPoint = point
+        reduction += 10
 
-        match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
-        match_page_data = requests.get(match_page_link).text
-        match_page_soup = BeautifulSoup(match_page_data, "html.parser")
-        match_page_odd_container = match_page_soup.find(
-            "div", class_="odds-row-container"
-        )
-        odds = match_page_odd_container.find_all(
-            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
-        )
-
-        match = {
-            "name": ["", ""],
-            "standing": ["", ""],
-            "points": [0, 0],
-            "gametime": gametime,
-        }
-        for i, team in enumerate(teams):
-            team_info = team.find("div", class_="score-team-name abbreviation")
-            teamname = team_info.find(
-                "span", class_="scores-text capi pd-b-1 ff-ff"
-            ).text
-            teamstanding = team_info.find(
-                "sup", class_="scores-team-record ffn-gr-10"
-            ).text
-            match["name"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamname]
-            match["standing"][i] = teamstanding
-            match["points"][i] = int(round(30 + float(odds[i].text.strip())))
-
-        matches.append(match)
-
-    return matches
+    # write 0 to rankType
+    # add nextRankPoint to nextRankType
+    update_columns(
+        updateColumns=[rankType, nextRankType],
+        updateStrategy=["w", "a"],
+        updateMap=updateMap,
+    )
+    return rankBest
 
 
-def get_nba_playoffs():
-    time = None
-    UTCnow = datetime.utcnow().replace(tzinfo=timezone.utc)
-    TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
-    year, month, day = TWnow.year, TWnow.month, TWnow.day
-    if month < 10:
-        month = f"0{month}"
-    if day < 10:
-        day = f"0{day}"
-    time = f"{year}-{month}-{day}"
+def get_user_correct(userName: str, teamList: list, correct: bool):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            with psycopg.connect(DATABASE_URL) as conn:
+                with conn.cursor() as cur:
+                    sql = f"""
+                        SELECT {", ".join([f'"{team}"' for team in teamList])}
+                        FROM LeaderBoard
+                        WHERE name = %s
+                    """
+                    cur.execute(sql, (userName,))
+                    counter = cur.fetchone()
 
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={time}").text
-    soup = BeautifulSoup(data, "html.parser")
-    scores = soup.find_all("div", class_="score-team-score")
-
-    pattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
-    if len(scores) != 0 or time not in re.findall(pattern, data):
-        return [], None, None
-
-    matches_info = soup.find_all("a", class_="score-chip-playoff pregame")
-    matches = []
-    return_page = [
-        30,
-        "",
-        "",
-    ]  # Get the match page and match time of the most intensive game
-    for match_info in matches_info:
-        team1 = match_info.find("img", class_="team-logo-1").attrs["alt"]
-        team2 = match_info.find("img", class_="team-logo-2").attrs["alt"]
-        utc_gametime = match_info.find("span", class_="time ffn-gr-11").text.strip()
-        gametime = _utc_to_tw_time(utc_gametime)
-
-        standing_text = match_info.find(
-            "div", class_="playoff-game-info ffn-gr-11 uc fs-sm-10"
-        ).text.strip()
-
-        standing_info = standing_text.split()
-        game_id = standing_info[1]
-        # GM 4 TIED 2-2
-        if standing_info[2] == "TIED":
-            tie = standing_info[-1].split("-")[0]
-            teamstandings = [tie, tie]
-        # GM 5 LAL LEADS 3-1
-        else:
-            try:
-                leading_team = standing_info[2]
-                teamstandings_text = standing_info[-1]
-                s1, s2 = teamstandings_text.split("-")
-                if leading_team == team1:
-                    teamstandings = [s1, s2]
-                else:
-                    teamstandings = [s2, s1]
-            except:
-                # CONF SEMIS GAME 1
-                game_id = standing_info[-1]
-                teamstandings = [0, 0]
-
-        match_page_link = "https://www.foxsports.com" + match_info.attrs["href"]
-        match_page_data = requests.get(match_page_link).text
-        match_page_soup = BeautifulSoup(match_page_data, "html.parser")
-        match_page_odd_container = match_page_soup.find(
-            "div", class_="odds-row-container"
-        )
-        odds = match_page_odd_container.find_all(
-            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
-        )
-
-        match = {
-            "name": ["", ""],
-            "standing": ["", ""],
-            "points": [0, 0],
-            "game_id": game_id,
-            "gametime": gametime,
-        }
-
-        match["name"] = [NBA_ABBR_ENG_TO_ABBR_CN[team1], NBA_ABBR_ENG_TO_ABBR_CN[team2]]
-        match["standing"] = teamstandings
-        match["points"] = [
-            int(round(30 + float(odds[0].text.strip()))),
-            int(round(30 + float(odds[1].text.strip()))),
-        ]
-        if abs(float(odds[0].text.strip())) < return_page[0]:
-            return_page[1] = match_page_link
-            return_page[2] = gametime
-
-        matches.append(match)
-
-    return matches, return_page[1] + "?tab=odds", return_page[2]
-
-
-def get_user_prediction(header, rows, name_index):
-    if name_index < len(rows):
-        name = rows[name_index][0]
-        for row in rows:
-            if row[0] == name:
-                if row.count("") == len(header) - PREDICT_INDEX:
-                    return f"{name}還沒預測任何比賽"
-                else:
-                    response = f"{name}預測的球隊:\n"
-                    indices = [i for i, x in enumerate(row) if x != ""]
-                    game_names = [row[i] for i in indices]
-                    for team in game_names[PREDICT_INDEX:]:
-                        response += f"{team}\n"
-                    return response[:-1]
-    return "Unknown user"
-
-
-def shorten_common_prefix(a_str, b_str):
-    """
-    a_str = "Zach LaVine 大盤"
-    b_str = "Zach LaVine 小盤"
-    => "Zach LaVine 大盤 (小盤)"
-    """
-    # 兩者都空
-    if not a_str and not b_str:
-        return ""
-    # 一方空
-    if not a_str and b_str:
-        return f"( {b_str} )"
-    if a_str and not b_str:
-        return f"{a_str} ( )"
-    # 找出相同的前綴
-    a_words = a_str.split()
-    b_words = b_str.split()
-    idx = 0
-    while idx < min(len(a_words), len(b_words)) and a_words[idx] == b_words[idx]:
-        idx += 1
-
-    if idx == 0:
-        # 無相同前綴
-        return f"{a_str} ({b_str})"
-    else:
-        # 有相同前綴
-        prefix = " ".join(a_words[:idx])
-        suffix_a = " ".join(a_words[idx:])
-        suffix_b = " ".join(b_words[idx:])
-
-        if suffix_a == "" and suffix_b == "":
-            # 完全相同
-            return a_str
-        elif suffix_a != "" and suffix_b != "":
-            return f"{prefix} {suffix_a} ({suffix_b})"
-        elif suffix_a == "" and suffix_b != "":
-            return f"{prefix} ({suffix_b})"
-        else:
-            return f"{prefix} {suffix_a} ( )"
-
-
-def compare_user_prediction(header, rows, index_a, index_b):
-    """
-    比較 rows[index_a] 和 rows[index_b] 的預測
-    """
-    any_diff = False
-    # 判斷是否超出範圍
-    if index_a >= len(rows) or index_b >= len(rows):
-        return "比對錯誤，未知使用者"
-
-    row_a = rows[index_a]
-    row_b = rows[index_b]
-    name_a = row_a[0]
-    name_b = row_b[0]
-
-    # 都沒預測
-    if (row_a.count("") == len(header) - PREDICT_INDEX) and (
-        row_b.count("") == len(header) - PREDICT_INDEX
-    ):
-        return f"{name_a} 和 {name_b} 都還沒預測任何比賽"
-
-    lines = []
-    # 從 PREDICT_INDEX比較到最後
-    for col_index in range(PREDICT_INDEX, len(header)):
-        predict_a = row_a[col_index].strip()
-        predict_b = row_b[col_index].strip()
-        # 兩方都空，不輸出
-        if not predict_a and not predict_b:
-            continue
-        # 相同只印一次
-        if predict_a == predict_b:
-            lines.append(predict_a)
-        else:
-            # 不同，省略前綴
-            any_diff = True
-            merged = shorten_common_prefix(predict_a, predict_b)
-            lines.append(merged)
-    # 無任何差異
-    if not any_diff:
-        return f"{name_a} 與 {name_b} 的預測相同。"
-    # 輸出結果
-    response = f"{name_a} 與 {name_b} 的不同預測：\n"
-    response += "\n".join(lines)
-    return response
-
-
-def get_user_belief(header, rows, name):
-    correct = {}
-    for row in rows:
-        if row[0] == name:
-            for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
-                correct[header[i]] = int(row[i].split()[0])
-            correct = dict(
-                sorted(correct.items(), key=lambda item: item[1], reverse=True)
+            i = 0 if correct else 1
+            values = [int(val.split()[i]) for val in counter]
+            return dict(
+                sorted(
+                    dict(zip(teamList, values)).items(),
+                    key=lambda item: item[1],
+                    reverse=True,
+                )
             )
-            return correct
-    return "Unknown user"
 
 
-def get_user_hatred(header, rows, name):
-    wrong = {}
-    for row in rows:
-        if row[0] == name:
-            for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
-                wrong[header[i]] = int(row[i].split()[1])
-            wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
-            return wrong
-    return "Unknown user"
+def settle_user_correct(teamList: list):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            with psycopg.connect(DATABASE_URL) as conn:
+                with conn.cursor() as cur:
+                    sql = f"""
+                        SELECT {", ".join([f'"{team}"' for team in teamList])}
+                        FROM LeaderBoard
+                    """
+                    cur.execute(sql)
+                    correctList = {key: 0 for key in teamList}
+                    wrongList = {key: 0 for key in teamList}
+                    for userResult in cur.fetchall():
+                        for teanName, countStr in zip(teamList, userResult):
+                            correct, wrong = countStr.split()
+                            correctList[teanName] += int(correct)
+                            wrongList[teanName] += int(wrong)
+
+                    mostCorrectTeam = max(correctList, key=correctList.get)
+                    mostWrongTeam = max(wrongList, key=wrongList.get)
+                    # Build: column1 = 'DEFAULT, column2 = 'DEFAULT, ...
+                    setClause = ", ".join([f'"{col}" = DEFAULT' for col in teamList])
+                    # Reset columns to Default
+                    cur.execute(f"UPDATE LeaderBoard SET {setClause}")
+                    return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
 
 
-def reset_belief_hatred(header, rows):
-    # get most belief/hatred
-    all_user_belief, all_user_hatred = [], []
-    for row in rows:
-        correct, wrong = {}, {}
-        for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
-            correct[header[i]] = int(row[i].split()[0])
-            wrong[header[i]] = int(row[i].split()[1])
-        correct = dict(sorted(correct.items(), key=lambda item: item[1], reverse=True))
-        wrong = dict(sorted(wrong.items(), key=lambda item: item[1], reverse=True))
-
-        belief = max(correct.keys(), key=(lambda key: correct[key]))
-        all_user_belief.append(belief)
-
-        hatred = max(wrong.keys(), key=(lambda key: wrong[key]))
-        all_user_hatred.append(hatred)
-    # Counter(all_user_belief).most_common(1) = [('塞爾提克', 6)]
-    most_belief_team = Counter(all_user_belief).most_common(1)[0][0]
-    most_hatred_team = Counter(all_user_hatred).most_common(1)[0][0]
-
-    # reset
-    for row in rows:
-        for i in range(PREDICT_INDEX - 30, PREDICT_INDEX):
-            row[i] = "0 0"
-    return rows, most_belief_team, most_hatred_team
+def user_exist(userName: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT name FROM LeaderBoard ORDER BY id")
+            users = [row[0] for row in cur.fetchall()]
+            return userName in users
 
 
-def check_user_exist(rows, name):
-    return any(name in row for row in rows)
+def add_user(userName: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            # Insert initial users (team fields will default to '0 0')
+            cur.execute("SELECT name FROM LeaderBoard ORDER BY id")
+            userList = [
+                x[0] for x in cur.fetchall()
+            ]  # fetchall() = [(name1,), (name2,), ...]
+            if userName in userList:
+                return f"{userName} 已經註冊過了"
+
+            cur.execute("INSERT INTO LeaderBoard (name) VALUES (%s)", (userName,))
+        conn.commit()
+    return f"{userName} 完成註冊"
 
 
-def user_predicted(header, rows, name, column):
-    col_index = header.index(column)
-    user_info = None
-    for row in rows:
-        if row[0] == name:
-            user_info = row
-            break
+def check_user_prediction(userName: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            # get column names
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'leaderboard'
+                ORDER BY ordinal_position
+            """
+            )
+            matchColumns = [row[0] for row in cur.fetchall()][37:]
 
-    # have not predicted
+            cur.execute("SELECT * FROM LeaderBoard WHERE name = %s", (userName,))
+            userPrediction = cur.fetchone()[37:]
 
-    if user_info[col_index] == "":
-        return False
+            notPredictedGames = []
+            for match, prediction in zip(matchColumns, userPrediction):
+                if not prediction:
+                    notPredictedGames.append(match)
 
-    return True
-
-
-def check_user_prediction(header, rows, name):
-    for row in rows:
-        if row[0] == name:
-            if row.count("") == len(header) - PREDICT_INDEX:
-                return "還沒預測任何比賽"
-            elif row.count("") == 0:
+            n = len(notPredictedGames)
+            if n == 0 and len(matchColumns) > 0:
                 return "已經完成全部預測"
+            if n == len(matchColumns):
+                return "還沒預測任何比賽"
+
+            return "\n".join(["還沒預測:"] + notPredictedGames)
+
+
+def user_predicted(userName: str, column: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                f'SELECT "{column}" FROM LeaderBoard WHERE name = %s',
+                (userName,),
+            )
+            result = cur.fetchone()[0].strip()
+            return result != ""
+
+
+def get_user_prediction(userId: int):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
+            userList = [row for row in cur.fetchall()]
+            userIdToName = {id: name for id, name, *_ in userList}
+            if userId not in userIdToName.keys():
+                return "\n".join(
+                    ["使用方式:", "跟盤 id"]
+                    + [f"{id}. {name}" for id, name in userIdToName.items()]
+                )
+
+            predictList = [
+                prediction
+                for prediction in list(userList[userId - 1][37:])
+                if prediction
+            ]
+
+            if len(predictList) == 0:
+                return f"{userIdToName[userId]}還沒預測任何比賽"
+            return "\n".join([f"{userIdToName[userId]}預測的球隊:"] + predictList)
+
+
+def _remove_common_prefix(s1: str, s2: str):
+    # s1 = "Zach LaVine 大盤"
+    # s2 = "Zach LaVine 小盤"
+    # return "Zach LaVine 大盤 (小盤)"
+
+    if not s1:
+        return f"TBD ({s2})"
+    if not s2:
+        return f"{s1} (TBD)"
+
+    n = min(len(s1), len(s2))
+    index = 0  # the index of the first difference
+    while index < n and s1[index] == s2[index]:
+        index += 1
+
+    if index == 0:  # no common prefix
+        return f"{s1} {s2}"
+    # index < n
+    # s1 must not be s2's prefix
+    # s2 must not be s1's prefix
+    return f"{s1} ({s2[index:]})"
+
+
+def compare_user_prediction(user1Id: int, user2Id: int):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
+            userList = [row for row in cur.fetchall()]
+            userIdToName = {id: name for id, name, *_ in userList}
+            if (
+                user1Id not in userIdToName.keys()
+                or user2Id not in userIdToName.keys()
+                or user1Id == user2Id
+            ):
+                return "\n".join(
+                    ["使用方式:", "比較 id id"]
+                    + [f"{id}. {name}" for id, name in userIdToName.items()]
+                )
+
+            user1PredictList = list(userList[user1Id - 1][37:])
+            user2PredictList = list(userList[user2Id - 1][37:])
+            if all(s == "" for s in user1PredictList) and all(
+                s == "" for s in user2PredictList
+            ):
+                return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 都還沒預測任何比賽"
+
+            same = True
+            comparison = []
+            for user1Predict, user2Predict in zip(user1PredictList, user2PredictList):
+                if not user1Predict and not user2Predict:
+                    continue
+                if user1Predict == user2Predict:
+                    comparison.append(user1Predict)
+                else:
+                    same = False
+                    comparison.append(_remove_common_prefix(user1Predict, user2Predict))
+
+            if same:
+                return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的預測相同"
+            return "\n".join(
+                [f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的不同預測:"]
+                + comparison
+            )
+
+
+def _get_prediction_columns():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            # get column names
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'leaderboard'
+                ORDER BY ordinal_position
+            """
+            )
+            columns = [row[0] for row in cur.fetchall()]
+            return columns[37:]
+
+
+def _get_daily_game_results(playoffsLayout: bool):
+    data = requests.get("https://www.foxsports.com/nba/scores").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameResults = {}  # "team1-team2": "winner"
+    gameContainers = soup.find_all("a", class_="score-chip final")
+    for gameContainer in gameContainers:
+        teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
+        scoresInfo = gameContainer.find_all("div", class_="score-team-score")
+
+        teamNames, teamScores = [], []
+        for teamInfo, scoreInfo in zip(teamsInfo, scoresInfo):
+            teamName = teamInfo.find(
+                "span", class_="scores-text capi pd-b-1 ff-ff"
+            ).text.strip()
+            teamScore = scoreInfo.text.strip()
+            teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
+            teamScores.append(int(teamScore))
+
+        gameResults["-".join(teamNames)] = (
+            teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
+        )
+    return gameResults
+
+
+def _game_is_today(gameDate: str):
+    nowUTC = datetime.now(timezone.utc)
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+
+    # MM/DD
+    month, day = gameDate.split("/")
+    return int(day) == nowTW.day
+
+
+def _settle_daily_stats_results(statsColumns: list):
+    renameMap = {}
+    for i, statsColumn in enumerate(statsColumns):
+        # Original: Anthony Edwards 得分26.5 4/6
+        # Aim: Anthony Edwards 大盤 6
+        words = statsColumn.split()
+        overPoint, underPoint = words[-1].split("/")
+        statType, statTarget = words[-2][:2], float(words[-2][2:])
+        playerName = " ".join(words[:-2])
+
+        with open("utils/player_link.json", "r", encoding="utf-8") as f:
+            playerPageUrlTable = json.load(f)
+        playerStatsPageUrl = playerPageUrlTable[playerName] + "-game-log"
+
+        playerStatsPageData = requests.get(playerStatsPageUrl).text
+        playerStatsPageSoup = BeautifulSoup(playerStatsPageData, "html.parser")
+
+        statsContainer = playerStatsPageSoup.find(
+            "tbody", class_="row-data lh-1pt43 fs-14"
+        )
+        mostRecentGame = statsContainer.find("tr")
+        gameDate = mostRecentGame.find("span", class_="table-result").text.strip()
+
+        statValue = int(
+            mostRecentGame.find("td", {"data-index": STAT_INDEX[statType]}).text.strip()
+        )
+        if _game_is_today(gameDate=gameDate):
+            if statValue >= statTarget:
+                finalResult = f"{playerName} 大盤 {overPoint}"
             else:
-                game_names = []
-                indices = [i for i, x in enumerate(row) if x == ""]
-                for i in indices:
-                    hearder_items = header[i].split()
-                    if len(hearder_items) == 2:
-                        game_names.append(hearder_items[0])
+                finalResult = f"{playerName} 小盤 {underPoint}"
+        else:
+            finalResult = f"{playerName} 未出賽{i} 0"
+
+        renameMap[statsColumn] = finalResult
+
+    return renameMap
+
+
+def settle_daily_game_stats(playoffsLayout: bool):
+    predictColumns = _get_prediction_columns()
+    gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
+    statsColumns = []
+    renameMap = {}
+    for predictColumn in predictColumns:
+        words = predictColumn.split()
+        if len(words) == 2:
+            gameTitle, teamPoints = words
+            teamPoints = teamPoints.split("/")
+
+            if gameTitle not in gameResults:
+                gameTitle = "-".join(list(reversed(gameTitle.split("-"))))
+                teamPoints.reverse()
+
+            team1, team2 = gameTitle.split("-")
+            winner = gameResults[gameTitle]
+            point = teamPoints[0] if winner == team1 else teamPoints[1]
+
+            renameMap[predictColumn] = f"{winner} {point}"
+        else:
+            statsColumns.append(predictColumn)
+
+    statsMap = _settle_daily_stats_results(statsColumns=statsColumns)
+    renameMap.update(statsMap)
+
+    rename_columns(renameMap=renameMap)
+
+
+def _update_user_correct(predictMap: dict, currMap: dict):
+    # predictMap[team] = is correct
+    # currMap[team] = "5 2"
+    for teamName in predictMap:
+        correct, wrong = currMap[teamName].split()
+        correct, wrong = int(correct), int(wrong)
+        if predictMap[teamName]:
+            correct += 1
+        else:
+            wrong += 1
+
+        currMap[teamName] = f"{correct} {wrong}"
+
+    return list(currMap.values())
+
+
+def calculate_user_daily_points():
+    updateMap = {}
+    dailyResult = []
+    teamNames = []
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            # Get match column names
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'leaderboard'
+                ORDER BY ordinal_position
+            """
+            )
+            columns = [row[0] for row in cur.fetchall()]
+            teamNames = columns[7:37]
+
+            cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
+
+            for userInfo in cur.fetchall():
+                predictMap = {}
+                userName = userInfo[1]
+                dayPoint = 0
+                weekPointCurr = userInfo[3]
+                for matchName, predictResult in zip(columns[37:], userInfo[37:]):
+                    if not predictResult:
+                        continue
+                    words = matchName.split()
+                    if len(words) == 2:
+                        result, point = words
+                        predictMap[predictResult] = predictResult == result
                     else:
-                        game_names.append(" ".join(hearder_items[:-2]))
-                response = "還沒預測:\n"
-                for game_name in game_names:
-                    response += f"{game_name}\n"
-                return response[:-1]
-    return "Unknown user"
+                        result = " ".join(words[:-1])
+                        point = words[-1]
+                    point = int(point)
+                    if predictResult == result:
+                        dayPoint += point
+
+                # (userName, week_points, day_points)
+                dailyResult.append((userName, weekPointCurr + dayPoint, dayPoint))
+
+                newCorrectList = _update_user_correct(
+                    predictMap=predictMap,
+                    currMap={
+                        key: value for key, value in zip(columns[7:37], userInfo[7:37])
+                    },
+                )
+
+                updateMap[userName] = [dayPoint, dayPoint] + newCorrectList
+
+            if columns[37:]:
+                dropClauses = ",\n".join(
+                    [f'DROP COLUMN "{col}"' for col in columns[37:]]
+                )
+                cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
+        conn.commit()
+
+    # write dayPoint to day_points
+    # add dayPoint to week_points
+    updateColumns = ["day_points", "week_points"] + teamNames
+    updateStrategy = ["w", "a"] + ["w"] * 30
+    update_columns(
+        updateColumns=updateColumns,
+        updateStrategy=updateStrategy,
+        updateMap=updateMap,
+    )
+    return sorted(dailyResult, key=lambda x: x[1], reverse=True)
 
 
-def update_sheet(header, rows, worksheet):
-    modified_data = [header] + rows
-    worksheet.clear()
-    worksheet.update("A1", modified_data)
+def _utc_to_tw_time(gameTimeUTC: str):
+    # gameTimeUTC = "1:00 AM"
+    timeUTC = datetime.strptime(gameTimeUTC, "%I:%M%p").replace(tzinfo=timezone.utc)
+    timeTW = timeUTC.astimezone(timezone(timedelta(hours=8)))
+    gameTimeTW = timeTW.strftime("%H:%M")
+    return gameTimeTW
+
+
+def _get_regular_game(gameInfo: BeautifulSoup):
+    teamSoups = gameInfo.find("div", class_="teams").find_all(
+        "div", class_="score-team-row"
+    )
+
+    game = {
+        "names": ["", ""],
+        "standings": ["", ""],
+    }
+    for i, teamSoup in enumerate(teamSoups):
+        teamInfo = teamSoup.find("div", class_="score-team-name abbreviation")
+        teamName = teamInfo.find("span", class_="scores-text capi pd-b-1 ff-ff").text
+        teamStanding = teamInfo.find("sup", class_="scores-team-record ffn-gr-10").text
+
+        game["names"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamName]
+        game["standings"][i] = teamStanding
+
+    return game
+
+
+def _get_playoffs_game(gameInfo: BeautifulSoup):
+    team1 = gameInfo.find("img", class_="team-logo-1").attrs["alt"]
+    team2 = gameInfo.find("img", class_="team-logo-2").attrs["alt"]
+
+    standingText = gameInfo.find(
+        "div", class_="playoff-game-info ffn-gr-11 uc fs-sm-10"
+    ).text.strip()
+
+    standingInfo = standingText.split()
+    # 3 Cases:
+    # GM 4 TIED 2-2
+    # GM 5 LAL LEADS 3-1
+    # CONF SEMIS GAME 1
+    if standingInfo[2] == "TIED":
+        gameNumber = standingInfo[1]
+        tie = standingInfo[-1].split("-")[0]
+        teamStandings = [tie, tie]
+    else:
+        if standingInfo[0] == "GM":
+            gameNumber = standingInfo[1]
+            leadingTeam = standingInfo[2]
+            gameStatus = standingInfo[-1]
+            teamStandings = gameStatus.split("-")
+            if leadingTeam == team2:
+                teamStandings.reverse()
+        else:
+            gameNumber = "1"
+            teamStandings = ["0", "0"]
+
+    game = {
+        "names": [
+            NBA_ABBR_ENG_TO_ABBR_CN[team1],
+            NBA_ABBR_ENG_TO_ABBR_CN[team2],
+        ],
+        "standings": teamStandings,
+        "number": gameNumber,
+    }
+
+    return game
+
+
+def get_nba_games(playoffsLayout: bool):
+    nowUTC = datetime.now(timezone.utc)
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+    year = str(nowTW.year)
+    month = str(nowTW.month) if nowTW.month >= 10 else "0" + str(nowTW.month)
+    day = str(nowTW.day) if nowTW.day >= 10 else "0" + str(nowTW.day)
+    todayStr = "-".join([year, month, day])
+
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    finalScores = soup.find_all("div", class_="score-team-score")
+
+    if len(finalScores) > 0:
+        return [], None, None  # Games already finished -> Previous games (Not today)
+
+    urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
+    if todayStr not in re.findall(urlPattern, data):
+        return (
+            [],
+            None,
+            None,
+        )  # No game page for this date -> No games today
+
+    gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
+    gamesInfo = soup.find_all("a", class_=gameClass)
+    gameList = []
+
+    gameOfTheDay = {
+        "diff": 30,
+        "page": "",
+        "gametime": "",
+    }  # Get the game page and game time of the most intensive game
+
+    for gameInfo in gamesInfo:
+        gameTimeUTC = gameInfo.find("span", class_="time ffn-gr-11").text.strip()
+        gameTimeTW = _utc_to_tw_time(gameTimeUTC=gameTimeUTC)
+
+        gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
+        gamePageData = requests.get(gamePageUrl).text
+        gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
+
+        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
+        gameOdds = oddContainer.find_all(
+            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+        )
+
+        if playoffsLayout:
+            game = _get_playoffs_game(gameInfo=gameInfo)
+        else:
+            game = _get_regular_game(gameInfo=gameInfo)
+
+        game["points"] = [
+            int(round(30 + float(gameOdds[0].text.strip()))),
+            int(round(30 + float(gameOdds[1].text.strip()))),
+        ]
+        game["gametime"] = gameTimeTW
+
+        oddDiff = abs(float(gameOdds[0].text.strip()))
+        if oddDiff < gameOfTheDay["diff"]:
+            gameOfTheDay["diff"] = oddDiff
+            gameOfTheDay["page"] = gamePageUrl
+            gameOfTheDay["gametime"] = gameTimeTW
+
+        gameList.append(game)
+
+    return gameList, gameOfTheDay["page"] + "?tab=odds", gameOfTheDay["gametime"]

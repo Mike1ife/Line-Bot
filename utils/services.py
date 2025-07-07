@@ -1,284 +1,262 @@
-from linebot.exceptions import LineBotApiError
 from linebot.models import (
-    TextMessage,
     TextSendMessage,
     ImageSendMessage,
     TemplateSendMessage,
     CarouselTemplate,
-    ButtonsTemplate,
-    MessageAction,
+    MessageEvent,
 )
+from linebot.exceptions import LineBotApiError
 
-from config import line_bot_api
-from utils._team_table import *
+from config import LINE_BOT_API
 from utils.utils import *
 
 
-def text_message(event):
-    msg = event.message.text
-    user_id = event.source.user_id
+def text_message(event: MessageEvent):
+    message = event.message.text
     try:
-        profile = line_bot_api.get_profile(user_id)
-        username = profile.display_name
-    except LineBotApiError as e:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="Unknown user")
+        profile = LINE_BOT_API.get_profile(event.source.user_id)
+        userName = profile.display_name
+    except LineBotApiError:
+        LINE_BOT_API.reply_message(
+            event.reply_token, TextSendMessage(text="Unknown User")
         )
 
-    if msg == "uid":
-        text = event.source.group_id
-        text_message = TextSendMessage(text=text)
-        line_bot_api.reply_message(event.reply_token, text_message)
-
-    if msg[:2].lower() == "yt":
-        text = get_youtube(msg)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg[:2].lower() == "gg":
-        status_code, img_src = get_google_image(msg)
-        if status_code == 200:
-            image_message = ImageSendMessage(
-                original_content_url=img_src,  # Replace with the public URL of your image
-                preview_image_url=img_src,  # Replace with the public URL of your image
-            )
-            line_bot_api.reply_message(event.reply_token, image_message)
-
-    if msg == "牢大":
-        text = get_textfile("TextFiles/Mamba.txt")
-        text_message = TextSendMessage(text=text)
-        line_bot_api.reply_message(event.reply_token, text_message)
-
-    if msg == "規則":
-        text = get_textfile("TextFiles/NBA_Rule.txt")
-        text_message = TextSendMessage(text=text)
-        line_bot_api.reply_message(event.reply_token, text_message)
-
-    if msg.lower() == "help":
-        text = get_textfile("TextFiles/Help.txt")
-        text_message = TextSendMessage(text=text)
-        line_bot_api.reply_message(event.reply_token, text_message)
-
-    if msg.lower() == "nba":
-        score_text = get_nba_scoreboard()
-        text_message = TextSendMessage(text=score_text)
-        line_bot_api.reply_message(event.reply_token, text_message)
-
-    if msg == "NBA每日預測":
-        user_id = event.source.user_id
-        if username not in ["林家龍", "戴廣逸", "林晉嶽"]:
-            line_bot_api.reply_message(
+    if message == "NBA每日預測":
+        if userName not in ["林家龍", "戴廣逸"]:
+            LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
-        else:
-            try:
-                text, team_columns, match_page, match_time = get_nba_match_prediction(
-                    playoffs=True
-                )
-                if team_columns is None:
-                    line_bot_api.reply_message(
-                        event.reply_token, TextSendMessage(text=text)
-                    )
-                else:
-                    player_columns = get_player_stat_prediction(
-                        len(team_columns), match_page, match_time
-                    )
-                    columns = team_columns + player_columns
-                    messages = [TextMessage(text=text)]
-                    for i in range(0, len(columns), 10):
-                        carousel_template = CarouselTemplate(
-                            columns=columns[i : i + 10]
-                        )
-                        template_message = TemplateSendMessage(
-                            alt_text="每日NBA預測", template=carousel_template
-                        )
-                        messages.append(template_message)
 
-                    line_bot_api.reply_message(event.reply_token, messages)
-            except Exception as e:
-                line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(text=str(e))
-                )
-
-    if msg == "結算":
         try:
-            text = get_daily_predict_result()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-        except Exception as e:
-            error_message = TextSendMessage(text=str(e))
-            bot_message = TextSendMessage(
+            response, carouselColumns, gameOfTheDayPage, gameOfTheDayTime = (
+                get_nba_game_prediction(playoffsLayout=False)
+            )
+            if len(carouselColumns) == 0:
+                LINE_BOT_API.reply_message(
+                    event.reply_token, TextSendMessage(text=response)
+                )
+
+            carouselColumns += get_player_stat_prediction(
+                gamePage=gameOfTheDayPage, gameTime=gameOfTheDayTime
+            )
+            respondMessages = [TextSendMessage(text=response)]
+            for i in range(0, len(carouselColumns), 10):
+                carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])
+                templateMessage = TemplateSendMessage(
+                    alt_text="NBA每日預測", template=carouselTemplate
+                )
+                respondMessages.append(templateMessage)
+
+            LINE_BOT_API.reply_message(event.reply_token, respondMessages)
+        except Exception as err:
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=str(err))
+            )
+
+    if message == "檢查":
+        response = get_user_prediction_check(userName=userName)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message == "結算":
+        try:
+            response = settle_daily_prediction(playoffsLayout=False)
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=response)
+            )
+        except Exception as err:
+            errorMessage = TextSendMessage(text=str(err))
+            respondMessage = TextSendMessage(
                 text="?\n不是\n你們一個個天天都猴急什麼\n你們一急我又要上去查"
             )
-            line_bot_api.reply_message(event.reply_token, [error_message, bot_message])
+            LINE_BOT_API.reply_message(
+                event.reply_token, [errorMessage, respondMessage]
+            )
 
-    if msg == "檢查":
-        text = get_user_predict_check(username)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if message[:2] == "信仰":
+        words = message.split()
+        teamName = "" if len(words) != 2 else words[1]
+        response = get_user_most_correct(
+            userName=userName, teamName=teamName, correct=True
+        )
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if msg[:2] == "信仰":
-        text = get_user_most_belief(msg, username)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if message[:2] == "傻鳥":
+        words = message.split()
+        teamName = "" if len(words) != 2 else words[1]
+        response = get_user_most_correct(
+            userName=userName, teamName=teamName, correct=False
+        )
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if msg[:2] == "傻鳥":
-        text = get_user_most_hatred(msg, username)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if message == "結算傻鳥":
+        response = settle_most_correct_wrong()
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if msg == "結算傻鳥":
-        text = get_most_belief_hatred_team()
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if message == "週排行":
+        response = get_user_type_point("week_points")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if msg == "NBA預測週最佳":
-        best_users, type_rank = get_user_type_best("week")
-        if best_users is None:
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=type_rank)
+    if message == "月排行":
+        response = get_user_type_point("month_points")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message == "季排行":
+        response = get_user_type_point("season_points")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message == "總排行":
+        response = get_user_type_point("all_time_points")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message[:2] == "跟盤":
+        words = message.split()
+        userId = int(words[1]) if len(words) == 2 and words[1].isdigit() else -1
+        response = get_prediction_by_id(userId=userId)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message[:2] == "比較":
+        words = message.split()
+        user1Id, user2Id = (
+            (int(words[1]), int(words[2]))
+            if len(words) == 3 and words[1].isdigit() and words[2].isdigit()
+            else (-1, -1)
+        )
+        response = get_prediction_comparison(user1Id=user1Id, user2Id=user2Id)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message == "註冊":
+        response = user_registration(userName=userName)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message == "NBA預測週最佳":
+        bestMessage, rankMessage = get_user_type_best("week_points")
+        if bestMessage:
+            LINE_BOT_API.reply_message(
+                event.reply_token,
+                [TextSendMessage(text=rankMessage), TextSendMessage(text=rankMessage)],
             )
         else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                [TextSendMessage(text=best_users), TextSendMessage(text=type_rank)],
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=bestMessage)
             )
 
-    if msg == "NBA預測月最佳":
-        best_users, type_rank = get_user_type_best("month")
-        if best_users is None:
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=type_rank)
+    if message == "NBA預測月最佳":
+        bestMessage, rankMessage = get_user_type_best("month_points")
+        if bestMessage:
+            LINE_BOT_API.reply_message(
+                event.reply_token,
+                [TextSendMessage(text=rankMessage), TextSendMessage(text=rankMessage)],
             )
         else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                [TextSendMessage(text=best_users), TextSendMessage(text=type_rank)],
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=bestMessage)
             )
 
-    if msg == "NBA預測季最佳":
-        best_users, type_rank = get_user_type_best("season")
-        if best_users is None:
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=type_rank)
+    if message == "NBA預測季最佳":
+        bestMessage, rankMessage = get_user_type_best("season_points")
+        if bestMessage:
+            LINE_BOT_API.reply_message(
+                event.reply_token,
+                [TextSendMessage(text=rankMessage), TextSendMessage(text=rankMessage)],
             )
         else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                [TextSendMessage(text=best_users), TextSendMessage(text=type_rank)],
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=bestMessage)
             )
 
-    if msg == "週排行":
-        text = get_user_type_point("week")
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg == "月排行":
-        text = get_user_type_point("month")
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg == "季排行":
-        text = get_user_type_point("season")
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg == "總排行":
-        text = get_user_type_point("all-time")
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg[:2] == "跟盤":
-        text = get_others_prediction(msg)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg[:2] == "比較":
-        text = get_prediction_comparison(msg)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg[:2] == "傷病":
-        text = get_team_injury(msg)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg == "註冊":
-        text = get_user_registered(username)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-
-    if msg == "NBA猜一猜":
+    if message == "NBA猜一猜":
         try:
-            name, history_teams, history_game, history_stats = get_nba_guessing()
-            # Define the buttons
-            tip = "使用提示:\n生涯球隊: 球員生涯球隊\n上場時間: 先發場次/出場場次, 平均上場時間\n賽季平均: 得分/籃板/助攻/命中率"
-            buttons_template = ButtonsTemplate(
-                title="Menu",
-                text="Please select",
-                actions=[
-                    MessageAction(label="生涯球隊", text=f"生涯球隊\n{history_teams}"),
-                    MessageAction(label="上場時間", text=f"上場時間\n{history_game}"),
-                    MessageAction(label="賽季平均", text=f"賽季平均\n{history_stats}"),
-                    MessageAction(label="看答案", text=f"答案是 {name}"),
+            usage, buttonsTemplate = get_nba_guessing()
+            LINE_BOT_API.reply_message(
+                event.reply_token,
+                [
+                    TextSendMessage(text=usage),
+                    TemplateSendMessage(
+                        alt_text="NBA猜一猜",
+                        template=buttonsTemplate,
+                    ),
                 ],
             )
-            # Create the template message
-            template_message = TemplateSendMessage(
-                alt_text="NBA猜一猜",
-                template=buttons_template,
+        except Exception as err:
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=str(err))
             )
 
-            line_bot_api.reply_message(
-                event.reply_token, [TextSendMessage(text=tip), template_message]
+    if message.lower() == "news":
+        response = get_hupu_news()
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message[:2].lower() == "yt":
+        response = get_youtube(keyword=message[3:])
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    if message[:2].lower() == "gg":
+        statusCode, imgSrc = get_google_image(message[3:])
+        if statusCode == 200:
+            LINE_BOT_API.reply_message(
+                event.reply_token,
+                ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
             )
-        except Exception as e:
-            error_message = TextSendMessage(text=str(e))
-            line_bot_api.reply_message(event.reply_token, error_message)
 
-    if msg.lower() == "news":
-        message = TextSendMessage(text=get_hupu_news())
-        line_bot_api.reply_message(event.reply_token, message)
+    if message == "牢大":
+        content = get_textfile("TextFiles/Mamba.txt")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=content))
+
+    if message == "規則":
+        pass
+
+    if message.lower() == "help":
+        pass
+
+    if message.lower() == "nba":
+        pass
+
+    if message[:2] == "傷病":
+        pass
 
 
-def random_message(event):
-    msg = event.message.text
+def random_message(event: MessageEvent):
+    message = event.message.text
 
-    if msg == "抽單字":
-        text = get_textfile_random("TextFiles/TOEFL.txt")
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if message == "抽單字":
+        content = get_textfile_random("TextFiles/TOEFL.txt")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=content))
 
-    if msg == "你媽":
-        text = get_textfile_random("TextFiles/YourMom.txt")
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if message == "你媽":
+        content = get_textfile_random("TextFiles/YourMom.txt")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=content))
 
-    if msg == "抽":
-        image_url = get_random_picture("ZDcNFCL")
-        line_bot_api.reply_message(
+    if message == "抽":
+        imgSrc = get_random_imgur("ZDcNFCL")
+        LINE_BOT_API.reply_message(
             event.reply_token,
-            ImageSendMessage(
-                original_content_url=image_url, preview_image_url=image_url
-            ),
+            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
-    if msg == "抽牌":
-        image_url = get_random_picture("698HGtx")
-        line_bot_api.reply_message(
+    if message == "抽牌":
+        imgSrc = get_random_imgur("698HGtx")
+        LINE_BOT_API.reply_message(
             event.reply_token,
-            ImageSendMessage(
-                original_content_url=image_url, preview_image_url=image_url
-            ),
+            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
-    if msg == "大小":
-        image_url = get_random_picture("1K6H3WS")
-        line_bot_api.reply_message(
+    if message == "大小":
+        imgSrc = get_random_imgur("1K6H3WS")
+        LINE_BOT_API.reply_message(
             event.reply_token,
-            ImageSendMessage(
-                original_content_url=image_url, preview_image_url=image_url
-            ),
+            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
-    if msg == "兄弟":
-        image_url = get_random_picture("tb0BGKk")
-        line_bot_api.reply_message(
+    if message == "兄弟":
+        imgSrc = get_random_imgur("tb0BGKk")
+        LINE_BOT_API.reply_message(
             event.reply_token,
-            ImageSendMessage(
-                original_content_url=image_url, preview_image_url=image_url
-            ),
+            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
-    if "goat" in msg:
-        image_url = get_random_picture("8mbzNPn")
-        line_bot_api.reply_message(
+    if "goat" in message:
+        imgSrc = get_random_imgur("8mbzNPn")
+        LINE_BOT_API.reply_message(
             event.reply_token,
-            ImageSendMessage(
-                original_content_url=image_url, preview_image_url=image_url
-            ),
+            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )

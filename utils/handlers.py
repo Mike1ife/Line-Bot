@@ -1,37 +1,35 @@
 from linebot.exceptions import LineBotApiError
-from linebot.models import TextSendMessage
+from linebot.models import TextSendMessage, MessageEvent, PostbackEvent
 
-from config import line_bot_api
+from config import LINE_BOT_API
 from utils.utils import (
-    get_nba_match_prediction_postback,
+    get_nba_prediction_posback,
     get_player_stat_prediction_postback,
 )
 from utils.services import text_message, random_message
 
 
-def handle_message(event):
-    text_message(event)
-    random_message(event)
+def handle_message(event: MessageEvent):
+    text_message(event=event)
+    random_message(event=event)
 
 
-def handle_postback(event):
-    user_id = event.source.user_id
+def handle_postback(event: PostbackEvent):
     try:
-        profile = line_bot_api.get_profile(user_id)
-        username = profile.display_name
-    except LineBotApiError as e:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="Unknown user")
+        profile = LINE_BOT_API.get_profile(event.source.user_id)
+        userName = profile.display_name
+    except LineBotApiError:
+        LINE_BOT_API.reply_message(
+            event.reply_token, TextSendMessage(text="Unknown User")
         )
 
-    """Get user prediction"""
     data = event.postback.data
+    postbackType, *params = data.split(";")
     # NBA球隊預測: winner, loser, winner_point, loser_point, gametime(2025-3-18-11:51)
     # NBA球員預測: player, target, over_point, under_point, predict, match_time (Anthony Edwards 得分26.5 4 6 大盤 2025-3-18-11:51)
-    postback_type, *params = data.split(";")
-    if postback_type == "NBA球隊預測":
-        text = get_nba_match_prediction_postback(username, *params)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
-    elif postback_type == "NBA球員預測":
-        text = get_player_stat_prediction_postback(username, *params)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=text))
+    if postbackType == "NBA球隊預測":
+        response = get_nba_prediction_posback(userName, *params)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+    if postbackType == "NBA球員預測":
+        response = get_player_stat_prediction_postback(userName, *params)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
