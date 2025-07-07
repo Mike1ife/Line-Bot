@@ -6,7 +6,7 @@ from linebot.models import (
     PostbackEvent,
 )
 
-from config import line_handler
+from config import HANDLER
 from utils.handlers import handle_message, handle_postback
 
 app = Flask(__name__)
@@ -32,14 +32,14 @@ def callback():
     app.logger.info("Request body: " + body)
     # handle webhook body
     try:
-        line_handler.handle(body, signature)
+        HANDLER.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
     return "OK"
 
 
-line_handler.add(MessageEvent, message=TextMessage)(handle_message)
-line_handler.add(PostbackEvent)(handle_postback)
+HANDLER.add(MessageEvent, message=TextMessage)(handle_message)
+HANDLER.add(PostbackEvent)(handle_postback)
 
 if __name__ == "__main__":
     app.run()
