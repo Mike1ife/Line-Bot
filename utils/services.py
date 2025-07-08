@@ -31,7 +31,7 @@ def text_message(event: MessageEvent):
             response, carouselColumns, gameOfTheDayPage, gameOfTheDayTime = (
                 get_nba_game_prediction(playoffsLayout=False)
             )
-            if len(carouselColumns) == 0:
+            if not carouselColumns:
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
                 )
