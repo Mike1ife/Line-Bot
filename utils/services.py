@@ -133,11 +133,11 @@ def text_message(event: MessageEvent):
         if bestMessage:
             LINE_BOT_API.reply_message(
                 event.reply_token,
-                [TextSendMessage(text=rankMessage), TextSendMessage(text=rankMessage)],
+                [TextSendMessage(text=bestMessage), TextSendMessage(text=rankMessage)],
             )
         else:
             LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text=bestMessage)
+                event.reply_token, TextSendMessage(text=rankMessage)
             )
 
     if message == "NBA預測月最佳":
@@ -145,11 +145,11 @@ def text_message(event: MessageEvent):
         if bestMessage:
             LINE_BOT_API.reply_message(
                 event.reply_token,
-                [TextSendMessage(text=rankMessage), TextSendMessage(text=rankMessage)],
+                [TextSendMessage(text=bestMessage), TextSendMessage(text=rankMessage)],
             )
         else:
             LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text=bestMessage)
+                event.reply_token, TextSendMessage(text=rankMessage)
             )
 
     if message == "NBA預測季最佳":
@@ -157,11 +157,11 @@ def text_message(event: MessageEvent):
         if bestMessage:
             LINE_BOT_API.reply_message(
                 event.reply_token,
-                [TextSendMessage(text=rankMessage), TextSendMessage(text=rankMessage)],
+                [TextSendMessage(text=bestMessage), TextSendMessage(text=rankMessage)],
             )
         else:
             LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text=bestMessage)
+                event.reply_token, TextSendMessage(text=rankMessage)
             )
 
     if message == "NBA猜一猜":
