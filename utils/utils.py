@@ -597,3 +597,91 @@ def get_nba_scoreboard():
 
 def get_team_injury(teamName: str):
     pass
+
+
+def get_nba_prediction_demo():
+    response = get_user_type_point(rankType="week_points")
+
+    newTableColumns = []
+    carouselColumns = []
+
+    nowUTC = datetime.now(timezone.utc)
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+    tomorrowTW = nowTW + timedelta(days=1)
+    gameList = [
+        {
+            "names": ["勇士", "湖人"],
+            "standings": [73 - 9, 50 - 22],
+            "points": [30, 30],
+            "gametime": "08:00",
+        },
+        {
+            "names": ["塞爾提克", "公牛"],
+            "standings": [60 - 22, 45 - 37],
+            "points": [25, 28],
+            "gametime": "09:30",
+        },
+        {
+            "names": ["熱火", "尼克"],
+            "standings": [48 - 34, 44 - 38],
+            "points": [32, 27],
+            "gametime": "07:00",
+        },
+        {
+            "names": ["太陽", "快艇"],
+            "standings": [51 - 31, 47 - 35],
+            "points": [29, 33],
+            "gametime": "10:00",
+        },
+        {
+            "names": ["公鹿", "溜馬"],
+            "standings": [58 - 24, 41 - 41],
+            "points": [35, 22],
+            "gametime": "06:30",
+        },
+        {
+            "names": ["灰熊", "雷霆"],
+            "standings": [56 - 26, 40 - 42],
+            "points": [28, 30],
+            "gametime": "11:00",
+        },
+        {
+            "names": ["拓荒者", "國王"],
+            "standings": [39 - 43, 36 - 46],
+            "points": [20, 19],
+            "gametime": "05:00",
+        },
+        {
+            "names": ["騎士", "籃網"],
+            "standings": [50 - 32, 38 - 44],
+            "points": [26, 30],
+            "gametime": "08:30",
+        },
+        {
+            "names": ["獨行俠", "馬刺"],
+            "standings": [42 - 40, 34 - 48],
+            "points": [31, 28],
+            "gametime": "07:30",
+        },
+        {
+            "names": ["金塊", "鵜鶘"],
+            "standings": [53 - 29, 44 - 38],
+            "points": [33, 29],
+            "gametime": "09:00",
+        },
+    ]
+
+    for game in gameList:
+        carouselColumn = _pack_game_carousel_column(
+            game=game, playoffsLayout=False, tomorrowTW=tomorrowTW
+        )
+        carouselColumns.append(carouselColumn)
+
+        teamNames = game["names"]
+        teamPoints = game["points"]
+        newTableColumns.append(
+            f"{teamNames[0]}-{teamNames[1]} {teamPoints[0]}/{teamPoints[1]}"
+        )
+
+    insert_columns(newColumns=newTableColumns)
+    return response, carouselColumns
