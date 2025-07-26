@@ -146,22 +146,20 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowTW: dat
 
     # title = 溜馬(主) 1-11 - 老鷹(客) 5-6
     # text = 7:30\n溜馬 31分 / 老鷹 9分
-    carouselColumn = (
-        CarouselColumn(
-            thumbnail_image_url=thumbnailImageUrl,
-            title=f"{teamNames[0]}({awayHome[0]}) {teamStandings[0]} - {teamNames[1]}({awayHome[1]}) {teamStandings[1]}",
-            text=f"{gameNumber}{gameTime}\n{teamNames[0]} {teamPoints[0]}分 / {teamNames[1]} {teamPoints[1]}分",
-            actions=[
-                PostbackAction(
-                    label=teamNames[0],
-                    data=f"NBA球隊預測;{teamNames[0]};{teamNames[1]};{teamPoints[0]};{teamPoints[1]};{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
-                ),
-                PostbackAction(
-                    label=teamNames[1],
-                    data=f"NBA球隊預測;{teamNames[1]};{teamNames[0]};{teamPoints[1]};{teamPoints[0]};{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
-                ),
-            ],
-        ),
+    carouselColumn = CarouselColumn(
+        thumbnail_image_url=thumbnailImageUrl,
+        title=f"{teamNames[0]}({awayHome[0]}) {teamStandings[0]} - {teamNames[1]}({awayHome[1]}) {teamStandings[1]}",
+        text=f"{gameNumber}{gameTime}\n{teamNames[0]} {teamPoints[0]}分 / {teamNames[1]} {teamPoints[1]}分",
+        actions=[
+            PostbackAction(
+                label=teamNames[0],
+                data=f"NBA球隊預測;{teamNames[0]};{teamNames[1]};{teamPoints[0]};{teamPoints[1]};{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
+            ),
+            PostbackAction(
+                label=teamNames[1],
+                data=f"NBA球隊預測;{teamNames[1]};{teamNames[0]};{teamPoints[1]};{teamPoints[0]};{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
+            ),
+        ],
     )
     return carouselColumn
 
@@ -615,60 +613,60 @@ def get_nba_prediction_demo():
             "points": [30, 30],
             "gametime": "08:00",
         },
-        # {
-        #     "names": ["塞爾提克", "公牛"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [25, 28],
-        #     "gametime": "09:30",
-        # },
-        # {
-        #     "names": ["熱火", "尼克"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [32, 27],
-        #     "gametime": "07:00",
-        # },
-        # {
-        #     "names": ["太陽", "快艇"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [29, 33],
-        #     "gametime": "10:00",
-        # },
-        # {
-        #     "names": ["公鹿", "溜馬"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [35, 22],
-        #     "gametime": "06:30",
-        # },
-        # {
-        #     "names": ["灰熊", "雷霆"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [28, 30],
-        #     "gametime": "11:00",
-        # },
-        # {
-        #     "names": ["拓荒者", "國王"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [20, 19],
-        #     "gametime": "05:00",
-        # },
-        # {
-        #     "names": ["騎士", "籃網"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [26, 30],
-        #     "gametime": "08:30",
-        # },
-        # {
-        #     "names": ["獨行俠", "馬刺"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [31, 28],
-        #     "gametime": "07:30",
-        # },
-        # {
-        #     "names": ["金塊", "鵜鶘"],
-        #     "standings": ["73-9", "50-22"],
-        #     "points": [33, 29],
-        #     "gametime": "09:00",
-        # },
+        {
+            "names": ["塞爾提克", "公牛"],
+            "standings": ["73-9", "50-22"],
+            "points": [25, 28],
+            "gametime": "09:30",
+        },
+        {
+            "names": ["熱火", "尼克"],
+            "standings": ["73-9", "50-22"],
+            "points": [32, 27],
+            "gametime": "07:00",
+        },
+        {
+            "names": ["太陽", "快艇"],
+            "standings": ["73-9", "50-22"],
+            "points": [29, 33],
+            "gametime": "10:00",
+        },
+        {
+            "names": ["公鹿", "溜馬"],
+            "standings": ["73-9", "50-22"],
+            "points": [35, 22],
+            "gametime": "06:30",
+        },
+        {
+            "names": ["灰熊", "雷霆"],
+            "standings": ["73-9", "50-22"],
+            "points": [28, 30],
+            "gametime": "11:00",
+        },
+        {
+            "names": ["拓荒者", "國王"],
+            "standings": ["73-9", "50-22"],
+            "points": [20, 19],
+            "gametime": "05:00",
+        },
+        {
+            "names": ["騎士", "籃網"],
+            "standings": ["73-9", "50-22"],
+            "points": [26, 30],
+            "gametime": "08:30",
+        },
+        {
+            "names": ["獨行俠", "馬刺"],
+            "standings": ["73-9", "50-22"],
+            "points": [31, 28],
+            "gametime": "07:30",
+        },
+        {
+            "names": ["金塊", "鵜鶘"],
+            "standings": ["73-9", "50-22"],
+            "points": [33, 29],
+            "gametime": "09:00",
+        },
     ]
 
     for game in gameList:
