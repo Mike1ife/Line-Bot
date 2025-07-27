@@ -165,6 +165,7 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowTW: dat
 
 
 def get_nba_game_prediction(playoffsLayout: bool = False):
+    reset_nba_prediction()
     response = get_user_type_point(rankType="week_points")
 
     newTableColumns = []
@@ -598,6 +599,7 @@ def get_team_injury(teamName: str):
 
 
 def get_nba_prediction_demo():
+    reset_nba_prediction()
     response = get_user_type_point(rankType="week_points")
 
     newTableColumns = []

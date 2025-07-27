@@ -93,6 +93,26 @@ def update_columns(updateColumns: list, updateStrategy: list, updateMap: dict):
         conn.commit()
 
 
+def reset_nba_prediction():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'leaderboard'
+                ORDER BY ordinal_position
+            """
+            )
+            columns = [row[0] for row in cur.fetchall()]
+            if columns[37:]:
+                dropClauses = ",\n".join(
+                    [f'DROP COLUMN "{col}"' for col in columns[37:]]
+                )
+                cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
+        conn.commit()
+
+
 def reset_user_points(rankType: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
