@@ -8,6 +8,7 @@ from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
 from datetime import datetime, timezone, timedelta
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
+PREDICTION_INDEX = 38
 
 
 def get_user_points(rankType: str, isSorted: bool = True):
@@ -105,9 +106,9 @@ def reset_nba_prediction():
             """
             )
             columns = [row[0] for row in cur.fetchall()]
-            if columns[37:]:
+            if columns[PREDICTION_INDEX:]:
                 dropClauses = ",\n".join(
-                    [f'DROP COLUMN "{col}"' for col in columns[37:]]
+                    [f'DROP COLUMN "{col}"' for col in columns[PREDICTION_INDEX:]]
                 )
                 cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
         conn.commit()
@@ -303,10 +304,10 @@ def check_user_prediction(userName: str):
                 ORDER BY ordinal_position
             """
             )
-            matchColumns = [row[0] for row in cur.fetchall()][37:]
+            matchColumns = [row[0] for row in cur.fetchall()][PREDICTION_INDEX:]
 
             cur.execute("SELECT * FROM LeaderBoard WHERE name = %s", (userName,))
-            userPrediction = cur.fetchone()[37:]
+            userPrediction = cur.fetchone()[PREDICTION_INDEX:]
 
             notPredictedGames = []
             for match, prediction in zip(matchColumns, userPrediction):
@@ -347,7 +348,7 @@ def get_user_prediction(userId: int):
 
             predictList = [
                 prediction
-                for prediction in list(userList[userId - 1][37:])
+                for prediction in list(userList[userId - 1][PREDICTION_INDEX:])
                 if prediction
             ]
 
@@ -395,8 +396,8 @@ def compare_user_prediction(user1Id: int, user2Id: int):
                     + [f"{id}. {name}" for id, name in userIdToName.items()]
                 )
 
-            user1PredictList = list(userList[user1Id - 1][37:])
-            user2PredictList = list(userList[user2Id - 1][37:])
+            user1PredictList = list(userList[user1Id - 1][PREDICTION_INDEX:])
+            user2PredictList = list(userList[user2Id - 1][PREDICTION_INDEX:])
             if all(s == "" for s in user1PredictList) and all(
                 s == "" for s in user2PredictList
             ):
@@ -434,7 +435,7 @@ def _get_prediction_columns():
             """
             )
             columns = [row[0] for row in cur.fetchall()]
-            return columns[37:]
+            return columns[PREDICTION_INDEX:]
 
 
 def _get_daily_game_results(playoffsLayout: bool):
@@ -571,7 +572,7 @@ def calculate_user_daily_points():
             """
             )
             columns = [row[0] for row in cur.fetchall()]
-            teamNames = columns[7:37]
+            teamNames = columns[PREDICTION_INDEX - 30 : PREDICTION_INDEX]
 
             cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
 
@@ -580,7 +581,9 @@ def calculate_user_daily_points():
                 userName = userInfo[1]
                 dayPoint = 0
                 weekPointCurr = userInfo[3]
-                for matchName, predictResult in zip(columns[37:], userInfo[37:]):
+                for matchName, predictResult in zip(
+                    columns[PREDICTION_INDEX:], userInfo[PREDICTION_INDEX:]
+                ):
                     if not predictResult:
                         continue
                     words = matchName.split()
@@ -600,15 +603,19 @@ def calculate_user_daily_points():
                 newCorrectList = _update_user_correct(
                     predictMap=predictMap,
                     currMap={
-                        key: value for key, value in zip(columns[7:37], userInfo[7:37])
+                        key: value
+                        for key, value in zip(
+                            columns[PREDICTION_INDEX - 30 : PREDICTION_INDEX],
+                            userInfo[PREDICTION_INDEX - 30 : PREDICTION_INDEX],
+                        )
                     },
                 )
 
                 updateMap[userName] = [dayPoint, dayPoint] + newCorrectList
 
-            if columns[37:]:
+            if columns[PREDICTION_INDEX:]:
                 dropClauses = ",\n".join(
-                    [f'DROP COLUMN "{col}"' for col in columns[37:]]
+                    [f'DROP COLUMN "{col}"' for col in columns[PREDICTION_INDEX:]]
                 )
                 cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
         conn.commit()
