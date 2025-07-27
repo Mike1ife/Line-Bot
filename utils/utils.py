@@ -83,8 +83,8 @@ def settle_most_correct_wrong():
     return response
 
 
-def user_registration(userName: str):
-    response = add_user(userName=userName)
+def user_registration(userName: str, userUID: str):
+    response = add_user(userName=userName, userUID=userUID)
     return response
 
 
@@ -213,7 +213,7 @@ def get_nba_prediction_posback(
     gameTime: str,
 ):
     if not user_exist(userName=userName):
-        return add_user(userName=userName)
+        return f"{userName} 請先註冊"
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
@@ -355,7 +355,7 @@ def get_player_stat_prediction_postback(
     gameTime: str,
 ):
     if not user_exist(userName=userName):
-        return add_user(userName=userName)
+        return f"{userName} 請先註冊"
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))

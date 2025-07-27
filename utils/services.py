@@ -14,7 +14,8 @@ from utils.utils import *
 def text_message(event: MessageEvent):
     message = event.message.text
     try:
-        profile = LINE_BOT_API.get_profile(event.source.user_id)
+        userUID = event.source.user_id
+        profile = LINE_BOT_API.get_profile(userUID)
         userName = profile.display_name
     except LineBotApiError:
         LINE_BOT_API.reply_message(
@@ -142,7 +143,7 @@ def text_message(event: MessageEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "註冊":
-        response = user_registration(userName=userName)
+        response = user_registration(userName=userName, userUID=userUID)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "NBA預測週最佳":

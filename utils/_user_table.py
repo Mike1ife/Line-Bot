@@ -256,20 +256,43 @@ def user_exist(userName: str):
             return userName in users
 
 
-def add_user(userName: str):
+def add_user(userName: str, userUID: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             # Insert initial users (team fields will default to '0 0')
             cur.execute("SELECT name FROM LeaderBoard ORDER BY id")
-            userList = [
+            userNameList = [
                 x[0] for x in cur.fetchall()
             ]  # fetchall() = [(name1,), (name2,), ...]
-            if userName in userList:
+            userUIDList = [x[1] for x in cur.fetchall()]
+            if userName in userNameList:
                 return f"{userName} 已經註冊過了"
 
-            cur.execute("INSERT INTO LeaderBoard (name) VALUES (%s)", (userName,))
+            # Change user name
+            if userUID in userUIDList:
+                oldName = userNameList[userUIDList.index(userUID)]
+                newName = userName
+                cur.execute(
+                    "UPDATE LeaderBoard SET name = %s WHERE uid = %s",
+                    (newName, userUID),
+                )
+                response = f"{oldName} 改名為 {newName}"
+            # Set user UID
+            elif userName in userNameList and userUID not in userUIDList:
+                cur.execute(
+                    "UPDATE LeaderBoard SET id = %s WHERE name = %s",
+                    (userUID, userName),
+                )
+                response = f"{userName} 設定 UID"
+            # Add new user
+            else:
+                cur.execute(
+                    "INSERT INTO LeaderBoard (name, uid) VALUES (%s, %s)",
+                    (userName, userUID),
+                )
+                response = f"{userName} 完成註冊"
         conn.commit()
-    return f"{userName} 完成註冊"
+    return response
 
 
 def check_user_prediction(userName: str):
