@@ -280,7 +280,9 @@ def random_message(event: MessageEvent):
         )
 
     if message == "test":
-        imgSrc = "https://hk3dfofrwoufb6mm.public.blob.vercel-storage.com/test.png"
+        imgSrc = (
+            "https://rfd1nv9fllju9xh3.public.blob.vercel-storage.com/goat/goat1.gif"
+        )
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
