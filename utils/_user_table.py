@@ -373,7 +373,7 @@ def _remove_common_prefix(s1: str, s2: str):
         index += 1
 
     if index == 0:  # no common prefix
-        return f"{s1} {s2}"
+        return f"{s1} ({s2})"
     # index < n
     # s1 must not be s2's prefix
     # s2 must not be s1's prefix
