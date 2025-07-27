@@ -280,7 +280,7 @@ def add_user(userName: str, userUID: str):
             # Set user UID
             elif userName in userNameList and userUID not in userUIDList:
                 cur.execute(
-                    "UPDATE LeaderBoard SET id = %s WHERE name = %s",
+                    "UPDATE LeaderBoard SET uid = %s WHERE name = %s",
                     (userUID, userName),
                 )
                 response = f"{userName} 設定 UID"
