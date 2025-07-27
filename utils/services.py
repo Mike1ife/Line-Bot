@@ -245,44 +245,21 @@ def random_message(event: MessageEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=content))
 
     if message == "抽":
-        imgSrc = get_random_imgur("ZDcNFCL")
-        LINE_BOT_API.reply_message(
-            event.reply_token,
-            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
-        )
-
-    if message == "抽牌":
-        imgSrc = get_random_imgur("698HGtx")
-        LINE_BOT_API.reply_message(
-            event.reply_token,
-            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
-        )
-
-    if message == "大小":
-        imgSrc = get_random_imgur("1K6H3WS")
+        imgSrc = get_random_image(imgKey="draw")
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
     if message == "兄弟":
-        imgSrc = get_random_imgur("tb0BGKk")
+        imgSrc = get_random_image(imgKey="bro")
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
-    if "goat" in message:
-        imgSrc = get_random_imgur("8mbzNPn")
-        LINE_BOT_API.reply_message(
-            event.reply_token,
-            ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
-        )
-
-    if message == "test":
-        imgSrc = (
-            "https://rfd1nv9fllju9xh3.public.blob.vercel-storage.com/goat/goat1.gif"
-        )
+    if "goat" in message or "Goat" in message:
+        imgSrc = get_random_image(imgKey="goat")
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),

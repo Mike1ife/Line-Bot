@@ -582,14 +582,12 @@ def get_textfile_random(filePath: str):
     return random.choice(fileLines).replace("\n", "")
 
 
-def get_random_imgur(albumId: str):
-    imgurUrl = f"https://api.imgur.com/3/album/{albumId}/images"
-    response = requests.get(imgurUrl, {"Authorization": f"Bearer {ACCESS_TOKEN}"})
-    if response.status_code == 200:
-        data = response.json()
-        imgList = data["data"]
-        if imgList:
-            return random.choice(imgList)["link"]
+def get_random_image(imgKey: str):
+    with open("utils/image_link.json", "r", encoding="utf-8") as f:
+        imageUrlMap = json.load(f)
+
+    imageUrls = imageUrlMap[imgKey]
+    return random.choice(imageUrls)
 
 
 def get_nba_scoreboard():
