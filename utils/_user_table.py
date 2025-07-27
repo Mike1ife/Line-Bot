@@ -260,11 +260,9 @@ def add_user(userName: str, userUID: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             # Insert initial users (team fields will default to '0 0')
-            cur.execute("SELECT name FROM LeaderBoard ORDER BY id")
-            userNameList = [
-                x[0] for x in cur.fetchall()
-            ]  # fetchall() = [(name1,), (name2,), ...]
-            userUIDList = [x[1] for x in cur.fetchall()]
+            cur.execute("SELECT name, uid FROM LeaderBoard ORDER BY id")
+            userNameList, userUIDList = zip(*cur.fetchall())
+            
             if userName in userNameList and userUID in userUIDList:
                 return f"{userName} 已經註冊過了"
 
