@@ -265,7 +265,7 @@ def add_user(userName: str, userUID: str):
                 x[0] for x in cur.fetchall()
             ]  # fetchall() = [(name1,), (name2,), ...]
             userUIDList = [x[1] for x in cur.fetchall()]
-            if userName in userNameList:
+            if userName in userNameList and userUID in userUIDList:
                 return f"{userName} 已經註冊過了"
 
             # Change user name
