@@ -248,12 +248,11 @@ def settle_user_correct(teamList: list):
                     return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
 
 
-def user_exist(userName: str):
+def user_exist(userName: str, userUID: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT name FROM LeaderBoard ORDER BY id")
-            users = [row[0] for row in cur.fetchall()]
-            return userName in users
+            cur.execute("SELECT name, uid FROM LeaderBoard ORDER BY id")
+            return (userName, userUID) in cur.fetchall()
 
 
 def add_user(userName: str, userUID: str):
@@ -262,12 +261,11 @@ def add_user(userName: str, userUID: str):
             # Insert initial users (team fields will default to '0 0')
             cur.execute("SELECT name, uid FROM LeaderBoard ORDER BY id")
             userNameList, userUIDList = zip(*cur.fetchall())
-            
-            if userName in userNameList and userUID in userUIDList:
-                return f"{userName} 已經註冊過了"
 
+            if userName in userNameList and userUID in userUIDList:
+                response = f"{userName} 已經註冊過了"
             # Change user name
-            if userUID in userUIDList:
+            elif userUID in userUIDList:
                 oldName = userNameList[userUIDList.index(userUID)]
                 newName = userName
                 cur.execute(
@@ -276,7 +274,7 @@ def add_user(userName: str, userUID: str):
                 )
                 response = f"{oldName} 改名為 {newName}"
             # Set user UID
-            elif userName in userNameList and userUID not in userUIDList:
+            elif userName in userNameList:
                 cur.execute(
                     "UPDATE LeaderBoard SET uid = %s WHERE name = %s",
                     (userUID, userName),

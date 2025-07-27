@@ -206,13 +206,14 @@ def _compare_timestring(timeStr1: str, timeStr2: str):
 
 def get_nba_prediction_posback(
     userName: str,
+    userUID: str,
     winner: str,
     loser: str,
     winnerPoint: str,
     loserPoint: str,
     gameTime: str,
 ):
-    if not user_exist(userName=userName):
+    if not user_exist(userName=userName, userUID=userUID):
         return f"{userName} 請先註冊"
 
     nowUTC = datetime.now(timezone.utc)
@@ -347,6 +348,7 @@ def get_player_stat_prediction(gamePage: str, gameTime: str):
 
 def get_player_stat_prediction_postback(
     userName: str,
+    userUID: str,
     player: str,
     targetStat: str,
     overPoint: str,
@@ -354,7 +356,7 @@ def get_player_stat_prediction_postback(
     userPrediction: str,
     gameTime: str,
 ):
-    if not user_exist(userName=userName):
+    if not user_exist(userName=userName, userUID=userUID):
         return f"{userName} 請先註冊"
 
     nowUTC = datetime.now(timezone.utc)
