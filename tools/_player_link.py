@@ -2,7 +2,7 @@ import psycopg
 import requests
 from bs4 import BeautifulSoup
 
-conn_str = "postgres://neondb_owner:npg_gbqMJFcOa9n7@ep-quiet-mud-adc9qb96-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+conn_str = ""
 
 output = {}
 
