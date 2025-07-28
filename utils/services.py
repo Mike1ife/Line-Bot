@@ -260,6 +260,7 @@ def random_message(event: MessageEvent):
 
     if "goat" in message or "Goat" in message:
         imgSrc = get_random_image(imgKey="goat")
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=imgSrc))
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
