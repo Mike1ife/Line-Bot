@@ -1,4 +1,3 @@
-import json
 import random
 from urllib.parse import quote
 from utils._user_table import *
@@ -246,10 +245,9 @@ def _get_player_bet_info(playerSoup: BeautifulSoup, betTitle: str):
     playerName = playerSoup.find("img").get("alt")
     gameDescription = playerSoup.find("div", class_="ffn-gr-11").text
 
-    with open("utils/player_link.json", "r", encoding="utf-8") as f:
-        playerUrlMap = json.load(f)
+    playerUrl = get_player_url(playerName=playerName)
 
-    playerStatsUrl = playerUrlMap[playerName] + "-stats"
+    playerStatsUrl = playerUrl + "-stats"
     playerStatsPage = requests.get(playerStatsUrl).text
     playerStatsSoup = BeautifulSoup(playerStatsPage, "html.parser")
     betTitleToContainerIndex = {
@@ -583,11 +581,8 @@ def get_textfile_random(filePath: str):
 
 
 def get_random_image(imgKey: str):
-    with open("utils/image_link.json", "r", encoding="utf-8") as f:
-        imageUrlMap = json.load(f)
-
-    imageUrls = imageUrlMap[imgKey]
-    return random.choice(imageUrls)
+    imageUrls = get_image_url(imgKey=imgKey)
+    return random.choice(imageUrls)[0]
 
 
 def get_nba_scoreboard():

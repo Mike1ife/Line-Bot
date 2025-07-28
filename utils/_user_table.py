@@ -1,5 +1,4 @@
 import re
-import json
 import requests
 import psycopg
 from bs4 import BeautifulSoup
@@ -482,9 +481,8 @@ def _settle_daily_stats_results(statsColumns: list):
         statType, statTarget = words[-2][:2], float(words[-2][2:])
         playerName = " ".join(words[:-2])
 
-        with open("utils/player_link.json", "r", encoding="utf-8") as f:
-            playerPageUrlTable = json.load(f)
-        playerStatsPageUrl = playerPageUrlTable[playerName] + "-game-log"
+        playerUrl = get_player_url(playerName=playerName)
+        playerStatsPageUrl = playerUrl + "-stats"
 
         playerStatsPageData = requests.get(playerStatsPageUrl).text
         playerStatsPageSoup = BeautifulSoup(playerStatsPageData, "html.parser")
@@ -768,3 +766,17 @@ def get_nba_games(playoffsLayout: bool):
         gameList.append(game)
 
     return gameList, gameOfTheDay["page"] + "?tab=odds", gameOfTheDay["gametime"]
+
+
+def get_player_url(playerName: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT link FROM PlayerLink WHERE name = %s", (playerName,))
+            return cur.fetchone()[0]
+
+
+def get_image_url(imgKey: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT link FROM ImageLink WHERE category = %s", (imgKey,))
+            return cur.fetchall()

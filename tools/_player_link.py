@@ -1,6 +1,8 @@
-import json
+import psycopg
 import requests
 from bs4 import BeautifulSoup
+
+conn_str = "postgres://neondb_owner:npg_gbqMJFcOa9n7@ep-quiet-mud-adc9qb96-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 output = {}
 
@@ -17,7 +19,6 @@ for team_url in teams_url:
     for player_group in player_groups[:-1]:
         player_containers = player_group.find_all("tr")
         for player_container in player_containers:
-            print(output)
             player_info = player_container.find(
                 "td", class_="cell-entity fs-18 lh-1pt67"
             )
@@ -25,7 +26,23 @@ for team_url in teams_url:
                 f"https://www.foxsports.com{player_info.find('a').get('href')}-game-log"
             )
             player_name = player_info.find("h3").text.strip()
+            print(player_name)
             output[player_name] = player_url
 
-    with open("../utils/player_link.json", "w+", encoding="utf-8") as fp:
-        json.dump(output, fp, ensure_ascii=False)
+with psycopg.connect(conn_str) as conn:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+        CREATE TABLE IF NOT EXISTS PlayerLink (
+            name TEXT PRIMARY KEY,
+            link TEXT
+        )
+        """
+        )
+
+        for name, link in output.items():
+            cur.execute(
+                "INSERT INTO PlayerLink (name, link) VALUES (%s, %s) ON CONFLICT (name) DO UPDATE SET link = EXCLUDED.link",
+                (name, link),
+            )
+    conn.commit()
