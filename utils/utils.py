@@ -534,13 +534,21 @@ def get_nba_guessing():
 
 
 def get_hupu_news():
-    data = requests.get("https://bbs.hupu.com/4860").text
-    soup = BeautifulSoup(data, "html.parser")
+    url = "https://bbs.hupu.com/4860"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/115.0 Safari/537.36",
+        "Referer": "https://bbs.hupu.com/",
+    }
+    data = requests.get(url, headers=headers)
+
+    soup = BeautifulSoup(data.text, "html.parser")
 
     newsThread = soup.find_all("a", class_="p-title")
     top5News = []
     for news in newsThread[:5]:
-        title = news.text.strip()
+        title = news.get_text(strip=True)
         top5News.append(title.replace("[流言板]", ""))
 
     spliter = "\n" + "-" * 53 + "\n"
