@@ -521,8 +521,8 @@ def get_nba_guessing():
 
     usage = "使用提示:\n生涯球隊: 球員生涯球隊\n上場時間: 先發場次/出場場次, 平均上場時間\n賽季平均: 得分/籃板/助攻/命中率"
     buttonsTemplate = ButtonsTemplate(
-        title="Menu",
-        text="Please select",
+        title="NBA猜一猜",
+        text="生涯資料猜球員",
         actions=[
             MessageAction(label="生涯球隊", text=f"生涯球隊\n{historyTeams}"),
             MessageAction(label="上場時間", text=f"上場時間\n{historyGame}"),
