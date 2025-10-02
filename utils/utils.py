@@ -350,7 +350,7 @@ def get_player_stat_prediction_postback(
     player: str,
     targetStat: str,
     overPoint: str,
-    UnderPoint: str,
+    underPoint: str,
     userPrediction: str,
     gameTime: str,
 ):
@@ -365,7 +365,7 @@ def get_player_stat_prediction_postback(
         return f"{player} 的比賽已經開始了"
 
     # # Anthony Edwards 得分26.5 4/6
-    column = f"{player} {targetStat} {overPoint}/{UnderPoint}"
+    column = f"{player} {targetStat} {overPoint}/{underPoint}"
 
     if user_predicted(userName=userName, column=column):
         return f"{userName}已經預測{player}{targetStat[:2]}超過(低於){targetStat[2:]}了"
