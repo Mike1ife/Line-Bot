@@ -734,7 +734,8 @@ def get_nba_games(playoffsLayout: bool):
     }  # Get the game page and game time of the most intensive game
 
     for gameInfo in gamesInfo:
-        gameTimeUTC = gameInfo.find("span", class_="time ffn-gr-11").text.strip()
+        # gameTimeUTC = gameInfo.find("span", class_="time ffn-gr-11").text.strip()
+        gameTimeUTC = "12:00PM"
         gameTimeTW = _utc_to_tw_time(gameTimeUTC=gameTimeUTC)
 
         gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]

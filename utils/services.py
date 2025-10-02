@@ -204,6 +204,12 @@ def text_message(event: MessageEvent):
         response = get_hupu_news()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
+    # if message.lower()[:4] == "news":
+    #     # "news keyword" -> ["news", "keyword"]
+    #     _, keyword = message.split()
+    #     response = eric_get_hupu_news(keyword)
+    #     LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
     if message[:2].lower() == "yt":
         response = get_youtube(keyword=message[3:])
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
