@@ -340,7 +340,8 @@ def get_player_stat_prediction(gamePage: str, gameTime: str):
             newTableColumns.append(newTableColumn)
             carouselColumns.append(carouselColumn)
 
-    insert_columns(newColumns=newTableColumns)
+    if newTableColumns:  # Only insert if we have player bet
+        insert_columns(newColumns=newTableColumns)
     return carouselColumns
 
 
