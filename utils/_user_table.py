@@ -660,6 +660,9 @@ def _get_regular_game(gameInfo: BeautifulSoup):
         teamName = teamInfo.find("span", class_="scores-text capi pd-b-1 ff-ff").text
         teamStanding = teamInfo.find("sup", class_="scores-team-record ffn-gr-10").text
 
+        if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
+            return None
+
         game["names"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamName]
         game["standings"][i] = teamStanding
 
@@ -759,6 +762,9 @@ def get_nba_games(playoffsLayout: bool):
             game = _get_playoffs_game(gameInfo=gameInfo)
         else:
             game = _get_regular_game(gameInfo=gameInfo)
+
+        if not game:
+            continue
 
         game["points"] = [
             int(round(30 + float(gameOdds[0].text.strip()))),
