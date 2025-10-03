@@ -110,6 +110,14 @@ def reset_nba_prediction():
                     [f'DROP COLUMN "{col}"' for col in columns[PREDICTION_INDEX:]]
                 )
                 cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
+
+            # Reset day_points
+            cur.execute(
+                """
+                UPDATE LeaderBoard
+                SET day_points = 0
+                """
+            )
         conn.commit()
 
 
@@ -621,7 +629,7 @@ def calculate_user_daily_points():
     # write dayPoint to day_points
     # add dayPoint to week_points
     updateColumns = ["day_points", "week_points"] + teamNames
-    updateStrategy = ["w", "a"] + ["w"] * 30
+    updateStrategy = ["a", "a"] + ["w"] * 30
     update_columns(
         updateColumns=updateColumns,
         updateStrategy=updateStrategy,
