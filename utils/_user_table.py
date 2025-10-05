@@ -3,7 +3,7 @@ import requests
 import psycopg
 from bs4 import BeautifulSoup
 from config import DATABASE_URL
-from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
+from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from datetime import datetime, timezone, timedelta
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
@@ -710,6 +710,41 @@ def _get_playoffs_game(gameInfo: BeautifulSoup):
     return game
 
 
+def _get_nba_games_time_list(timeStr: str):
+    data = requests.get(f"https://nba.hupu.com/games/{timeStr}").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameCenter = soup.find("div", class_="gamecenter_content_l")
+    gameContainers = gameCenter.find_all("div", class_="list_box")
+
+    gameTimeList = []
+    for gameContainer in gameContainers:
+        teams = gameContainer.find("div", class_="team_vs_a")
+        team1 = teams.find("div", class_="team_vs_a_1 clearfix")
+        team2 = teams.find("div", class_="team_vs_a_2 clearfix")
+        team1Name = team1.find("div", class_="txt").find("a").text
+        team2Name = team2.find("div", class_="txt").find("a").text
+
+        if (
+            team1Name not in NBA_SIMP_CN_TO_TRAD_CN
+            or team2Name not in NBA_SIMP_CN_TO_TRAD_CN
+        ):
+            continue
+
+        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
+        team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
+
+        gameTime = (
+            gameContainer.find("div", class_="team_vs_b")
+            .find("span", class_="b")
+            .find("p")
+            .text
+        )
+        gameTimeList.append(gameTime)
+
+    return gameTimeList
+
+
 def get_nba_games(playoffsLayout: bool):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
@@ -734,6 +769,15 @@ def get_nba_games(playoffsLayout: bool):
             None,
         )  # No game page for this date -> No games today
 
+    tomorrowTW = nowTW + timedelta(days=1)
+    year = str(tomorrowTW.year)
+    month = (
+        str(tomorrowTW.month) if tomorrowTW.month >= 10 else "0" + str(tomorrowTW.month)
+    )
+    day = str(tomorrowTW.day) if tomorrowTW.day >= 10 else "0" + str(tomorrowTW.day)
+    tomorrowStr = "-".join([year, month, day])
+    gameTimeList = _get_nba_games_time_list(tomorrowStr)
+
     gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
     gamesInfo = soup.find_all("a", class_=gameClass)
     gameList = []
@@ -744,10 +788,10 @@ def get_nba_games(playoffsLayout: bool):
         "gametime": "",
     }  # Get the game page and game time of the most intensive game
 
-    for gameInfo in gamesInfo:
+    for gameInfo, gameTimeTW in zip(gamesInfo, gameTimeList):
         # gameTimeUTC = gameInfo.find("span", class_="time ffn-gr-11").text.strip()
-        gameTimeUTC = "12:00AM"
-        gameTimeTW = _utc_to_tw_time(gameTimeUTC=gameTimeUTC)
+        # gameTimeUTC = "12:00AM"
+        # gameTimeTW = _utc_to_tw_time(gameTimeUTC=gameTimeUTC)
 
         gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
         gamePageData = requests.get(gamePageUrl).text

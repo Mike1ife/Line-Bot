@@ -607,8 +607,15 @@ def get_nba_scoreboard():
         team1 = teams.find("div", class_="team_vs_a_1 clearfix")
         team2 = teams.find("div", class_="team_vs_a_2 clearfix")
         team1Name = team1.find("div", class_="txt").find("a").text
-        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
         team2Name = team2.find("div", class_="txt").find("a").text
+
+        if (
+            team1Name not in NBA_SIMP_CN_TO_TRAD_CN
+            or team2Name not in NBA_SIMP_CN_TO_TRAD_CN
+        ):
+            continue
+
+        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
         team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
 
         team1Score = team2Score = ""
