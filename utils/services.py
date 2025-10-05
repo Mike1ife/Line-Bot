@@ -233,7 +233,8 @@ def text_message(event: MessageEvent):
         pass
 
     if message.lower() == "nba":
-        pass
+        response = get_nba_scoreboard()
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message[:2] == "傷病":
         pass

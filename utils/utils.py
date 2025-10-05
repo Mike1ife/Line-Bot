@@ -1,7 +1,7 @@
 import random
 from urllib.parse import quote
 from utils._user_table import *
-from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
+from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from linebot.models import (
     CarouselColumn,
     PostbackAction,
@@ -595,7 +595,71 @@ def get_random_image(imgKey: str):
 
 
 def get_nba_scoreboard():
-    pass
+    data = requests.get("https://nba.hupu.com/games").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameCenter = soup.find("div", class_="gamecenter_content_l")
+    gameContainers = gameCenter.find_all("div", class_="list_box")
+
+    gameStrList = []
+    for gameContainer in gameContainers:
+        teams = gameContainer.find("div", class_="team_vs_a")
+        team1 = teams.find("div", class_="team_vs_a_1 clearfix")
+        team2 = teams.find("div", class_="team_vs_a_2 clearfix")
+        team1Name = team1.find("div", class_="txt").find("a").text
+        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
+        team2Name = team2.find("div", class_="txt").find("a").text
+        team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
+
+        team1Score = team2Score = ""
+
+        gameStatus = gameContainer.find("div", class_="team_vs").text
+        if "进行中" in gameStatus:
+            team1Score = (
+                " " + team1.find("div", class_="txt").find("span", class_="num").text
+            )
+            team2Score = (
+                " " + team2.find("div", class_="txt").find("span", class_="num").text
+            )
+            gameTime = (
+                gameContainer.find("div", class_="team_vs_c")
+                .find("span", class_="b")
+                .find("p")
+                .text
+            )
+        elif "未开始" in gameStatus:
+            gameTime = (
+                gameContainer.find("div", class_="team_vs_b")
+                .find("span", class_="b")
+                .find("p")
+                .text
+            )
+        elif "已结束" in gameStatus:
+            gameTime = "Finish"
+            team1Win = team1.find("div", class_="txt").find("span", class_="num red")
+            if team1Win:
+                team1Score = team1.text
+                team2Score = (
+                    " "
+                    + team2.find("div", class_="txt").find("span", class_="num").text
+                )
+            else:
+                team1Score = (
+                    " "
+                    + team1.find("div", class_="txt").find("span", class_="num").text
+                )
+                team2Score = (
+                    " "
+                    + team2.find("div", class_="txt")
+                    .find("span", class_="num red")
+                    .text
+                )
+
+        gameStrList.append(
+            f"{team1Name}{team1Score} - {team2Name}{team2Score} ({gameTime})"
+        )
+
+    return "\n".join(gameStrList)
 
 
 def get_team_injury(teamName: str):
