@@ -645,7 +645,7 @@ def get_nba_scoreboard():
             gameTime = "Finish"
             team1Win = team1.find("div", class_="txt").find("span", class_="num red")
             if team1Win:
-                team1Score = team1.text
+                team1Score = " " + team1Win.text
                 team2Score = (
                     " "
                     + team2.find("div", class_="txt").find("span", class_="num").text
