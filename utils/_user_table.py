@@ -461,12 +461,14 @@ def _get_daily_game_results(playoffsLayout: bool):
                 "span", class_="scores-text capi pd-b-1 ff-ff"
             ).text.strip()
             teamScore = scoreInfo.text.strip()
+            if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
+                break
             teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
             teamScores.append(int(teamScore))
-
-        gameResults["-".join(teamNames)] = (
-            teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
-        )
+        else:
+            gameResults["-".join(teamNames)] = (
+                teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
+            )
     return gameResults
 
 
