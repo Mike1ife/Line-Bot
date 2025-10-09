@@ -318,7 +318,9 @@ def get_player_stat_prediction(gamePage: str, gameTime: str):
 
     data = requests.get(gamePage).text
     soup = BeautifulSoup(data, "html.parser")
-    betContainer = soup.find_all("div", class_="odds-component-prop-bet")
+    betContainer = soup.find_all(
+        "div", class_="odds-component-prop-bet odds-container bet-section"
+    )
 
     newTableColumns = []
     carouselColumns = []
