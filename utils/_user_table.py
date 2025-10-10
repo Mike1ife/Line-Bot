@@ -3,6 +3,7 @@ import requests
 import psycopg
 from bs4 import BeautifulSoup
 from config import DATABASE_URL
+from _user_table_SQL import *
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from datetime import datetime, timezone, timedelta
 
@@ -10,121 +11,131 @@ STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 PREDICTION_INDEX = 38
 
 
-def get_user_points(rankType: str, isSorted: bool = True):
+def user_is_admin(userUID: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(f"SELECT name, {rankType} FROM LeaderBoard ORDER BY id;")
-            userPoints = cur.fetchall()
-
-    return (
-        sorted(userPoints, key=lambda x: x[1], reverse=True) if isSorted else userPoints
-    )
+            cur.execute(SQL_USER_IS_ADMIN, (userUID,))
+            result = cur.fetchone()
+            return result[0] if result else False
 
 
-def column_exist(column: str):
+def get_type_points(rankType: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            # get column names
-            cur.execute(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'leaderboard'
-                ORDER BY ordinal_position
-            """
-            )
-            columns = [row[0] for row in cur.fetchall()]
-            return column in columns
+            cur.execute(SQL_GET_TYPE_POINT, (rankType,))
+            return cur.fetchall()
 
 
-def insert_columns(newColumns: list):
-    addClauses = ",\n".join(
-        [f"ADD COLUMN \"{col}\" TEXT DEFAULT ''" for col in newColumns]
-    )
-    sql = f"ALTER TABLE LeaderBoard\n{addClauses}"
+def insert_match(matchList: list):
+    # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Point: int, team2Point: int)]
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(sql)
-        conn.commit()
-
-
-def rename_columns(renameMap: dict):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            for oldName, newName in renameMap.items():
+            for gameDate, team1Name, team2Name, team1Odd, team2Odd in matchList:
                 cur.execute(
-                    f'ALTER TABLE LeaderBoard RENAME COLUMN "{oldName}" TO "{newName}"'
+                    SQL_INSERT_MATCH,
+                    (gameDate, team1Name, team2Name, team1Odd, team2Odd),
                 )
         conn.commit()
 
 
-def update_columns(updateColumns: list, updateStrategy: list, updateMap: dict):
-    names = list(updateMap.keys())
-    setClauses = []
-    caseValues = []
-
-    for idx, col in enumerate(updateColumns):
-        strategy = updateStrategy[idx]
-        if strategy == "a":  # add
-            caseBlock = f'"{col}" = "{col}" + CASE name\n'
-        elif strategy == "w":  # overwrite
-            caseBlock = f'"{col}" = CASE name\n'
-
-        for name in names:
-            val = updateMap[name][idx]
-            caseBlock += "    WHEN %s THEN %s\n"
-            caseValues.extend([name, val])
-        caseBlock += "END"
-        setClauses.append(caseBlock)
-
-    setSQL = ",\n".join(setClauses)
-    whereSQL = ", ".join(["%s"] * len(names))
-
-    sql = f"""
-        UPDATE LeaderBoard
-        SET
-        {setSQL}
-        WHERE name IN ({whereSQL})
-    """
-
+def insert_player_stat_bet(playerStatBetList: list):
+    # playerStatBetList =
+    # [(playerName: str, gameDate: str, team1Name: str, team2Name: str statType: str, statTarget: float, overPoint: int, underPoint: int)]
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(sql, caseValues + names)
+
+            for (
+                playerName,
+                gameDate,
+                team1Name,
+                team2Name,
+                statType,
+                statTarget,
+                overPoint,
+                underPoint,
+            ) in playerStatBetList:
+                cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+                matchID = cur.fetchone()[0]
+                cur.execute(
+                    SQL_INSERT_PLAYER_STAT_BET,
+                    (playerName, matchID, statType, statTarget, overPoint, underPoint),
+                )
         conn.commit()
+
+
+def insert_user_predict_match(
+    userUID: str,
+    userPrediction: str,
+    team1Name: str,
+    team2Name: str,
+    gameDate: str,
+):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+            matchID = cur.fetchone()[0]
+            cur.execute(
+                SQL_INSERT_USER_PREDICT_MATCH,
+                (userUID, matchID, userPrediction),
+            )
+            returnState = "CONFLICT" if cur.rowcount == 0 else "INSERT"
+        conn.commit()
+    return returnState
+
+
+def insert_user_predict_stat(
+    userUID: str,
+    userPrediction: str,
+    playerName: str,
+    statType: str,
+    team1Name: str,
+    team2Name: str,
+    gameDate: str,
+):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+            matchID = cur.fetchone()[0]
+            cur.execute(
+                SQL_INSERT_USER_PREDICT_STAT,
+                (userUID, playerName, matchID, statType, userPrediction),
+            )
+            returnState = "CONFLICT" if cur.rowcount == 0 else "INSERT"
+        conn.commit()
+    return returnState
+
+
+def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dict):
+    # updateRankType = [rankType1, rankType1, ...]
+    # updateStrategy = [strategy1, strategy2, ...] ('a' / 'w')
+    # updateMap[userName] = [value1, value2, ...]
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            for userName in updateMap:
+                cur.execute(SQL_SELECT_UID, (userName,))
+                userUID = cur.fetchone()[0]
+                for rankType, strategy, value in zip(
+                    updateRankType, updateStrategy, updateMap[userName]
+                ):
+                    if strategy == "a":
+                        cur.execute(
+                            SQL_ADD_TYPE_POINT,
+                            (rankType, rankType, value, userUID),
+                        )
+                    if strategy == "w":
+                        cur.execute(
+                            SQL_WRITE_TYPE_POINT,
+                            (rankType, value, userUID),
+                        )
+
+            conn.commit()
 
 
 def reset_nba_prediction():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'leaderboard'
-                ORDER BY ordinal_position
-            """
-            )
-            columns = [row[0] for row in cur.fetchall()]
-            if columns[PREDICTION_INDEX:]:
-                dropClauses = ",\n".join(
-                    [f'DROP COLUMN "{col}"' for col in columns[PREDICTION_INDEX:]]
-                )
-                cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
-
-            # Reset day_points
-            cur.execute(
-                """
-                UPDATE LeaderBoard
-                SET day_points = 0
-                """
-            )
-        conn.commit()
-
-
-def reset_user_points(rankType: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(f"UPDATE LeaderBoard SET {rankType} = 0")
+            cur.execute(SQL_DEACTIVE_MATCH)
+            cur.execute(SQL_RESET_DAY_POINT)
         conn.commit()
 
 
@@ -134,8 +145,8 @@ def _pre_settle_week_points():
     weekday = TWnow.weekday()  # 0-index, i.e. Monday=0, Sunday=6
     if weekday == 0:
         return
-    userDayPoints = get_user_points(rankType="day_points", isSorted=False)
-    userWeekPoints = get_user_points(rankType="week_points", isSorted=False)
+    userDayPoints = get_type_points(rankType="day_points")
+    userWeekPoints = get_type_points(rankType="week_points")
     userPoints = []
     for i in range(len(userDayPoints)):
         name, dayPoint = userDayPoints[i]
@@ -162,7 +173,7 @@ def _pre_settle_week_points():
 
     # write dayPoint to week_points
     # add monthPoint to month_points
-    update_columns(
+    update_type_point(
         updateColumns=["week_points", "month_points"],
         updateStrategy=["w", "a"],
         updateMap=updateMap,
@@ -173,7 +184,9 @@ def get_type_best(rankType: str, nextRankType: str):
     if rankType == "month_points":
         _pre_settle_week_points()
 
-    userPoints = get_user_points(rankType=rankType)
+    userPoints = get_type_points(rankType=rankType)
+    userPoints.sort(key=lambda x: x[1], reverse=True)
+
     if all(user[1] == 0 for user in userPoints):
         return []
 
@@ -197,7 +210,7 @@ def get_type_best(rankType: str, nextRankType: str):
 
     # write 0 to rankType
     # add nextRankPoint to nextRankType
-    update_columns(
+    update_type_point(
         updateColumns=[rankType, nextRankType],
         updateStrategy=["w", "a"],
         updateMap=updateMap,
@@ -205,160 +218,119 @@ def get_type_best(rankType: str, nextRankType: str):
     return rankBest
 
 
-def get_user_correct(userName: str, teamList: list, correct: bool):
+def get_user_season_correct(userName: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            with psycopg.connect(DATABASE_URL) as conn:
-                with conn.cursor() as cur:
-                    sql = f"""
-                        SELECT {", ".join([f'"{team}"' for team in teamList])}
-                        FROM LeaderBoard
-                        WHERE name = %s
-                    """
-                    cur.execute(sql, (userName,))
-                    counter = cur.fetchone()
-
-            i = 0 if correct else 1
-            values = [int(val.split()[i]) for val in counter]
-            return dict(
-                sorted(
-                    dict(zip(teamList, values)).items(),
-                    key=lambda item: item[1],
-                    reverse=True,
-                )
-            )
+            cur.execute(SQL_SELECT_UID, (userName,))
+            userUID = cur.fetchone()[0]
+            cur.execute(SQL_SELECT_SEASON_CORRECT_COUNTER, (userUID,))
+            correctList = cur.fetchall()
+            teamList, seasonCorrect = zip(*correctList)
+            return teamList, seasonCorrect
 
 
-def settle_user_correct(teamList: list):
+def get_user_season_wrong(userName: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            with psycopg.connect(DATABASE_URL) as conn:
-                with conn.cursor() as cur:
-                    sql = f"""
-                        SELECT {", ".join([f'"{team}"' for team in teamList])}
-                        FROM LeaderBoard
-                    """
-                    cur.execute(sql)
-                    correctList = {key: 0 for key in teamList}
-                    wrongList = {key: 0 for key in teamList}
-                    for userResult in cur.fetchall():
-                        for teanName, countStr in zip(teamList, userResult):
-                            correct, wrong = countStr.split()
-                            correctList[teanName] += int(correct)
-                            wrongList[teanName] += int(wrong)
-
-                    mostCorrectTeam = max(correctList, key=correctList.get)
-                    mostWrongTeam = max(wrongList, key=wrongList.get)
-                    # Build: column1 = 'DEFAULT, column2 = 'DEFAULT, ...
-                    setClause = ", ".join([f'"{col}" = DEFAULT' for col in teamList])
-                    # Reset columns to Default
-                    cur.execute(f"UPDATE LeaderBoard SET {setClause}")
-                    return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
+            cur.execute(SQL_SELECT_UID, (userName,))
+            userUID = cur.fetchone()[0]
+            cur.execute(SQL_SELECT_SEASON_WRONG_COUNTER, (userUID,))
+            wrongList = cur.fetchall()
+            teamList, seasonWrong = zip(*wrongList)
+            return teamList, seasonWrong
 
 
-def user_exist(userName: str, userUID: str):
+def settle_season_correct_wrong():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT name, uid FROM LeaderBoard ORDER BY id")
-            return (userName, userUID) in cur.fetchall()
+            cur.execute("SELECT uid FROM users")
+            userUIDList = [row[0] for row in cur.fetchall()]
+
+            correctList = {}
+            wrongList = {}
+            for userUID in userUIDList:
+                cur.execute(SQL_SELECT_SEASON_BOTH_COUNTER, (userUID,))
+                countList = cur.fetchall()
+                for teamName, correctCount, wrongCount in countList:
+                    correctList[teamName] = correctList.get(teamName, 0) + correctCount
+                    wrongList[teamName] = wrongList.get(teamName, 0) + wrongCount
+            cur.execute(SQL_RESET_SEASON_BOTH_COUNTER)
+            conn.commit()
+
+            mostCorrectTeam = max(correctList, key=correctList.get)
+            mostWrongTeam = max(wrongList, key=wrongList.get)
+            return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
+
+
+def user_exist(userUID: str, userName: str):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_USER)
+            return (userUID, userName) in cur.fetchall()
 
 
 def add_user(userName: str, userUID: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            # Insert initial users (team fields will default to '0 0')
-            cur.execute("SELECT name, uid FROM LeaderBoard ORDER BY id")
-            userNameList, userUIDList = zip(*cur.fetchall())
+            if user_exist(uesrUID=userUID, userName=userName):
+                return f"{userName} 已經註冊過了"
 
-            if userName in userNameList and userUID in userUIDList:
-                response = f"{userName} 已經註冊過了"
-            # Change user name
-            elif userUID in userUIDList:
-                oldName = userNameList[userUIDList.index(userUID)]
-                newName = userName
-                cur.execute(
-                    "UPDATE LeaderBoard SET name = %s WHERE uid = %s",
-                    (newName, userUID),
-                )
-                response = f"{oldName} 改名為 {newName}"
-            # Set user UID
-            elif userName in userNameList:
-                cur.execute(
-                    "UPDATE LeaderBoard SET uid = %s WHERE name = %s",
-                    (userUID, userName),
-                )
-                response = f"{userName} 設定 UID"
-            # Add new user
-            else:
-                cur.execute(
-                    "INSERT INTO LeaderBoard (name, uid) VALUES (%s, %s)",
-                    (userName, userUID),
-                )
-                response = f"{userName} 完成註冊"
+            cur.execute(SQL_INSERT_USER, (userName, userUID))
+            cur.execute(SQL_INSERT_COUNTER, (userUID,))
+
         conn.commit()
-    return response
+    return f"{userName} 註冊成功"
 
 
 def check_user_prediction(userName: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            # get column names
-            cur.execute(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'leaderboard'
-                ORDER BY ordinal_position
-            """
-            )
-            matchColumns = [row[0] for row in cur.fetchall()][PREDICTION_INDEX:]
+            cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (userName,))
+            userPredictMatchList = cur.fetchall()
 
-            cur.execute("SELECT * FROM LeaderBoard WHERE name = %s", (userName,))
-            userPrediction = cur.fetchone()[PREDICTION_INDEX:]
+            userNotPredictList = []
+            for team1Name, team2Name, userPredictMatch in userPredictMatchList:
+                if not userPredictMatch:
+                    userNotPredictList.append(f"{team1Name} - {team2Name}")
 
-            notPredictedGames = []
-            for match, prediction in zip(matchColumns, userPrediction):
-                if not prediction:
-                    notPredictedGames.append(match)
+            cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (userName,))
+            userPredictStatList = cur.fetchall()
 
-            n = len(notPredictedGames)
-            if n == 0 and len(matchColumns) > 0:
+            for playerName, statType, userPredictStat in userPredictStatList:
+                if not userPredictStat:
+                    userNotPredictList.append(f"{playerName} {statType}")
+
+            if not userNotPredictList:
                 return "已經完成全部預測"
-            if n == len(matchColumns):
+            if len(userNotPredictList) == len(userPredictMatchList) + len(
+                userPredictStatList
+            ):
                 return "還沒預測任何比賽"
-
-            return "\n".join(["還沒預測:"] + notPredictedGames)
-
-
-def user_predicted(userName: str, column: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                f'SELECT "{column}" FROM LeaderBoard WHERE name = %s',
-                (userName,),
-            )
-            result = cur.fetchone()[0].strip()
-            return result != ""
+            return "\n".join(["還沒預測:"] + userNotPredictList)
 
 
 def get_user_prediction(userId: int):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
-            userList = [row for row in cur.fetchall()]
-            userIdToName = {id: name for id, name, *_ in userList}
-            if userId not in userIdToName.keys():
+            cur.execute(SQL_SELECT_USER)
+            userUIDList, userNameList = zip(*cur.fetchall())
+            userIdToName = {id: userName for id, userName in enumerate(userNameList, 1)}
+
+            if userId not in userIdToName:
                 return "\n".join(
                     ["使用方式:", "跟盤 id"]
-                    + [f"{id}. {name}" for id, name in userIdToName.items()]
+                    + [f"{id}. {userName}" for id, userName in userIdToName.items()]
                 )
 
-            predictList = [
-                prediction
-                for prediction in list(userList[userId - 1][PREDICTION_INDEX:])
-                if prediction
-            ]
+            userUID = userUIDList[userId - 1]
 
+            cur.execute(SQL_SELECT_USER_PREDICT_MATCH2, (userUID,))
+            predictTeamList = [row[0] for row in cur.fetchall()]
+
+            cur.execute(SQL_SELECT_USER_PREDICT_STAT2, (userUID,))
+            predictStatList = [" ".join(row) for row in cur.fetchall()]
+
+            predictList = predictTeamList + predictStatList
             if len(predictList) == 0:
                 return f"{userIdToName[userId]}還沒預測任何比賽"
             return "\n".join([f"{userIdToName[userId]}預測的球隊:"] + predictList)
@@ -390,66 +362,136 @@ def _remove_common_prefix(s1: str, s2: str):
 def compare_user_prediction(user1Id: int, user2Id: int):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
-            userList = [row for row in cur.fetchall()]
-            userIdToName = {id: name for id, name, *_ in userList}
+            cur.execute(SQL_SELECT_USER)
+            _, userNameList = zip(*cur.fetchall())
+            userIdToName = {id: userName for id, userName in enumerate(userNameList, 1)}
             if (
-                user1Id not in userIdToName.keys()
-                or user2Id not in userIdToName.keys()
+                user1Id not in userIdToName
+                or user2Id not in userIdToName
                 or user1Id == user2Id
             ):
                 return "\n".join(
                     ["使用方式:", "比較 id id"]
-                    + [f"{id}. {name}" for id, name in userIdToName.items()]
+                    + [f"{id}. {userName}" for id, userName in userIdToName.items()]
                 )
 
-            user1PredictList = list(userList[user1Id - 1][PREDICTION_INDEX:])
-            user2PredictList = list(userList[user2Id - 1][PREDICTION_INDEX:])
-            if all(s == "" for s in user1PredictList) and all(
-                s == "" for s in user2PredictList
-            ):
-                return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 都還沒預測任何比賽"
+            user1Name = userNameList[user1Id - 1]
+            user2Name = userNameList[user2Id - 1]
 
-            same = True
-            comparison = []
-            for user1Predict, user2Predict in zip(user1PredictList, user2PredictList):
-                if not user1Predict and not user2Predict:
+            cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user1Name,))
+            user1PredictMatchList = cur.fetchall()
+            cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user2Name,))
+            user2PredictMatchList = cur.fetchall()
+
+            isTheSame = True
+            hasPredict = False
+            compareResult = []
+            for i in range(len(user1PredictMatchList)):
+                user1PredictMatch = user1PredictMatchList[i][2]
+                user2PredictMatch = user2PredictMatchList[i][2]
+                if not user1PredictMatch and not user2PredictMatch:
                     continue
-                if user1Predict == user2Predict:
-                    comparison.append(user1Predict)
+                hasPredict = True
+                if user1PredictMatch == user2PredictMatch:
+                    compareResult.append(user2PredictMatch)
                 else:
-                    same = False
-                    comparison.append(_remove_common_prefix(user1Predict, user2Predict))
+                    isTheSame = False
+                    compareResult.append(
+                        _remove_common_prefix(user1PredictMatch, user2PredictMatch)
+                    )
 
-            if same:
+            cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user1Name,))
+            user1PredictStatList = cur.fetchall()
+            cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user2Name,))
+            user2PredictStatList = cur.fetchall()
+
+            for i in range(len(user1PredictStatList)):
+                user1PredictStat = (
+                    " ".join(user1PredictStatList[i])
+                    if user1PredictStatList[i][2]
+                    else ""
+                )
+                user2PredictStat = (
+                    " ".join(user2PredictStatList[i])
+                    if user2PredictStatList[i][2]
+                    else ""
+                )
+                if not user1PredictStat and not user2PredictStat:
+                    continue
+                hasPredict = True
+                if user1PredictStat == user2PredictStat:
+                    compareResult.append(user1PredictStat)
+                else:
+                    isTheSame = False
+                    compareResult.append(
+                        _remove_common_prefix(user1PredictStat, user2PredictStat)
+                    )
+
+            if not hasPredict:
+                return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 都還沒預測任何比賽"
+            if isTheSame:
                 return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的預測相同"
             return "\n".join(
                 [f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的不同預測:"]
-                + comparison
+                + compareResult
             )
 
 
-def _get_prediction_columns():
+def _get_stat_result(playerName: str, statType: str):
+    playerUrl = get_player_url(playerName=playerName)
+    playerStatsPageUrl = playerUrl + "-stats"
+
+    playerStatsPageData = requests.get(playerStatsPageUrl).text
+    playerStatsPageSoup = BeautifulSoup(playerStatsPageData, "html.parser")
+
+    statsContainer = playerStatsPageSoup.find("tbody", class_="row-data lh-1pt43 fs-14")
+    mostRecentGame = statsContainer.find("tr")
+    gameDate = mostRecentGame.find("span", class_="table-result").text.strip()
+
+    statValue = int(
+        mostRecentGame.find("td", {"data-index": STAT_INDEX[statType]}).text.strip()
+    )
+    return statValue, gameDate
+
+
+def _has_play_today(gameDate: str):
+    nowUTC = datetime.now(timezone.utc)
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+    # MM/DD
+    month, day = gameDate.split("/")
+    gameDateStr = f"{nowTW}-{month}-{day}"
+    gameDateStr = "{}-{:0>2}-{:0>2}".format(nowTW.year, int(month), int(day))
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            # get column names
             cur.execute(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'leaderboard'
-                ORDER BY ordinal_position
-            """
+                "SELECT is_active FROM match WHERE game_date = %s", (gameDateStr,)
             )
-            columns = [row[0] for row in cur.fetchall()]
-            return columns[PREDICTION_INDEX:]
+            isActiveList = cur.fetchone()
+        return isActiveList[0] if isActiveList else False
+
+
+def settle_daily_stat_result():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_PLAYER_STAT_BET)
+            playerStatBetList = cur.fetchall()
+            for matchId, playerName, statType in playerStatBetList:
+                statResult, gameDate = _get_stat_result(
+                    playerName=playerName, statType=statType
+                )
+                if _has_play_today(gameDate=gameDate):
+                    cur.execute(
+                        SQL_UPDATE_PLAYER_STAT_BET,
+                        (statResult, playerName, matchId, statType),
+                    )
+        conn.commit()
 
 
 def _get_daily_game_results(playoffsLayout: bool):
     data = requests.get("https://www.foxsports.com/nba/scores").text
     soup = BeautifulSoup(data, "html.parser")
 
-    gameResults = {}  # "team1-team2": "winner"
+    gameResults = {}  # (team1Name, team2Name): (team1Score, team2Score, winner)
     gameContainers = soup.find_all("a", class_="score-chip final")
     for gameContainer in gameContainers:
         teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
@@ -461,191 +503,71 @@ def _get_daily_game_results(playoffsLayout: bool):
                 "span", class_="scores-text capi pd-b-1 ff-ff"
             ).text.strip()
             teamScore = scoreInfo.text.strip()
-            if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
-                break
             teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
             teamScores.append(int(teamScore))
-        else:
-            gameResults["-".join(teamNames)] = (
-                teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
-            )
+
+        winner = teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
+        gameResults[(teamName[0], teamName[1])] = (teamScores[0], teamScores[1], winner)
     return gameResults
 
 
-def _game_is_today(gameDate: str):
-    nowUTC = datetime.now(timezone.utc)
-    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-
-    # MM/DD
-    month, day = gameDate.split("/")
-    return int(day) == nowTW.day
-
-
-def _settle_daily_stats_results(statsColumns: list):
-    renameMap = {}
-    for i, statsColumn in enumerate(statsColumns):
-        # Original: Anthony Edwards 得分26.5 4/6
-        # Aim: Anthony Edwards 大盤 6
-        words = statsColumn.split()
-        overPoint, underPoint = words[-1].split("/")
-        statType, statTarget = words[-2][:2], float(words[-2][2:])
-        playerName = " ".join(words[:-2])
-
-        playerUrl = get_player_url(playerName=playerName)
-        playerStatsPageUrl = playerUrl + "-stats"
-
-        playerStatsPageData = requests.get(playerStatsPageUrl).text
-        playerStatsPageSoup = BeautifulSoup(playerStatsPageData, "html.parser")
-
-        statsContainer = playerStatsPageSoup.find(
-            "tbody", class_="row-data lh-1pt43 fs-14"
-        )
-        mostRecentGame = statsContainer.find("tr")
-        gameDate = mostRecentGame.find("span", class_="table-result").text.strip()
-
-        statValue = int(
-            mostRecentGame.find("td", {"data-index": STAT_INDEX[statType]}).text.strip()
-        )
-        if _game_is_today(gameDate=gameDate):
-            if statValue >= statTarget:
-                finalResult = f"{playerName} 大盤 {overPoint}"
-            else:
-                finalResult = f"{playerName} 小盤 {underPoint}"
-        else:
-            finalResult = f"{playerName} 未出賽{i} 0"
-
-        renameMap[statsColumn] = finalResult
-
-    return renameMap
-
-
-def settle_daily_game_stats(playoffsLayout: bool):
-    predictColumns = _get_prediction_columns()
+def settle_daily_match_result(playoffsLayout: bool):
+    # gameResults[(team1Name, team2Name)]: (team1Score, team2Score, winner)
     gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
-    statsColumns = []
-    renameMap = {}
-    for predictColumn in predictColumns:
-        words = predictColumn.split()
-        if len(words) == 2:
-            gameTitle, teamPoints = words
-            teamPoints = teamPoints.split("/")
-
-            if gameTitle not in gameResults:
-                gameTitle = "-".join(list(reversed(gameTitle.split("-"))))
-                teamPoints.reverse()
-
-            team1, team2 = gameTitle.split("-")
-            winner = gameResults[gameTitle]
-            point = teamPoints[0] if winner == team1 else teamPoints[1]
-
-            renameMap[predictColumn] = f"{winner} {point}"
-        else:
-            statsColumns.append(predictColumn)
-
-    statsMap = _settle_daily_stats_results(statsColumns=statsColumns)
-    renameMap.update(statsMap)
-
-    rename_columns(renameMap=renameMap)
-
-
-def _update_user_correct(predictMap: dict, currMap: dict):
-    # predictMap[team] = is correct
-    # currMap[team] = "5 2"
-    for teamName in predictMap:
-        correct, wrong = currMap[teamName].split()
-        correct, wrong = int(correct), int(wrong)
-        if predictMap[teamName]:
-            correct += 1
-        else:
-            wrong += 1
-
-        currMap[teamName] = f"{correct} {wrong}"
-
-    return list(currMap.values())
-
-
-def calculate_user_daily_points():
-    updateMap = {}
-    dailyResult = []
-    teamNames = []
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            # Get match column names
-            cur.execute(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'leaderboard'
-                ORDER BY ordinal_position
-            """
-            )
-            columns = [row[0] for row in cur.fetchall()]
-            teamNames = columns[PREDICTION_INDEX - 30 : PREDICTION_INDEX]
-
-            cur.execute("SELECT * FROM LeaderBoard ORDER BY id")
-
-            for userInfo in cur.fetchall():
-                predictMap = {}
-                userName = userInfo[1]
-                dayPoint = 0
-                weekPointCurr = userInfo[3]
-                for matchName, predictResult in zip(
-                    columns[PREDICTION_INDEX:], userInfo[PREDICTION_INDEX:]
-                ):
-                    if not predictResult:
-                        continue
-                    words = matchName.split()
-                    if len(words) == 2:
-                        result, point = words
-                        predictMap[predictResult] = predictResult == result
-                    else:
-                        result = " ".join(words[:-1])
-                        point = words[-1]
-                    point = int(point)
-                    if predictResult == result:
-                        dayPoint += point
-
-                # (userName, week_points, day_points)
-                dailyResult.append((userName, weekPointCurr + dayPoint, dayPoint))
-
-                newCorrectList = _update_user_correct(
-                    predictMap=predictMap,
-                    currMap={
-                        key: value
-                        for key, value in zip(
-                            columns[PREDICTION_INDEX - 30 : PREDICTION_INDEX],
-                            userInfo[PREDICTION_INDEX - 30 : PREDICTION_INDEX],
-                        )
-                    },
+            for team1Name, team2Name in gameResults:
+                team1Score, team2Score, winner = gameResults[(team1Name, team2Name)]
+                cur.execute(
+                    SQL_UPDATE_MATCH_RESULT,
+                    (
+                        team1Name,
+                        team1Score,
+                        team2Score,
+                        team2Name,
+                        team2Score,
+                        team1Score,
+                        winner,
+                        team1Name,
+                        team2Name,
+                        team2Name,
+                        team1Name,
+                    ),
                 )
-
-                updateMap[userName] = [dayPoint, dayPoint] + newCorrectList
-
-            if columns[PREDICTION_INDEX:]:
-                dropClauses = ",\n".join(
-                    [f'DROP COLUMN "{col}"' for col in columns[PREDICTION_INDEX:]]
-                )
-                cur.execute(f"ALTER TABLE LeaderBoard\n{dropClauses}")
         conn.commit()
 
-    # write dayPoint to day_points
-    # add dayPoint to week_points
-    updateColumns = ["day_points", "week_points"] + teamNames
-    updateStrategy = ["a", "a"] + ["w"] * 30
-    update_columns(
-        updateColumns=updateColumns,
-        updateStrategy=updateStrategy,
-        updateMap=updateMap,
-    )
-    return sorted(dailyResult, key=lambda x: x[1], reverse=True)
+
+def calculate_daily_stat_point():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_USER_PREDICT_STAT3)
+            userPredictStatList = cur.fetchall()
+            for (
+                userUID,
+                playerName,
+                matchId,
+                statType,
+                statTarget,
+                statResult,
+            ) in userPredictStatList:
+                finalOutcome = "大盤" if statResult >= statTarget else "小盤"
+                cur.execute(
+                    SQL_UPDATE_USER_PREDICT_STAT,
+                    (finalOutcome, userUID, playerName, matchId, statType),
+                )
+            cur.execute(SQL_UPDATE_USER_STAT_POINT)
+        conn.commit()
 
 
-def _utc_to_tw_time(gameTimeUTC: str):
-    # gameTimeUTC = "1:00 AM"
-    timeUTC = datetime.strptime(gameTimeUTC, "%I:%M%p").replace(tzinfo=timezone.utc)
-    timeTW = timeUTC.astimezone(timezone(timedelta(hours=8)))
-    gameTimeTW = timeTW.strftime("%H:%M")
-    return gameTimeTW
+def calculate_daily_match_point():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL_UPDATE_USER_PREDICT_MATCH)
+            cur.execute(SQL_UPDATE_USER_MATCH_POINT)
+            cur.execute(SQL_UPDATE_CORRECT_COUNTER)
+            cur.execute(SQL_UPDATE_WRONG_COUNTER)
+            cur.execute(SQL_DEACTIVE_MATCH)
+        conn.commit()
 
 
 def _get_regular_game(gameInfo: BeautifulSoup):
@@ -772,29 +694,17 @@ def get_nba_games(playoffsLayout: bool):
         )  # No game page for this date -> No games today
 
     tomorrowTW = nowTW + timedelta(days=1)
-    year = str(tomorrowTW.year)
-    month = (
-        str(tomorrowTW.month) if tomorrowTW.month >= 10 else "0" + str(tomorrowTW.month)
-    )
-    day = str(tomorrowTW.day) if tomorrowTW.day >= 10 else "0" + str(tomorrowTW.day)
-    tomorrowStr = "-".join([year, month, day])
+    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
     gameTimeList = _get_nba_games_time_list(tomorrowStr)
 
     gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
     gamesInfo = soup.find_all("a", class_=gameClass)
     gameList = []
 
-    gameOfTheDay = {
-        "diff": 30,
-        "page": "",
-        "gametime": "",
-    }  # Get the game page and game time of the most intensive game
+    # Get the game page and game time of the most intensive game
+    gameOfTheDay = {"diff": 30, "page": "", "index": -1, "gameTime": ""}
 
-    for gameInfo, gameTimeTW in zip(gamesInfo, gameTimeList):
-        # gameTimeUTC = gameInfo.find("span", class_="time ffn-gr-11").text.strip()
-        # gameTimeUTC = "12:00AM"
-        # gameTimeTW = _utc_to_tw_time(gameTimeUTC=gameTimeUTC)
-
+    for i, (gameInfo, gameTimeTW) in enumerate(zip(gamesInfo, gameTimeList)):
         gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
         gamePageData = requests.get(gamePageUrl).text
         gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
@@ -822,22 +732,22 @@ def get_nba_games(playoffsLayout: bool):
         if oddDiff < gameOfTheDay["diff"]:
             gameOfTheDay["diff"] = oddDiff
             gameOfTheDay["page"] = gamePageUrl
-            gameOfTheDay["gametime"] = gameTimeTW
-
+            gameOfTheDay["index"] = i
+            gameOfTheDay["gameTime"] = gameTimeTW
         gameList.append(game)
 
-    return gameList, gameOfTheDay["page"] + "?tab=odds", gameOfTheDay["gametime"]
+    return gameList, gameOfTheDay["page"] + "?tab=odds", gameOfTheDay["gameTime"]
 
 
 def get_player_url(playerName: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT link FROM PlayerLink WHERE name = %s", (playerName,))
+            cur.execute(SQL_SELECT_PLAYER_LINK, (playerName,))
             return cur.fetchone()[0]
 
 
 def get_image_url(imgKey: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT link FROM ImageLink WHERE category = %s", (imgKey,))
+            cur.execute(SQL_SELECT_IMAGE_LINK, (imgKey,))
             return cur.fetchall()

@@ -22,40 +22,45 @@ def text_message(event: MessageEvent):
             event.reply_token, TextSendMessage(text="Unknown User")
         )
 
-    # if message == "demo" and userName == "戴廣逸":
-    #     try:
-    #         response, carouselColumns = get_nba_prediction_demo()
-    #         respondMessages = [TextSendMessage(text=response)]
-    #         for i in range(0, len(carouselColumns), 10):
-    #             carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])
-    #             templateMessage = TemplateSendMessage(
-    #                 alt_text="NBA每日預測", template=carouselTemplate
-    #             )
-    #             respondMessages.append(templateMessage)
+    if message == "demo" and user_is_admin(userUID):
+        try:
+            response, carouselColumns = get_nba_prediction_demo()
+            respondMessages = [TextSendMessage(text=response)]
+            for i in range(0, len(carouselColumns), 10):
+                carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])
+                templateMessage = TemplateSendMessage(
+                    alt_text="NBA每日預測", template=carouselTemplate
+                )
+                respondMessages.append(templateMessage)
 
-    #         LINE_BOT_API.reply_message(event.reply_token, respondMessages)
-    #     except Exception as err:
-    #         LINE_BOT_API.reply_message(
-    #             event.reply_token, TextSendMessage(text=str(err))
-    #         )
+            LINE_BOT_API.reply_message(event.reply_token, respondMessages)
+        except Exception as err:
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=str(err))
+            )
 
     if message == "NBA每日預測":
-        if userName not in ["林家龍", "戴廣逸"]:
+        if user_is_admin(userUID):
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
-
         try:
-            response, carouselColumns, gameOfTheDayPage, gameOfTheDayTime = (
-                get_nba_game_prediction(playoffsLayout=False)
-            )
+            (
+                response,
+                carouselColumns,
+                gameOfTheDayPage,
+                gameOfTheDayDate,
+                gameOfTheDayTime,
+            ) = get_nba_game_prediction(playoffsLayout=False)
             if not carouselColumns:
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
                 )
 
             carouselColumns += get_player_stat_prediction(
-                gamePage=gameOfTheDayPage, gameTime=gameOfTheDayTime
+                gamePage=gameOfTheDayPage,
+                gameDate=gameOfTheDayDate,
+                gameTime=gameOfTheDayTime,
             )
             respondMessages = [TextSendMessage(text=response)]
             for i in range(0, len(carouselColumns), 10):
@@ -93,21 +98,17 @@ def text_message(event: MessageEvent):
     if message[:2] == "信仰":
         words = message.split()
         teamName = "" if len(words) != 2 else words[1]
-        response = get_user_most_correct(
-            userName=userName, teamName=teamName, correct=True
-        )
+        response = get_user_season_correct_count(userName=userName, teamName=teamName)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message[:2] == "傻鳥":
         words = message.split()
         teamName = "" if len(words) != 2 else words[1]
-        response = get_user_most_correct(
-            userName=userName, teamName=teamName, correct=False
-        )
+        response = get_user_season_wrong_count(userName=userName, teamName=teamName)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "結算傻鳥":
-        response = settle_most_correct_wrong()
+        response = get_season_most_correct_and_wrong()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "週排行":
@@ -203,12 +204,6 @@ def text_message(event: MessageEvent):
     if message.lower() == "news":
         response = get_hupu_news()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
-
-    # if message.lower()[:4] == "news":
-    #     # "news keyword" -> ["news", "keyword"]
-    #     _, keyword = message.split()
-    #     response = eric_get_hupu_news(keyword)
-    #     LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message[:2].lower() == "yt":
         response = get_youtube(keyword=message[3:])

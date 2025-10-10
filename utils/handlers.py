@@ -26,8 +26,10 @@ def handle_postback(event: PostbackEvent):
 
     data = event.postback.data
     postbackType, *params = data.split(";")
-    # NBA球隊預測: winner, loser, winner_point, loser_point, gametime(2025-3-18-11:51)
-    # NBA球員預測: player, target, over_point, under_point, predict, match_time (Anthony Edwards 得分26.5 4 6 大盤 2025-3-18-11:51)
+    # NBA球隊預測: team1Name, team2Name, userPrediction, gameDate, gameTime
+    # [國王, 灰狼, 灰狼, 2025-03-18, 11:00]
+    # NBA球員預測: playerName, team1Name, team2Name statType, statTarget, userPrediction(大盤/小盤), gameDate, gameTime
+    # [Anthony Edwards, 國王, 灰狼, 得分, 26.5, 大盤, 2025-03-18, 11:00]
     if postbackType == "NBA球隊預測":
         response = get_nba_prediction_posback(userName, userUID, *params)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))

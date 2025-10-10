@@ -30,7 +30,9 @@ BET_STAT_TRANSLATION = {
 
 
 def get_user_type_point(rankType: str):
-    userPoints = get_user_points(rankType=rankType)
+    userPoints = get_type_points(rankType=rankType)
+    userPoints.sort(key=lambda x: x[1], reverse=True)
+
     response = "\n".join(
         [f"{RANK_TYPE_TRANSLATION[rankType]}排行榜:"]
         + [f"{i}. {name}: {point}分" for i, (name, point) in enumerate(userPoints, 1)]
@@ -47,7 +49,8 @@ def get_user_type_best(rankType: str):
     for name, point in rankBest:
         bestMessage += f"{name}({point}分) "
 
-    userNextPoints = get_user_points(rankType=NEXT_RANK_TYPE[rankType])
+    userNextPoints = get_type_points(rankType=NEXT_RANK_TYPE[rankType])
+    userNextPoints.sort(key=lambda x: x[1], reverse=True)
     rankMessage = f"{RANK_TYPE_TRANSLATION[NEXT_RANK_TYPE[rankType]]}排行榜:\n"
     for i, (name, point) in enumerate(userNextPoints, 1):
         rankMessage += f"{i}. {name}: {point}分\n"
@@ -55,31 +58,35 @@ def get_user_type_best(rankType: str):
     return bestMessage, rankMessage
 
 
-def get_user_most_correct(userName: str, teamName: str = "", correct: bool = True):
-    teamList = list(NBA_ABBR_ENG_TO_ABBR_CN.values())
-    correctList = get_user_correct(
-        userName=userName, teamList=teamList, correct=correct
-    )
+def get_user_season_correct_count(userName: str, teamName: str):
+    # (team1, season_correct1), (team2, season_correct2), ...
+    teamList, seasonCorrect = get_user_season_correct(userName=userName)
+
     if not teamName:
-        mostCorrectTeam = list(correctList.keys())[0]
-        if correct:
-            return f"{userName}是{mostCorrectTeam}的舔狗"
-        else:
-            return f"{userName}的傻鳥是{mostCorrectTeam}"
+        return f"{userName}是{teamList[0]}的舔狗"
 
     if teamName not in teamList:
         return f"{teamName} is unknown"
 
-    if correct:
-        return f"{userName}舔了{teamName}{correctList[teamName]}口"
-    else:
-        return f"{userName}被{teamName}肛了{correctList[teamName]}次"
+    return f"{userName}舔了{teamName}{seasonCorrect[teamList.index(teamName)]}口"
 
 
-def settle_most_correct_wrong():
-    teamList = list(NBA_ABBR_ENG_TO_ABBR_CN.values())
-    response = settle_user_correct(teamList=teamList)
-    return response
+def get_user_season_wrong_count(userName: str, teamName: str):
+    # (team1, season_wrong1), (team2, season_wrong2), ...
+    teamList, seasonWrong = get_user_season_wrong(userName=userName)
+
+    if not teamName:
+        return f"{userName}的傻鳥是{teamList[0]}"
+
+    if teamName not in teamList:
+        return f"{teamName} is unknown"
+
+    return f"{userName}被{teamName}肛了{seasonWrong[teamList.index(teamName)]}次"
+
+
+def get_season_most_correct_and_wrong():
+    response = settle_season_correct_wrong()
+    return response()
 
 
 def user_registration(userName: str, userUID: str):
@@ -103,15 +110,24 @@ def get_prediction_comparison(user1Id: int, user2Id: int):
 
 def settle_daily_prediction(playoffsLayout: bool):
     """TODO playoffs layout"""
-    settle_daily_game_stats(playoffsLayout=playoffsLayout)
-    dailyResult = calculate_user_daily_points()
+    settle_daily_match_result(playoffsLayout=playoffsLayout)
+    settle_daily_stat_result()
 
+    calculate_daily_stat_point()
+    calculate_daily_match_point()
+
+    dayPoints = get_type_points(rankType="day_points")
+    weekPoints = get_type_points(rankType="week_points")
+    userPoints = []
+    for i in range(len(dayPoints)):
+        userName, userDayPoints = dayPoints[i]
+        userWeekPoints = weekPoints[i][1]
+        userPoints.append((userName, userWeekPoints, userDayPoints))
+    userPoints.sort(key=lambda x: x[1], reverse=True)
+    
     response = "\n".join(
-        [f"{RANK_TYPE_TRANSLATION['week_points']}排行榜:"]
-        + [
-            f"{i}. {name}: {point}分 (+{plus})"
-            for i, (name, point, plus) in enumerate(dailyResult, 1)
-        ]
+        [f"{RANK_TYPE_TRANSLATION["week_points"]}排行榜:"]
+        + [f"{i}. {userName}: {userWeekPoints}分 (+{userDayPoints})" for i, (userName, userWeekPoints, userDayPoints) in enumerate(userPoints, 1)]
     )
     return response
 
@@ -124,7 +140,7 @@ def _check_url_exist(url: str):
         return False
 
 
-def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowTW: datetime):
+def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: str):
     teamNames = game["names"]
     teamStandings = game["standings"]
     teamPoints = game["points"]
@@ -152,22 +168,22 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowTW: dat
         actions=[
             PostbackAction(
                 label=teamNames[0],
-                data=f"NBA球隊預測;{teamNames[0]};{teamNames[1]};{teamPoints[0]};{teamPoints[1]};{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
+                data=f"NBA球隊預測;{teamNames[0]};{teamNames[1]};{teamNames[0]};{tomorrowStr};{gameTime}",
             ),
             PostbackAction(
                 label=teamNames[1],
-                data=f"NBA球隊預測;{teamNames[1]};{teamNames[0]};{teamPoints[1]};{teamPoints[0]};{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
+                data=f"NBA球隊預測;{teamNames[0]};{teamNames[1]};{teamNames[1]};{tomorrowStr};{gameTime}",
             ),
         ],
     )
-    return carouselColumn
+    return carouselColumn, teamNames, teamPoints
 
 
 def get_nba_game_prediction(playoffsLayout: bool = False):
     reset_nba_prediction()
     response = get_user_type_point(rankType="week_points")
 
-    newTableColumns = []
+    matchList = []
     carouselColumns = []
 
     gameList, gameOfTheDayPage, gameOfTheDayTime = get_nba_games(
@@ -180,21 +196,33 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     tomorrowTW = nowTW + timedelta(days=1)
+    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
+    gameOfTheDayDate = tomorrowStr
 
     for game in gameList:
-        carouselColumn = _pack_game_carousel_column(
-            game=game, playoffsLayout=playoffsLayout, tomorrowTW=tomorrowTW
+        carouselColumn, teamNames, teamPoints = _pack_game_carousel_column(
+            game=game, playoffsLayout=playoffsLayout, tomorrowStr=tomorrowStr
         )
         carouselColumns.append(carouselColumn)
 
-        teamNames = game["names"]
-        teamPoints = game["points"]
-        newTableColumns.append(
-            f"{teamNames[0]}-{teamNames[1]} {teamPoints[0]}/{teamPoints[1]}"
+        matchList.append(
+            (
+                tomorrowStr,
+                teamNames[0],
+                teamNames[1],
+                teamPoints[0],
+                teamPoints[1],
+            )
         )
 
-    insert_columns(newColumns=newTableColumns)
-    return response, carouselColumns, gameOfTheDayPage, gameOfTheDayTime
+    insert_match(matchList=matchList)
+    return (
+        response,
+        carouselColumns,
+        gameOfTheDayPage,
+        gameOfTheDayDate,
+        gameOfTheDayTime,
+    )
 
 
 def _compare_timestring(timeStr1: str, timeStr2: str):
@@ -206,10 +234,10 @@ def _compare_timestring(timeStr1: str, timeStr2: str):
 def get_nba_prediction_posback(
     userName: str,
     userUID: str,
-    winner: str,
-    loser: str,
-    winnerPoint: str,
-    loserPoint: str,
+    team1Name: str,
+    team2Name: str,
+    userPrediction: str,
+    gameDate: str,
     gameTime: str,
 ):
     if not user_exist(userName=userName, userUID=userUID):
@@ -217,22 +245,26 @@ def get_nba_prediction_posback(
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    nowTime = f"{nowTW.year}-{nowTW.month}-{nowTW.day}-{nowTW.hour}:{nowTW.minute}"
+    nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
+    gameTimeStr = f"{gameDate}-{gameTime}"
+    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+        return f"{team1Name}-{team2Name} 的比賽已經開始了"
 
-    if _compare_timestring(timeStr1=nowTime, timeStr2=gameTime):
-        return f"{winner}-{loser} 的比賽已經開始了"
-
-    column = f"{winner}-{loser} {winnerPoint}/{loserPoint}"
-    if not column_exist(column=column):
-        column = f"{loser}-{winner} {loserPoint}/{winnerPoint}"
-
-    if user_predicted(userName=userName, column=column):
-        return f"{userName}已經預測{winner}-{loser}了"
-
-    update_columns(
-        updateColumns=[column], updateStrategy=["w"], updateMap={userName: [winner]}
+    returnState = insert_user_predict_match(
+        userUID=userUID,
+        userPrediction=userPrediction,
+        team1Name=team1Name,
+        team2Name=team2Name,
+        gameDate=gameDate,
     )
-    return f"{userName}預測{winner}贏{loser}"
+
+    if returnState == "CONFLICT":
+        return f"{userName}已經預測{team1Name}-{team2Name}了"
+    # retrunState = "INSERT"
+    if userPrediction == team1Name:
+        return f"{userName}預測{team1Name}贏{team2Name}"
+    else:
+        return f"{userName}預測{team2Name}贏{team1Name}"
 
 
 def _get_game_translation(gameDescription: str):
@@ -240,26 +272,28 @@ def _get_game_translation(gameDescription: str):
     return f"{NBA_ABBR_ENG_TO_ABBR_CN[awayTeam]} @ {NBA_ABBR_ENG_TO_ABBR_CN[homeTeam]}"
 
 
-def _get_player_bet_info(playerSoup: BeautifulSoup, betTitle: str):
+def _get_player_bet_info(playerSoup: BeautifulSoup, statType: str):
     imgSrc = playerSoup.find("img").get("src")
     playerName = playerSoup.find("img").get("alt")
     gameDescription = playerSoup.find("div", class_="ffn-gr-11").text
+    gameTitle = _get_game_translation(gameDescription=gameDescription)
 
     playerUrl = get_player_url(playerName=playerName)
 
     playerStatsUrl = playerUrl + "-stats"
     playerStatsPage = requests.get(playerStatsUrl).text
     playerStatsSoup = BeautifulSoup(playerStatsPage, "html.parser")
-    betTitleToContainerIndex = {
-        "PLAYER POINTS": 0,
-        "PLAYER REBOUNDS": 1,
-        "PLAYER STEALS": 4,
+    statTypeToContainerIndex = {
+        "得分": 0,
+        "籃板": 1,
+        "抄截": 4,
     }
 
     playerStats = playerStatsSoup.find_all("a", class_="stats-overview")
-    statContainer = playerStats[betTitleToContainerIndex[betTitle]]
+    statContainer = playerStats[statTypeToContainerIndex[statType]]
 
-    statAvg = statContainer.find("div", class_="fs-54 fs-sm-40").text
+    statAvgText = statContainer.find("div", class_="fs-54 fs-sm-40").text
+    statAvg = statAvgText.split()[0]
     statTarget = playerSoup.find("div", class_="fs-30").text
 
     _odds_msg = (
@@ -269,90 +303,134 @@ def _get_player_bet_info(playerSoup: BeautifulSoup, betTitle: str):
     )
     _odds_items = _odds_msg.split()
     odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
+    overPoint = int(1.5 * odds)
+    underPoint = 15 - overPoint
 
     return (
         imgSrc,
         playerName,
-        _get_game_translation(gameDescription=gameDescription),
-        statAvg.split()[0],
+        gameTitle,
+        statAvg,
         statTarget,
-        int(1.5 * odds),
+        overPoint,
+        underPoint,
     )
 
 
 def _pack_stat_carousel_column(
-    playerSoup: BeautifulSoup, betTitle: str, gameTime: str, tomorrowTW: datetime
+    imgSrc: str,
+    playerName: str,
+    gameTitle: str,
+    statAvg: str,
+    statTarget: str,
+    overPoint: int,
+    underPoint: int,
+    statType: str,
+    tomorrowStr: str,
+    gameTime: str,
 ):
-    imgSrc, playerName, gameTitle, statAvg, statTarget, odds = _get_player_bet_info(
-        playerSoup=playerSoup, betTitle=betTitle
-    )
-    betTitleCN = BET_STAT_TRANSLATION[betTitle]
+    betTitleCN = BET_STAT_TRANSLATION[statType]
+    team1Name, team2Name = gameTitle.split(" @ ")
     # title = Anthony Edwards
-    # text = 場均得分 28.0\n7:00 國王(客) - 灰狼(主)\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
+    # text = 場均得分 28.0\n7:00 國王 @ 灰狼\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
     # button1 = 大盤
     # button2 = 小盤
-
     carouselColumn = CarouselColumn(
         thumbnail_image_url=imgSrc,
         title=playerName,
-        text=f"場均{betTitleCN} {statAvg}\n{gameTime} {gameTitle}\n大盤 ({betTitleCN}超過{statTarget}) {odds}分\n小盤 ({betTitleCN}低於{statTarget}) {15-odds}分",
+        text=f"場均{betTitleCN} {statAvg}\n{gameTime} {gameTitle}\n大盤 ({betTitleCN}超過{statTarget}) {overPoint}分\n小盤 ({betTitleCN}低於{statTarget}) {underPoint}分",
         actions=[
             PostbackAction(
                 label="大盤",
-                data=f"NBA球員預測;{playerName};{betTitleCN}{statTarget};{odds};{15-odds};大盤;{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
+                data=f"NBA球員預測;{playerName};{team1Name};{team2Name};{statType};{statTarget};大盤;{tomorrowStr};{gameTime}",
             ),
             PostbackAction(
                 label="小盤",
-                data=f"NBA球員預測;{playerName};{betTitleCN}{statTarget};{odds};{15-odds};小盤;{tomorrowTW.year}-{tomorrowTW.month}-{tomorrowTW.day}-{gameTime}",
+                data=f"NBA球員預測;{playerName};{team1Name};{team2Name};{statType};{statTarget};小盤;{tomorrowStr};{gameTime}",
             ),
         ],
     )
-    newTableColumn = f"{playerName} {betTitleCN}{statTarget} {odds}/{15-odds}"
-    return carouselColumn, newTableColumn
+
+    return carouselColumn
 
 
-def get_player_stat_prediction(gamePage: str, gameTime: str):
+def get_player_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     tomorrowTW = nowTW + timedelta(days=1)
+    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
 
     data = requests.get(gamePage).text
     soup = BeautifulSoup(data, "html.parser")
     betContainer = soup.find_all("div", class_="odds-component-prop-bet")
 
-    newTableColumns = []
+    playerStatBetList = []
     carouselColumns = []
 
     for betInfo in betContainer:
-        # PLAYER POINTS / PLAYER REBOUNDS / PLAYER STEAL
+        # PLAYER POINTS / PLAYER REBOUNDS / PLAYER STEALS
         betTitle = betInfo.find("h2", class_="pb-name fs-30").text.strip()
+        if betTitle not in BET_STAT_TRANSLATION:
+            continue
+        statType = BET_STAT_TRANSLATION[betTitle]
         playerContainers = betInfo.find_all(
             "div", class_="prop-bet-data pointer prop-future"
         )
         for playerSoup in playerContainers:
-            carouselColumn, newTableColumn = _pack_stat_carousel_column(
-                playerSoup=playerSoup,
-                betTitle=betTitle,
+            (
+                imgSrc,
+                playerName,
+                gameTitle,
+                statAvg,
+                statTarget,
+                overPoint,
+                underPoint,
+            ) = _get_player_bet_info(playerSoup=playerSoup, statType=statType)
+
+            carouselColumn = _pack_stat_carousel_column(
+                imgSrc=imgSrc,
+                playerName=playerName,
+                gameTitle=gameTitle,
+                statAvg=statAvg,
+                statTarget=statTarget,
+                overPoint=overPoint,
+                underPoint=underPoint,
+                statType=statType,
+                tomorrowStr=tomorrowStr,
                 gameTime=gameTime,
-                tomorrowTW=tomorrowTW,
             )
 
-            newTableColumns.append(newTableColumn)
             carouselColumns.append(carouselColumn)
 
-    if newTableColumns:  # Only insert if we have player bet
-        insert_columns(newColumns=newTableColumns)
+            team1Name, team2Name = gameTitle.split(" @ ")
+            playerStatBetList.append(
+                (
+                    playerName,
+                    gameDate,
+                    team1Name,
+                    team2Name,
+                    statType,
+                    float(statTarget),
+                    overPoint,
+                    underPoint,
+                )
+            )
+
+    if playerStatBetList:  # Only insert if we have player bet
+        insert_player_stat_bet(playerStatBetList=playerStatBetList)
     return carouselColumns
 
 
 def get_player_stat_prediction_postback(
     userName: str,
     userUID: str,
-    player: str,
-    targetStat: str,
-    overPoint: str,
-    underPoint: str,
+    playerName: str,
+    team1Name: str,
+    team2Name: str,
+    statType: str,
+    statTarget: str,
     userPrediction: str,
+    gameDate: str,
     gameTime: str,
 ):
     if not user_exist(userName=userName, userUID=userUID):
@@ -360,27 +438,28 @@ def get_player_stat_prediction_postback(
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    nowTime = f"{nowTW.year}-{nowTW.month}-{nowTW.day}-{nowTW.hour}:{nowTW.minute}"
+    nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
+    gameTimeStr = f"{gameDate}-{gameTime}"
+    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+        return f"{playerName} 的比賽已經開始了"
 
-    if _compare_timestring(timeStr1=nowTime, timeStr2=gameTime):
-        return f"{player} 的比賽已經開始了"
-
-    # # Anthony Edwards 得分26.5 4/6
-    column = f"{player} {targetStat} {overPoint}/{underPoint}"
-
-    if user_predicted(userName=userName, column=column):
-        return f"{userName}已經預測{player}{targetStat[:2]}超過(低於){targetStat[2:]}了"
-
-    update_columns(
-        updateColumns=[column],
-        updateStrategy=["w"],
-        updateMap={userName: [f"{player} {userPrediction}"]},
+    returnState = insert_user_predict_stat(
+        userUID=userUID,
+        userPrediction=userPrediction,
+        playerName=playerName,
+        statType=statType,
+        team1Name=team1Name,
+        team2Name=team2Name,
+        gameDate=gameDate,
     )
 
+    if returnState == "CONFLICT":
+        return f"{userName}已經預測{playerName}{statType}超過(低於){statTarget}了"
+    # returnState = "INSERT"
     if userPrediction == "大盤":
-        return f"{userName}預測{player}{targetStat[:2]}超過{targetStat[2:]}"
+        return f"{userName}預測{playerName}{statType}超過{statTarget}"
     if userPrediction == "小盤":
-        return f"{userName}預測{player}{targetStat[:2]}低於{targetStat[2:]}"
+        return f"{userName}預測{playerName}{statType}低於{statTarget}"
 
 
 def get_nba_guessing():
@@ -677,12 +756,13 @@ def get_nba_prediction_demo():
     reset_nba_prediction()
     response = get_user_type_point(rankType="week_points")
 
-    newTableColumns = []
+    matchList = []
     carouselColumns = []
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     tomorrowTW = nowTW + timedelta(days=1)
+    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
     gameList = [
         {
             "names": ["勇士", "湖人"],
@@ -751,12 +831,15 @@ def get_nba_prediction_demo():
             game=game, playoffsLayout=False, tomorrowTW=tomorrowTW
         )
         carouselColumns.append(carouselColumn)
-
-        teamNames = game["names"]
-        teamPoints = game["points"]
-        newTableColumns.append(
-            f"{teamNames[0]}-{teamNames[1]} {teamPoints[0]}/{teamPoints[1]}"
+        matchList.append(
+            (
+                tomorrowStr,
+                game["name"][0],
+                game["name"][1],
+                game["points"][0],
+                game["points"][1],
+            )
         )
 
-    insert_columns(newColumns=newTableColumns)
+    insert_match(matchList=matchList)
     return response, carouselColumns
