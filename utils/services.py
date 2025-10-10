@@ -54,9 +54,9 @@ def text_message(event: MessageEvent):
                     event.reply_token, TextSendMessage(text=response)
                 )
 
-            # carouselColumns += get_player_stat_prediction(
-            #     gamePage=gameOfTheDayPage, gameTime=gameOfTheDayTime
-            # )
+            carouselColumns += get_player_stat_prediction(
+                gamePage=gameOfTheDayPage, gameTime=gameOfTheDayTime
+            )
             respondMessages = [TextSendMessage(text=response)]
             for i in range(0, len(carouselColumns), 10):
                 carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])

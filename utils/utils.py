@@ -328,6 +328,8 @@ def get_player_stat_prediction(gamePage: str, gameTime: str):
     for betInfo in betContainer:
         # PLAYER POINTS / PLAYER REBOUNDS / PLAYER STEAL
         betTitle = betInfo.find("h2", class_="pb-name fs-30").text.strip()
+        if betTitle not in BET_STAT_TRANSLATION:
+            continue
         playerContainers = betInfo.find_all(
             "div", class_="prop-bet-data pointer prop-future"
         )
