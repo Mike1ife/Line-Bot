@@ -3,7 +3,7 @@ import requests
 import psycopg
 from bs4 import BeautifulSoup
 from config import DATABASE_URL
-from _user_table_SQL import *
+from utils._user_table_SQL import *
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from datetime import datetime, timezone, timedelta
 
