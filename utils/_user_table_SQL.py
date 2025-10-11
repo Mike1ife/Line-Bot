@@ -2,8 +2,24 @@ SQL_USER_IS_ADMIN = """
 SELECT is_admin FROM users WHERE uid = %s
 """
 
-SQL_GET_TYPE_POINT = """
-SELECT name, %s FROM users ORDER BY created_at
+SQL_SELECT_DAY_POINT = """
+SELECT name, day_points FROM users ORDER BY created_at
+"""
+
+SQL_SELECT_WEEK_POINT = """
+SELECT name, week_points FROM users ORDER BY created_at
+"""
+
+SQL_SELECT_MONTH_POINT = """
+SELECT name, month_points FROM users ORDER BY created_at
+"""
+
+SQL_SELECT_SEASON_POINT = """
+SELECT name, season_points FROM users ORDER BY created_at
+"""
+
+SQL_SELECT_ALL_TIME_POINT = """
+SELECT name, all_time_points FROM users ORDER BY created_at
 """
 
 SQL_INSERT_MATCH = """

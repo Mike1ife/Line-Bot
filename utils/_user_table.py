@@ -8,6 +8,12 @@ from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from datetime import datetime, timezone, timedelta
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
+SQL_SELECT_TYPE_POINT = {
+    "week_points": SQL_SELECT_WEEK_POINT,
+    "month_points": SQL_SELECT_MONTH_POINT,
+    "season_points": SQL_SELECT_SEASON_POINT,
+    "all_time_points": SQL_SELECT_ALL_TIME_POINT,
+}
 PREDICTION_INDEX = 38
 
 
@@ -22,7 +28,7 @@ def user_is_admin(userUID: str):
 def get_type_points(rankType: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(SQL_GET_TYPE_POINT, (rankType,))
+            cur.execute(SQL_SELECT_TYPE_POINT[rankType], (rankType,))
             return cur.fetchall()
 
 
