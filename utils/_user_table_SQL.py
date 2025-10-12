@@ -173,7 +173,7 @@ SQL_SELECT_PLAYER_STAT_BET = """
 SELECT psb.match_id, player_name, stat_type
 FROM player_stat_bet AS psb
 INNER JOIN match
-    ON player_stat_bet.match_id = match.match_id
+    ON psb.match_id = match.match_id
 WHERE is_active = TRUE
 """
 
