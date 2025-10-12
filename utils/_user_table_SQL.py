@@ -197,7 +197,7 @@ SET
         WHEN team2_name = %s THEN %s
         ELSE %s
     END,
-    winner = %s,
+    winner = %s
 WHERE 
     is_active = TRUE
     AND (
