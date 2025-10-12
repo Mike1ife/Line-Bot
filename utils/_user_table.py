@@ -218,7 +218,7 @@ def get_type_best(rankType: str, nextRankType: str):
     # write 0 to rankType
     # add nextRankPoint to nextRankType
     update_type_point(
-        updateColumns=[rankType, nextRankType],
+        updateRankType=[rankType, nextRankType],
         updateStrategy=["w", "a"],
         updateMap=updateMap,
     )
