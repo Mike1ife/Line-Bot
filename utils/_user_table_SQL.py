@@ -268,21 +268,25 @@ WHERE
 SQL_UPDATE_USER_MATCH_POINT = """
 UPDATE users
 SET
-    day_points = day_points + CASE
-        WHEN upm.predicted_team = team1_name THEN team1_point
-        ELSE team2_point
+    day_points = users.day_points + CASE
+        WHEN upm.predicted_team = match.team1_name THEN match.team1_point
+        ELSE match.team2_point
     END,
-    week_points = week_points + CASE
-        WHEN upm.predicted_team = team1_name THEN team1_point
-        ELSE team2_point
+    week_points = users.week_points + CASE
+        WHEN upm.predicted_team = match.team1_name THEN match.team1_point
+        ELSE match.team2_point
     END
 FROM user_predict_match AS upm
-INNER JOIN match 
+JOIN match
     ON upm.match_id = match.match_id
 WHERE
     users.uid = upm.uid
     AND upm.is_correct = TRUE
-    AND match.is_active = TRUE;
+    AND match.is_active = TRUE
+    AND upm.uid IN (
+        SELECT DISTINCT uid
+        FROM users
+    );
 """
 
 SQL_UPDATE_CORRECT_COUNTER = """
