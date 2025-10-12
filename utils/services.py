@@ -17,6 +17,7 @@ def text_message(event: MessageEvent):
         userUID = event.source.user_id
         profile = LINE_BOT_API.get_profile(userUID)
         userName = profile.display_name
+        pictureUrl = profile.pictureUrl
     except LineBotApiError:
         LINE_BOT_API.reply_message(
             event.reply_token, TextSendMessage(text="Unknown User")
@@ -40,7 +41,7 @@ def text_message(event: MessageEvent):
             )
 
     if message == "NBA每日預測":
-        if user_is_admin(userUID):
+        if not user_is_admin(userUID):
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
@@ -144,7 +145,9 @@ def text_message(event: MessageEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "註冊":
-        response = user_registration(userName=userName, userUID=userUID)
+        response = user_registration(
+            userName=userName, userUID=userUID, pictureUrl=pictureUrl
+        )
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "NBA預測週最佳":

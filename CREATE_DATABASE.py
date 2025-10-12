@@ -13,6 +13,7 @@ def CREATE_USER_TABLE():
             CREATE TABLE IF NOT EXISTS users (
                 uid TEXT PRIMARY KEY,
                 name TEXT UNIQUE NOT NULL,
+                picture_url TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT NOW(),
                 day_points INTEGER DEFAULT 0,
                 week_points INTEGER DEFAULT 0,

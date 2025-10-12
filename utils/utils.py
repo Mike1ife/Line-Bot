@@ -93,8 +93,8 @@ def get_season_most_correct_and_wrong():
     return response()
 
 
-def user_registration(userName: str, userUID: str):
-    response = add_user(userName=userName, userUID=userUID)
+def user_registration(userName: str, userUID: str, pictureUrl: str):
+    response = add_user(userName=userName, userUID=userUID, pictureUrl=pictureUrl)
     return response
 
 

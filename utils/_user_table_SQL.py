@@ -171,11 +171,15 @@ SELECT uid, name FROM users ORDER BY created_at
 """
 
 SQL_INSERT_USER = """
-INSERT INTO users (name, uid)
-VALUES (%s, %s)
+INSERT INTO users (name, uid, picture_url)
+VALUES (%s, %s, %s)
 ON CONFLICT (uid)
-    DO UPDATE SET name = EXCLUDED.name
+DO UPDATE
+SET
+    name = EXCLUDED.name,
+    picture_url = EXCLUDED.picture_url;
 """
+
 
 SQL_INSERT_COUNTER = """
 INSERT INTO counter (uid, team_name)
