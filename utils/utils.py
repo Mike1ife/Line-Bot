@@ -198,7 +198,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     )
 
     if len(gameList) == 0:
-        return "明天沒有比賽", None, None, None
+        return "明天沒有比賽", None, None, None, None
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
