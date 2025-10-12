@@ -9,6 +9,7 @@ from datetime import datetime, timezone, timedelta
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 SQL_SELECT_TYPE_POINT = {
+    "day_points": SQL_SELECT_DAY_POINT,
     "week_points": SQL_SELECT_WEEK_POINT,
     "month_points": SQL_SELECT_MONTH_POINT,
     "season_points": SQL_SELECT_SEASON_POINT,
