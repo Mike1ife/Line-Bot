@@ -51,11 +51,15 @@ def get_user_type_best(rankType: str):
 
     userNextPoints = get_type_points(rankType=NEXT_RANK_TYPE[rankType])
     userNextPoints.sort(key=lambda x: x[1], reverse=True)
-    rankMessage = f"{RANK_TYPE_TRANSLATION[NEXT_RANK_TYPE[rankType]]}排行榜:\n"
-    for i, (name, point) in enumerate(userNextPoints, 1):
-        rankMessage += f"{i}. {name}: {point}分\n"
+    rankMessage = (
+        f"{RANK_TYPE_TRANSLATION[NEXT_RANK_TYPE[rankType]]}排行榜:\n"
+        + "\n".join(
+            f"{i}. {name}: {point}分"
+            for i, (name, point) in enumerate(userNextPoints, 1)
+        )
+    )
 
-    return bestMessage, rankMessage
+    return bestMessage, rankMessage[:-1]
 
 
 def get_user_season_correct_count(userName: str, teamName: str):
@@ -124,10 +128,13 @@ def settle_daily_prediction(playoffsLayout: bool):
         userWeekPoints = weekPoints[i][1]
         userPoints.append((userName, userWeekPoints, userDayPoints))
     userPoints.sort(key=lambda x: x[1], reverse=True)
-    
+
     response = "\n".join(
-        [f"{RANK_TYPE_TRANSLATION["week_points"]}排行榜:"]
-        + [f"{i}. {userName}: {userWeekPoints}分 (+{userDayPoints})" for i, (userName, userWeekPoints, userDayPoints) in enumerate(userPoints, 1)]
+        [f"{RANK_TYPE_TRANSLATION['week_points']}排行榜:"]
+        + [
+            f"{i}. {userName}: {userWeekPoints}分 (+{userDayPoints})"
+            for i, (userName, userWeekPoints, userDayPoints) in enumerate(userPoints, 1)
+        ]
     )
     return response
 
