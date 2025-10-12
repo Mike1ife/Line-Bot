@@ -269,26 +269,27 @@ SQL_UPDATE_USER_MATCH_POINT = """
 UPDATE users
 SET
     day_points = users.day_points + result.total_points,
-    week_poitns = user.week_points + result.total_points
+    week_points = users.week_points + result.total_points
 FROM (
     SELECT
-        upm.uid
-        SUM (
+        upm.uid,
+        SUM(
             CASE
-                WHEN upm.predicted_team = match.team1_name THEN match.team1_point
-                ELSE match.team2_point
+                WHEN upm.predicted_team = m.team1_name THEN m.team1_point
+                ELSE m.team2_point
             END
         ) AS total_points
     FROM user_predict_match AS upm
-    INNER JOIN match
-        ON upm.match_id = match.match_id
+    INNER JOIN match AS m
+        ON upm.match_id = m.match_id
     WHERE
         upm.is_correct = TRUE
-        AND match.is_active = TRUE
+        AND m.is_active = TRUE
     GROUP BY upm.uid
 ) AS result
-WHERE users.uid = result.uid
+WHERE users.uid = result.uid;
 """
+
 
 SQL_UPDATE_CORRECT_COUNTER = """
 UPDATE counter
