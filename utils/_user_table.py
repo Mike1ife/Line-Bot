@@ -514,7 +514,11 @@ def _get_daily_game_results(playoffsLayout: bool):
             teamScores.append(int(teamScore))
 
         winner = teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
-        gameResults[(teamName[0], teamName[1])] = (teamScores[0], teamScores[1], winner)
+        gameResults[(teamNames[0], teamNames[1])] = (
+            teamScores[0],
+            teamScores[1],
+            winner,
+        )
     return gameResults
 
 
