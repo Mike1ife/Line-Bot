@@ -234,27 +234,32 @@ WHERE
 SQL_UPDATE_USER_STAT_POINT = """
 UPDATE users
 SET
-    day_points = day_points + CASE
-        WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
-        ELSE psb.under_point
-    END,
-    week_points = week_points + CASE
-        WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
-        ELSE psb.under_point
-    END
-FROM user_predict_stat AS ups
-INNER JOIN match 
-    ON ups.match_id = match.match_id
-INNER JOIN player_stat_bet AS psb 
-    ON 
-        psb.player_name = ups.player_name
+    day_points = users.day_points + result.total_points,
+    week_points = users.week_points + result.total_points
+FROM (
+    SELECT
+        ups.uid,
+        SUM(
+            CASE
+                WHEN ups.predicted_team = '大盤' THEN psb.over_point
+                ELSE psb.under_point
+            END
+        ) AS total_points
+    FROM user_predict_stat AS ups
+    INNER JOIN match
+        ON ups.match_id = match.match_id
+    INNER JOIN player_stat_bet AS psb 
+        ON psb.player_name = ups.player_name
         AND psb.match_id = ups.match_id
         AND psb.stat_type = ups.stat_type
-WHERE
-    users.uid = ups.uid
-    AND ups.is_correct = TRUE
-    AND match.is_active = TRUE;
+    WHERE
+        ups.is_correct = TRUE
+        AND match.is_active = TRUE
+    GROUP BY ups.uid
+) AS result
+WHERE users.uid = result.uid;
 """
+
 
 SQL_UPDATE_USER_PREDICT_MATCH = """
 UPDATE user_predict_match as upm
