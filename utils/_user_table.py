@@ -29,7 +29,7 @@ def user_is_admin(userUID: str):
 def get_type_points(rankType: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_TYPE_POINT[rankType], (rankType,))
+            cur.execute(SQL_SELECT_TYPE_POINT[rankType])
             return cur.fetchall()
 
 
