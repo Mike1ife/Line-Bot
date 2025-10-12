@@ -22,6 +22,14 @@ SQL_SELECT_ALL_TIME_POINT = """
 SELECT name, all_time_points FROM users ORDER BY created_at
 """
 
+SQL_SELECT_TYPE_POINT = {
+    "day_points": SQL_SELECT_DAY_POINT,
+    "week_points": SQL_SELECT_WEEK_POINT,
+    "month_points": SQL_SELECT_MONTH_POINT,
+    "season_points": SQL_SELECT_SEASON_POINT,
+    "all_time_points": SQL_SELECT_ALL_TIME_POINT,
+}
+
 SQL_INSERT_MATCH = """
 INSERT INTO match 
     (game_date, team1_name, team2_name, team1_point, team2_point)
@@ -65,13 +73,63 @@ SQL_SELECT_UID = """
 SELECT uid FROM users WHERE name = %s
 """
 
-SQL_ADD_TYPE_POINT = """
-UPDATE users SET %s = %s + %s WHERE uid = %s
+SQL_ADD_DAY_POINT = """
+UPDATE users SET day_points = day_points + %s WHERE uid = %s
 """
 
-SQL_WRITE_TYPE_POINT = """
-UPDATE users SET %s = %s WHERE uid = %s"
+SQL_WRITE_DAY_POINT = """
+UPDATE users SET day_points = %s WHERE uid = %s
 """
+
+SQL_ADD_WEEK_POINT = """
+UPDATE users SET week_points = week_points + %s WHERE uid = %s
+"""
+
+SQL_WRITE_WEEK_POINT = """
+UPDATE users SET week_points = %s WHERE uid = %s
+"""
+
+SQL_ADD_MONTH_POINT = """
+UPDATE users SET month_points = month_points + %s WHERE uid = %s
+"""
+
+SQL_WRITE_MONTH_POINT = """
+UPDATE users SET month_points = %s WHERE uid = %s
+"""
+
+SQL_ADD_SEASON_POINT = """
+UPDATE users SET season_points = season_points + %s WHERE uid = %s
+"""
+
+SQL_WRITE_SEASON_POINT = """
+UPDATE users SET season_points = %s WHERE uid = %s
+"""
+
+SQL_ADD_ALL_TIME_POINT = """
+UPDATE users SET all_time_points = all_time_points + %s WHERE uid = %s
+"""
+
+SQL_WRITE_ALL_TIME_POINT = """
+UPDATE users SET all_time_points = %s WHERE uid = %s
+"""
+
+SQL_ADD_TYPE_POINT = {
+    "day_points": SQL_ADD_DAY_POINT,
+    "week_points": SQL_ADD_WEEK_POINT,
+    "month_points": SQL_ADD_MONTH_POINT,
+    "season_points": SQL_ADD_SEASON_POINT,
+    "all_time_points": SQL_ADD_ALL_TIME_POINT,
+}
+
+SQL_WRITE_TYPE_POINT = {
+    "day_points": SQL_WRITE_DAY_POINT,
+    "week_points": SQL_WRITE_WEEK_POINT,
+    "month_points": SQL_WRITE_MONTH_POINT,
+    "season_points": SQL_WRITE_SEASON_POINT,
+    "all_time_points": SQL_WRITE_SEASON_POINT,
+}
+
+SQL_UPDATE_TYPE_POINT = {"a": SQL_ADD_TYPE_POINT, "w": SQL_WRITE_TYPE_POINT}
 
 SQL_DEACTIVE_MATCH = """
 UPDATE match

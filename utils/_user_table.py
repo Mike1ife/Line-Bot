@@ -8,13 +8,6 @@ from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from datetime import datetime, timezone, timedelta
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
-SQL_SELECT_TYPE_POINT = {
-    "day_points": SQL_SELECT_DAY_POINT,
-    "week_points": SQL_SELECT_WEEK_POINT,
-    "month_points": SQL_SELECT_MONTH_POINT,
-    "season_points": SQL_SELECT_SEASON_POINT,
-    "all_time_points": SQL_SELECT_ALL_TIME_POINT,
-}
 PREDICTION_INDEX = 38
 
 
@@ -124,17 +117,9 @@ def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dic
                 for rankType, strategy, value in zip(
                     updateRankType, updateStrategy, updateMap[userName]
                 ):
-                    if strategy == "a":
-                        cur.execute(
-                            SQL_ADD_TYPE_POINT,
-                            (rankType, rankType, value, userUID),
-                        )
-                    if strategy == "w":
-                        cur.execute(
-                            SQL_WRITE_TYPE_POINT,
-                            (rankType, value, userUID),
-                        )
-
+                    cur.execute(
+                        SQL_UPDATE_TYPE_POINT[strategy][rankType], (value, userUID)
+                    )
             conn.commit()
 
 
@@ -181,7 +166,7 @@ def _pre_settle_week_points():
     # write dayPoint to week_points
     # add monthPoint to month_points
     update_type_point(
-        updateColumns=["week_points", "month_points"],
+        updateRankType=["week_points", "month_points"],
         updateStrategy=["w", "a"],
         updateMap=updateMap,
     )
