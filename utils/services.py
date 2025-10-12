@@ -17,7 +17,7 @@ def text_message(event: MessageEvent):
         userUID = event.source.user_id
         profile = LINE_BOT_API.get_profile(userUID)
         userName = profile.display_name
-        pictureUrl = profile.pictureUrl
+        pictureUrl = profile.picture_url
     except LineBotApiError:
         LINE_BOT_API.reply_message(
             event.reply_token, TextSendMessage(text="Unknown User")
