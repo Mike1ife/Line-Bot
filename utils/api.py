@@ -9,7 +9,7 @@ def get_all_user_info():
             cur.execute(SELECT_ALL_USER_INFO)
             # [(name1, url1), (name2, url2), ...]
             resultDict = [
-                {"Name": userName, "Picture Url": pictureUrl}
+                {"name": userName, "picture_url": pictureUrl}
                 for userName, pictureUrl in cur.fetchall()
             ]
             return resultDict
