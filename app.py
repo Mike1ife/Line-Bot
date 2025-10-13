@@ -19,7 +19,7 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/all_user_info", method=["GET"])
+@app.route("/api/all_user_info", methods=["GET"])
 def all_user_info():
     response = get_all_user_info()
     return jsonify(response)
