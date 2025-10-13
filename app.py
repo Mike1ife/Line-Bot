@@ -1,4 +1,4 @@
-from flask import Flask, request, abort
+from flask import Flask, jsonify, request, abort
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent,
@@ -7,6 +7,7 @@ from linebot.models import (
 )
 
 from config import HANDLER
+from utils.api import *
 from utils.handlers import handle_message, handle_postback
 
 app = Flask(__name__)
@@ -16,6 +17,12 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return "Hello, World!"
+
+
+@app.route("/api/all_user_info", method=["GET"])
+def all_user_info():
+    response = get_all_user_info()
+    return jsonify(response)
 
 
 @app.route("/api/cron", methods=["GET", "POST"])
