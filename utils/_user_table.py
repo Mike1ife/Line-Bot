@@ -510,6 +510,8 @@ def _get_daily_game_results(playoffsLayout: bool):
 def settle_daily_match_result(playoffsLayout: bool):
     # gameResults[(team1Name, team2Name)]: (team1Score, team2Score, winner)
     gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
+    if not gameResults:
+        raise Exception("Games Not Finished")
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             for team1Name, team2Name in gameResults:
