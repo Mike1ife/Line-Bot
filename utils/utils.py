@@ -112,8 +112,41 @@ def get_prediction_comparison(user1Id: int, user2Id: int):
     return response
 
 
+def _get_daily_game_results(playoffsLayout: bool):
+    data = requests.get("https://www.foxsports.com/nba/scores").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameResults = {}  # (team1Name, team2Name): (team1Score, team2Score, winner)
+    gameContainers = soup.find_all("a", class_="score-chip final")
+    for gameContainer in gameContainers:
+        teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
+        scoresInfo = gameContainer.find_all("div", class_="score-team-score")
+
+        teamNames, teamScores = [], []
+        for teamInfo, scoreInfo in zip(teamsInfo, scoresInfo):
+            teamName = teamInfo.find(
+                "span", class_="scores-text capi pd-b-1 ff-ff"
+            ).text.strip()
+            if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
+                break
+            teamScore = scoreInfo.text.strip()
+            teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
+            teamScores.append(int(teamScore))
+        else:
+            winner = teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
+            gameResults[(teamNames[0], teamNames[1])] = (
+                teamScores[0],
+                teamScores[1],
+                winner,
+            )
+    return gameResults
+
+
 def settle_daily_prediction(playoffsLayout: bool):
     """TODO playoffs layout"""
+    gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
+    if not gameResults:
+        raise Exception("Games Not Finished")
     settle_daily_match_result(playoffsLayout=playoffsLayout)
     settle_daily_stat_result()
 
