@@ -147,7 +147,7 @@ def settle_daily_prediction(playoffsLayout: bool):
     gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
     if not gameResults:
         raise Exception("Games Not Finished")
-    settle_daily_match_result(playoffsLayout=playoffsLayout)
+    settle_daily_match_result(gameResults=gameResults, playoffsLayout=playoffsLayout)
     settle_daily_stat_result()
 
     calculate_daily_stat_point()
