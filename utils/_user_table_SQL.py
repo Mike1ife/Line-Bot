@@ -303,7 +303,7 @@ FROM (
         ups.uid,
         SUM(
             CASE
-                WHEN ups.predicted_team = '大盤' THEN psb.over_point
+                WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
                 ELSE psb.under_point
             END
         ) AS total_points
