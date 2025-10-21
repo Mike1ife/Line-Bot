@@ -48,7 +48,7 @@ WHERE
 SQL_INSERT_PLAYER_STAT_BET = """
 INSERT INTO player_stat_bet
     (player_name, match_id, stat_type, stat_target, over_point, under_point)
-VALUES (%s, %s, %s, %s, %d, %d)
+VALUES (%s, %s, %s, %s, %s, %s)
 """
 
 SQL_INSERT_USER_PREDICT_MATCH = """
