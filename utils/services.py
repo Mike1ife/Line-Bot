@@ -39,7 +39,7 @@ def text_message(event: MessageEvent):
                 gameOfTheDayDate,
                 gameOfTheDayTime,
             ) = get_nba_game_prediction(playoffsLayout=False)
-            print("Got NBA Matches: ", time.time() - start)
+
             if not carouselColumns:
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
@@ -50,7 +50,7 @@ def text_message(event: MessageEvent):
                     gameDate=gameOfTheDayDate,
                     gameTime=gameOfTheDayTime,
                 )
-                print("Got Player Stats: ", time.time() - start)
+
                 respondMessages = [TextSendMessage(text=response)]
                 for i in range(0, len(carouselColumns), 10):
                     carouselTemplate = CarouselTemplate(
