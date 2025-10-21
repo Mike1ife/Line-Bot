@@ -254,7 +254,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
             )
         )
 
-    # insert_match(matchList=matchList)
+    insert_match(matchList=matchList)
     return (
         response,
         carouselColumns,

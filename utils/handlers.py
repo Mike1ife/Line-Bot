@@ -36,6 +36,6 @@ def handle_postback(event: PostbackEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
     if postbackType == "NBA球員預測":
         response = get_player_stat_prediction_postback(
-            userName, userUID, pictureUrl, pictureUrl, *params
+            userName, userUID, pictureUrl, *params
         )
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
