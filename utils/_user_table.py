@@ -264,9 +264,6 @@ def user_exist(userUID: str, userName: str):
 def add_user(userName: str, userUID: str, pictureUrl: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            if user_exist(userUID=userUID, userName=userName):
-                return f"{userName} 已經註冊過了"
-
             cur.execute(SQL_INSERT_USER, (userName, userUID, pictureUrl))
             cur.execute(SQL_INSERT_COUNTER, (userUID,))
 
