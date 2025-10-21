@@ -23,6 +23,9 @@ def text_message(event: MessageEvent):
             event.reply_token, TextSendMessage(text="Unknown User")
         )
 
+    if message == "uid":
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=userUID))
+
     if message == "demo" and user_is_admin(userUID):
         try:
             response, carouselColumns = get_nba_prediction_demo()
@@ -57,21 +60,23 @@ def text_message(event: MessageEvent):
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
                 )
-
-            carouselColumns += get_player_stat_prediction(
-                gamePage=gameOfTheDayPage,
-                gameDate=gameOfTheDayDate,
-                gameTime=gameOfTheDayTime,
-            )
-            respondMessages = [TextSendMessage(text=response)]
-            for i in range(0, len(carouselColumns), 10):
-                carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])
-                templateMessage = TemplateSendMessage(
-                    alt_text="NBA每日預測", template=carouselTemplate
+            else:
+                carouselColumns += get_player_stat_prediction(
+                    gamePage=gameOfTheDayPage,
+                    gameDate=gameOfTheDayDate,
+                    gameTime=gameOfTheDayTime,
                 )
-                respondMessages.append(templateMessage)
+                respondMessages = [TextSendMessage(text=response)]
+                for i in range(0, len(carouselColumns), 10):
+                    carouselTemplate = CarouselTemplate(
+                        columns=carouselColumns[i : i + 10]
+                    )
+                    templateMessage = TemplateSendMessage(
+                        alt_text="NBA每日預測", template=carouselTemplate
+                    )
+                    respondMessages.append(templateMessage)
 
-            LINE_BOT_API.reply_message(event.reply_token, respondMessages)
+                LINE_BOT_API.reply_message(event.reply_token, respondMessages)
         except Exception as err:
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text=str(err))
