@@ -220,7 +220,6 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: st
 
 
 def get_nba_game_prediction(playoffsLayout: bool = False):
-    reset_nba_prediction()
     response = get_user_type_point(rankType="week_points")
 
     matchList = []
@@ -255,7 +254,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
             )
         )
 
-    insert_match(matchList=matchList)
+    # insert_match(matchList=matchList)
     return (
         response,
         carouselColumns,
@@ -457,8 +456,8 @@ def get_player_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
                 )
             )
 
-    if playerStatBetList:  # Only insert if we have player bet
-        insert_player_stat_bet(playerStatBetList=playerStatBetList)
+    # if playerStatBetList:  # Only insert if we have player bet
+    #     insert_player_stat_bet(playerStatBetList=playerStatBetList)
     return carouselColumns
 
 

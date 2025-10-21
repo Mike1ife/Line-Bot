@@ -23,32 +23,15 @@ def text_message(event: MessageEvent):
             event.reply_token, TextSendMessage(text="Unknown User")
         )
 
-    if message == "uid":
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=userUID))
-
-    if message == "demo" and user_is_admin(userUID):
-        try:
-            response, carouselColumns = get_nba_prediction_demo()
-            respondMessages = [TextSendMessage(text=response)]
-            for i in range(0, len(carouselColumns), 10):
-                carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])
-                templateMessage = TemplateSendMessage(
-                    alt_text="NBA每日預測", template=carouselTemplate
-                )
-                respondMessages.append(templateMessage)
-
-            LINE_BOT_API.reply_message(event.reply_token, respondMessages)
-        except Exception as err:
-            LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text=str(err))
-            )
-
     if message == "NBA每日預測":
         if not user_is_admin(userUID):
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
+            import time
+
+            start = time.time()
             (
                 response,
                 carouselColumns,
@@ -56,6 +39,7 @@ def text_message(event: MessageEvent):
                 gameOfTheDayDate,
                 gameOfTheDayTime,
             ) = get_nba_game_prediction(playoffsLayout=False)
+            print("Got NBA Matches: ", time.time() - start)
             if not carouselColumns:
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
@@ -66,6 +50,7 @@ def text_message(event: MessageEvent):
                     gameDate=gameOfTheDayDate,
                     gameTime=gameOfTheDayTime,
                 )
+                print("Got Player Stats: ", time.time() - start)
                 respondMessages = [TextSendMessage(text=response)]
                 for i in range(0, len(carouselColumns), 10):
                     carouselTemplate = CarouselTemplate(
@@ -76,6 +61,7 @@ def text_message(event: MessageEvent):
                     )
                     respondMessages.append(templateMessage)
 
+                print("Ready to Reply: ", time.time() - start)
                 LINE_BOT_API.reply_message(event.reply_token, respondMessages)
         except Exception as err:
             LINE_BOT_API.reply_message(
