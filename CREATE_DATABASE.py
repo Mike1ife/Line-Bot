@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
 
-DATABASE_URL = "postgres://neondb_owner:npg_gbqMJFcOa9n7@ep-quiet-mud-adc9qb96-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL = "your-db-url"
 
 
 def CREATE_USER_TABLE():

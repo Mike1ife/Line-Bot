@@ -29,9 +29,6 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
-            import time
-
-            start = time.time()
             (
                 response,
                 carouselColumns,
@@ -61,7 +58,6 @@ def text_message(event: MessageEvent):
                     )
                     respondMessages.append(templateMessage)
 
-                print("Ready to Reply: ", time.time() - start)
                 LINE_BOT_API.reply_message(event.reply_token, respondMessages)
         except Exception as err:
             LINE_BOT_API.reply_message(

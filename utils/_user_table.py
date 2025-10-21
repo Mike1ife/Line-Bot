@@ -10,57 +10,65 @@ from datetime import datetime, timezone, timedelta
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 PREDICTION_INDEX = 38
 
+_conn = None
+
+
+def _get_connection():
+    global _conn
+    if _conn is None or _conn.closed:
+        _conn = psycopg.connect(DATABASE_URL)
+    return _conn
+
 
 def user_is_admin(userUID: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_USER_IS_ADMIN, (userUID,))
-            result = cur.fetchone()
-            return result[0] if result else False
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_USER_IS_ADMIN, (userUID,))
+        result = cur.fetchone()
+        return result[0] if result else False
 
 
 def get_type_points(rankType: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_TYPE_POINT[rankType])
-            return cur.fetchall()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_TYPE_POINT[rankType])
+        return cur.fetchall()
 
 
 def insert_match(matchList: list):
     # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Point: int, team2Point: int)]
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            for gameDate, team1Name, team2Name, team1Odd, team2Odd in matchList:
-                cur.execute(
-                    SQL_INSERT_MATCH,
-                    (gameDate, team1Name, team2Name, team1Odd, team2Odd),
-                )
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        for gameDate, team1Name, team2Name, team1Odd, team2Odd in matchList:
+            cur.execute(
+                SQL_INSERT_MATCH,
+                (gameDate, team1Name, team2Name, team1Odd, team2Odd),
+            )
+    conn.commit()
 
 
 def insert_player_stat_bet(playerStatBetList: list):
     # playerStatBetList =
     # [(playerName: str, gameDate: str, team1Name: str, team2Name: str statType: str, statTarget: float, overPoint: int, underPoint: int)]
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-
-            for (
-                playerName,
-                gameDate,
-                team1Name,
-                team2Name,
-                statType,
-                statTarget,
-                overPoint,
-                underPoint,
-            ) in playerStatBetList:
-                cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
-                matchID = cur.fetchone()[0]
-                cur.execute(
-                    SQL_INSERT_PLAYER_STAT_BET,
-                    (playerName, matchID, statType, statTarget, overPoint, underPoint),
-                )
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        for (
+            playerName,
+            gameDate,
+            team1Name,
+            team2Name,
+            statType,
+            statTarget,
+            overPoint,
+            underPoint,
+        ) in playerStatBetList:
+            cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+            matchID = cur.fetchone()[0]
+            cur.execute(
+                SQL_INSERT_PLAYER_STAT_BET,
+                (playerName, matchID, statType, statTarget, overPoint, underPoint),
+            )
+    conn.commit()
 
 
 def insert_user_predict_match(
@@ -70,16 +78,16 @@ def insert_user_predict_match(
     team2Name: str,
     gameDate: str,
 ):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
-            matchID = cur.fetchone()[0]
-            cur.execute(
-                SQL_INSERT_USER_PREDICT_MATCH,
-                (userUID, matchID, userPrediction),
-            )
-            returnState = "CONFLICT" if cur.rowcount == 0 else "INSERT"
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+        matchID = cur.fetchone()[0]
+        cur.execute(
+            SQL_INSERT_USER_PREDICT_MATCH,
+            (userUID, matchID, userPrediction),
+        )
+        returnState = "CONFLICT" if cur.rowcount == 0 else "INSERT"
+    conn.commit()
     return returnState
 
 
@@ -92,16 +100,16 @@ def insert_user_predict_stat(
     team2Name: str,
     gameDate: str,
 ):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
-            matchID = cur.fetchone()[0]
-            cur.execute(
-                SQL_INSERT_USER_PREDICT_STAT,
-                (userUID, playerName, matchID, statType, userPrediction),
-            )
-            returnState = "CONFLICT" if cur.rowcount == 0 else "INSERT"
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+        matchID = cur.fetchone()[0]
+        cur.execute(
+            SQL_INSERT_USER_PREDICT_STAT,
+            (userUID, playerName, matchID, statType, userPrediction),
+        )
+        returnState = "CONFLICT" if cur.rowcount == 0 else "INSERT"
+    conn.commit()
     return returnState
 
 
@@ -109,26 +117,24 @@ def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dic
     # updateRankType = [rankType1, rankType1, ...]
     # updateStrategy = [strategy1, strategy2, ...] ('a' / 'w')
     # updateMap[userName] = [value1, value2, ...]
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            for userName in updateMap:
-                cur.execute(SQL_SELECT_UID, (userName,))
-                userUID = cur.fetchone()[0]
-                for rankType, strategy, value in zip(
-                    updateRankType, updateStrategy, updateMap[userName]
-                ):
-                    cur.execute(
-                        SQL_UPDATE_TYPE_POINT[strategy][rankType], (value, userUID)
-                    )
-            conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        for userName in updateMap:
+            cur.execute(SQL_SELECT_UID, (userName,))
+            userUID = cur.fetchone()[0]
+            for rankType, strategy, value in zip(
+                updateRankType, updateStrategy, updateMap[userName]
+            ):
+                cur.execute(SQL_UPDATE_TYPE_POINT[strategy][rankType], (value, userUID))
+    conn.commit()
 
 
 def reset_nba_prediction():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_DEACTIVE_MATCH)
-            cur.execute(SQL_RESET_DAY_POINT)
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_DEACTIVE_MATCH)
+        cur.execute(SQL_RESET_DAY_POINT)
+    conn.commit()
 
 
 def _pre_settle_week_points():
@@ -145,7 +151,7 @@ def _pre_settle_week_points():
         weekPoint = userWeekPoints[i][1]
         userPoints.append([name, dayPoint, weekPoint - dayPoint])
     if all(prevPoint == 0 for _, _, prevPoint in userPoints):
-        print("no week points")
+        # No week point
         return
     # weekPoint = prevPoint + dayPoint
     userPoints.sort(key=lambda x: x[2], reverse=True)
@@ -211,120 +217,120 @@ def get_type_best(rankType: str, nextRankType: str):
 
 
 def get_user_season_correct(userName: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_UID, (userName,))
-            userUID = cur.fetchone()[0]
-            cur.execute(SQL_SELECT_SEASON_CORRECT_COUNTER, (userUID,))
-            correctList = cur.fetchall()
-            teamList, seasonCorrect = zip(*correctList)
-            return teamList, seasonCorrect
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_UID, (userName,))
+        userUID = cur.fetchone()[0]
+        cur.execute(SQL_SELECT_SEASON_CORRECT_COUNTER, (userUID,))
+        correctList = cur.fetchall()
+        teamList, seasonCorrect = zip(*correctList)
+        return teamList, seasonCorrect
 
 
 def get_user_season_wrong(userName: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_UID, (userName,))
-            userUID = cur.fetchone()[0]
-            cur.execute(SQL_SELECT_SEASON_WRONG_COUNTER, (userUID,))
-            wrongList = cur.fetchall()
-            teamList, seasonWrong = zip(*wrongList)
-            return teamList, seasonWrong
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_UID, (userName,))
+        userUID = cur.fetchone()[0]
+        cur.execute(SQL_SELECT_SEASON_WRONG_COUNTER, (userUID,))
+        wrongList = cur.fetchall()
+        teamList, seasonWrong = zip(*wrongList)
+        return teamList, seasonWrong
 
 
 def settle_season_correct_wrong():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT uid FROM users")
-            userUIDList = [row[0] for row in cur.fetchall()]
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT uid FROM users")
+        userUIDList = [row[0] for row in cur.fetchall()]
 
-            correctList = {}
-            wrongList = {}
-            for userUID in userUIDList:
-                cur.execute(SQL_SELECT_SEASON_BOTH_COUNTER, (userUID,))
-                countList = cur.fetchall()
-                for teamName, correctCount, wrongCount in countList:
-                    correctList[teamName] = correctList.get(teamName, 0) + correctCount
-                    wrongList[teamName] = wrongList.get(teamName, 0) + wrongCount
-            cur.execute(SQL_RESET_SEASON_BOTH_COUNTER)
-            conn.commit()
+        correctList = {}
+        wrongList = {}
+        for userUID in userUIDList:
+            cur.execute(SQL_SELECT_SEASON_BOTH_COUNTER, (userUID,))
+            countList = cur.fetchall()
+            for teamName, correctCount, wrongCount in countList:
+                correctList[teamName] = correctList.get(teamName, 0) + correctCount
+                wrongList[teamName] = wrongList.get(teamName, 0) + wrongCount
+        cur.execute(SQL_RESET_SEASON_BOTH_COUNTER)
+        conn.commit()
 
-            mostCorrectTeam = max(correctList, key=correctList.get)
-            mostWrongTeam = max(wrongList, key=wrongList.get)
-            return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
+        mostCorrectTeam = max(correctList, key=correctList.get)
+        mostWrongTeam = max(wrongList, key=wrongList.get)
+        return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
 
 
 def user_exist(userUID: str, userName: str, pictureUrl: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_USER)
-            return (userUID, userName, pictureUrl) in cur.fetchall()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER)
+        return (userUID, userName, pictureUrl) in cur.fetchall()
 
 
 def add_user(userUID: str, userName: str, pictureUrl: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            if user_exist(userUID=userUID, userName=userName, pictureUrl=pictureUrl):
-                return f"{userName} 已經註冊了"
-            cur.execute(SQL_INSERT_USER, (userName, userUID, pictureUrl))
-            cur.execute(SQL_INSERT_COUNTER, (userUID,))
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        if user_exist(userUID=userUID, userName=userName, pictureUrl=pictureUrl):
+            return f"{userName} 已經註冊了"
+        cur.execute(SQL_INSERT_USER, (userName, userUID, pictureUrl))
+        cur.execute(SQL_INSERT_COUNTER, (userUID,))
 
-        conn.commit()
+    conn.commit()
     return f"{userName} 註冊成功"
 
 
 def check_user_prediction(userName: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (userName,))
-            userPredictMatchList = cur.fetchall()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (userName,))
+        userPredictMatchList = cur.fetchall()
 
-            userNotPredictList = []
-            for team1Name, team2Name, userPredictMatch in userPredictMatchList:
-                if not userPredictMatch:
-                    userNotPredictList.append(f"{team1Name} - {team2Name}")
+        userNotPredictList = []
+        for team1Name, team2Name, userPredictMatch in userPredictMatchList:
+            if not userPredictMatch:
+                userNotPredictList.append(f"{team1Name} - {team2Name}")
 
-            cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (userName,))
-            userPredictStatList = cur.fetchall()
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (userName,))
+        userPredictStatList = cur.fetchall()
 
-            for playerName, statType, userPredictStat in userPredictStatList:
-                if not userPredictStat:
-                    userNotPredictList.append(f"{playerName} {statType}")
+        for playerName, statType, userPredictStat in userPredictStatList:
+            if not userPredictStat:
+                userNotPredictList.append(f"{playerName} {statType}")
 
-            if not userNotPredictList:
-                return "已經完成全部預測"
-            if len(userNotPredictList) == len(userPredictMatchList) + len(
-                userPredictStatList
-            ):
-                return "還沒預測任何比賽"
-            return "\n".join(["還沒預測:"] + userNotPredictList)
+        if not userNotPredictList:
+            return "已經完成全部預測"
+        if len(userNotPredictList) == len(userPredictMatchList) + len(
+            userPredictStatList
+        ):
+            return "還沒預測任何比賽"
+        return "\n".join(["還沒預測:"] + userNotPredictList)
 
 
 def get_user_prediction(userId: int):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_USER)
-            userUIDList, userNameList = zip(*cur.fetchall())
-            userIdToName = {id: userName for id, userName in enumerate(userNameList, 1)}
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER)
+        userUIDList, userNameList = zip(*cur.fetchall())
+        userIdToName = {id: userName for id, userName in enumerate(userNameList, 1)}
 
-            if userId not in userIdToName:
-                return "\n".join(
-                    ["使用方式:", "跟盤 id"]
-                    + [f"{id}. {userName}" for id, userName in userIdToName.items()]
-                )
+        if userId not in userIdToName:
+            return "\n".join(
+                ["使用方式:", "跟盤 id"]
+                + [f"{id}. {userName}" for id, userName in userIdToName.items()]
+            )
 
-            userUID = userUIDList[userId - 1]
+        userUID = userUIDList[userId - 1]
 
-            cur.execute(SQL_SELECT_USER_PREDICT_MATCH2, (userUID,))
-            predictTeamList = [row[0] for row in cur.fetchall()]
+        cur.execute(SQL_SELECT_USER_PREDICT_MATCH2, (userUID,))
+        predictTeamList = [row[0] for row in cur.fetchall()]
 
-            cur.execute(SQL_SELECT_USER_PREDICT_STAT2, (userUID,))
-            predictStatList = [" ".join(row) for row in cur.fetchall()]
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT2, (userUID,))
+        predictStatList = [" ".join(row) for row in cur.fetchall()]
 
-            predictList = predictTeamList + predictStatList
-            if len(predictList) == 0:
-                return f"{userIdToName[userId]}還沒預測任何比賽"
-            return "\n".join([f"{userIdToName[userId]}預測的球隊:"] + predictList)
+        predictList = predictTeamList + predictStatList
+        if len(predictList) == 0:
+            return f"{userIdToName[userId]}還沒預測任何比賽"
+        return "\n".join([f"{userIdToName[userId]}預測的球隊:"] + predictList)
 
 
 def _remove_common_prefix(s1: str, s2: str):
@@ -351,81 +357,79 @@ def _remove_common_prefix(s1: str, s2: str):
 
 
 def compare_user_prediction(user1Id: int, user2Id: int):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_USER)
-            _, userNameList = zip(*cur.fetchall())
-            userIdToName = {id: userName for id, userName in enumerate(userNameList, 1)}
-            if (
-                user1Id not in userIdToName
-                or user2Id not in userIdToName
-                or user1Id == user2Id
-            ):
-                return "\n".join(
-                    ["使用方式:", "比較 id id"]
-                    + [f"{id}. {userName}" for id, userName in userIdToName.items()]
-                )
-
-            user1Name = userNameList[user1Id - 1]
-            user2Name = userNameList[user2Id - 1]
-
-            cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user1Name,))
-            user1PredictMatchList = cur.fetchall()
-            cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user2Name,))
-            user2PredictMatchList = cur.fetchall()
-
-            isTheSame = True
-            hasPredict = False
-            compareResult = []
-            for i in range(len(user1PredictMatchList)):
-                user1PredictMatch = user1PredictMatchList[i][2]
-                user2PredictMatch = user2PredictMatchList[i][2]
-                if not user1PredictMatch and not user2PredictMatch:
-                    continue
-                hasPredict = True
-                if user1PredictMatch == user2PredictMatch:
-                    compareResult.append(user2PredictMatch)
-                else:
-                    isTheSame = False
-                    compareResult.append(
-                        _remove_common_prefix(user1PredictMatch, user2PredictMatch)
-                    )
-
-            cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user1Name,))
-            user1PredictStatList = cur.fetchall()
-            cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user2Name,))
-            user2PredictStatList = cur.fetchall()
-
-            for i in range(len(user1PredictStatList)):
-                user1PredictStat = (
-                    " ".join(user1PredictStatList[i])
-                    if user1PredictStatList[i][2]
-                    else ""
-                )
-                user2PredictStat = (
-                    " ".join(user2PredictStatList[i])
-                    if user2PredictStatList[i][2]
-                    else ""
-                )
-                if not user1PredictStat and not user2PredictStat:
-                    continue
-                hasPredict = True
-                if user1PredictStat == user2PredictStat:
-                    compareResult.append(user1PredictStat)
-                else:
-                    isTheSame = False
-                    compareResult.append(
-                        _remove_common_prefix(user1PredictStat, user2PredictStat)
-                    )
-
-            if not hasPredict:
-                return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 都還沒預測任何比賽"
-            if isTheSame:
-                return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的預測相同"
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER)
+        _, userNameList = zip(*cur.fetchall())
+        userIdToName = {id: userName for id, userName in enumerate(userNameList, 1)}
+        if (
+            user1Id not in userIdToName
+            or user2Id not in userIdToName
+            or user1Id == user2Id
+        ):
             return "\n".join(
-                [f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的不同預測:"]
-                + compareResult
+                ["使用方式:", "比較 id id"]
+                + [f"{id}. {userName}" for id, userName in userIdToName.items()]
             )
+
+        user1Name = userNameList[user1Id - 1]
+        user2Name = userNameList[user2Id - 1]
+
+        cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user1Name,))
+        user1PredictMatchList = cur.fetchall()
+        cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user2Name,))
+        user2PredictMatchList = cur.fetchall()
+
+        isTheSame = True
+        hasPredict = False
+        compareResult = []
+        for i in range(len(user1PredictMatchList)):
+            user1PredictMatch = user1PredictMatchList[i][2]
+            user2PredictMatch = user2PredictMatchList[i][2]
+            if not user1PredictMatch and not user2PredictMatch:
+                continue
+            hasPredict = True
+            if user1PredictMatch == user2PredictMatch:
+                compareResult.append(user2PredictMatch)
+            else:
+                isTheSame = False
+                compareResult.append(
+                    _remove_common_prefix(user1PredictMatch, user2PredictMatch)
+                )
+
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user1Name,))
+        user1PredictStatList = cur.fetchall()
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user2Name,))
+        user2PredictStatList = cur.fetchall()
+
+        for i in range(len(user1PredictStatList)):
+            user1PredictStat = (
+                " ".join(user1PredictStatList[i]) if user1PredictStatList[i][2] else ""
+            )
+            user2PredictStat = (
+                " ".join(user2PredictStatList[i]) if user2PredictStatList[i][2] else ""
+            )
+            if not user1PredictStat and not user2PredictStat:
+                continue
+            hasPredict = True
+            if user1PredictStat == user2PredictStat:
+                compareResult.append(user1PredictStat)
+            else:
+                isTheSame = False
+                compareResult.append(
+                    _remove_common_prefix(user1PredictStat, user2PredictStat)
+                )
+
+        if not hasPredict:
+            return (
+                f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 都還沒預測任何比賽"
+            )
+        if isTheSame:
+            return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的預測相同"
+        return "\n".join(
+            [f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的不同預測:"]
+            + compareResult
+        )
 
 
 def _get_stat_result(playerName: str, statType: str):
@@ -452,87 +456,85 @@ def _has_play_today(gameDate: str):
     month, day = gameDate.split("/")
     gameDateStr = f"{nowTW}-{month}-{day}"
     gameDateStr = "{}-{:0>2}-{:0>2}".format(nowTW.year, int(month), int(day))
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT is_active FROM match WHERE game_date = %s", (gameDateStr,)
-            )
-            isActiveList = cur.fetchone()
-        return isActiveList[0] if isActiveList else False
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT is_active FROM match WHERE game_date = %s", (gameDateStr,))
+        isActiveList = cur.fetchone()
+    return isActiveList[0] if isActiveList else False
 
 
 def settle_daily_stat_result():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_PLAYER_STAT_BET)
-            playerStatBetList = cur.fetchall()
-            for matchId, playerName, statType in playerStatBetList:
-                statResult, gameDate = _get_stat_result(
-                    playerName=playerName, statType=statType
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_PLAYER_STAT_BET)
+        playerStatBetList = cur.fetchall()
+        for matchId, playerName, statType in playerStatBetList:
+            statResult, gameDate = _get_stat_result(
+                playerName=playerName, statType=statType
+            )
+            if _has_play_today(gameDate=gameDate):
+                cur.execute(
+                    SQL_UPDATE_PLAYER_STAT_BET,
+                    (statResult, playerName, matchId, statType),
                 )
-                if _has_play_today(gameDate=gameDate):
-                    cur.execute(
-                        SQL_UPDATE_PLAYER_STAT_BET,
-                        (statResult, playerName, matchId, statType),
-                    )
-        conn.commit()
+    conn.commit()
 
 
 def settle_daily_match_result(gameResults: dict, playoffsLayout: bool):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            for team1Name, team2Name in gameResults:
-                team1Score, team2Score, winner = gameResults[(team1Name, team2Name)]
-                cur.execute(
-                    SQL_UPDATE_MATCH_RESULT,
-                    (
-                        team1Name,
-                        team1Score,
-                        team2Score,
-                        team2Name,
-                        team2Score,
-                        team1Score,
-                        winner,
-                        team1Name,
-                        team2Name,
-                        team2Name,
-                        team1Name,
-                    ),
-                )
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        for team1Name, team2Name in gameResults:
+            team1Score, team2Score, winner = gameResults[(team1Name, team2Name)]
+            cur.execute(
+                SQL_UPDATE_MATCH_RESULT,
+                (
+                    team1Name,
+                    team1Score,
+                    team2Score,
+                    team2Name,
+                    team2Score,
+                    team1Score,
+                    winner,
+                    team1Name,
+                    team2Name,
+                    team2Name,
+                    team1Name,
+                ),
+            )
+    conn.commit()
 
 
 def calculate_daily_stat_point():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_USER_PREDICT_STAT3)
-            userPredictStatList = cur.fetchall()
-            for (
-                userUID,
-                playerName,
-                matchId,
-                statType,
-                statTarget,
-                statResult,
-            ) in userPredictStatList:
-                finalOutcome = "大盤" if statResult >= statTarget else "小盤"
-                cur.execute(
-                    SQL_UPDATE_USER_PREDICT_STAT,
-                    (finalOutcome, userUID, playerName, matchId, statType),
-                )
-            cur.execute(SQL_UPDATE_USER_STAT_POINT)
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT3)
+        userPredictStatList = cur.fetchall()
+        for (
+            userUID,
+            playerName,
+            matchId,
+            statType,
+            statTarget,
+            statResult,
+        ) in userPredictStatList:
+            finalOutcome = "大盤" if statResult >= statTarget else "小盤"
+            cur.execute(
+                SQL_UPDATE_USER_PREDICT_STAT,
+                (finalOutcome, userUID, playerName, matchId, statType),
+            )
+        cur.execute(SQL_UPDATE_USER_STAT_POINT)
+    conn.commit()
 
 
 def calculate_daily_match_point():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_UPDATE_USER_PREDICT_MATCH)
-            cur.execute(SQL_UPDATE_USER_MATCH_POINT)
-            cur.execute(SQL_UPDATE_CORRECT_COUNTER)
-            cur.execute(SQL_UPDATE_WRONG_COUNTER)
-            cur.execute(SQL_DEACTIVE_MATCH)
-        conn.commit()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_UPDATE_USER_PREDICT_MATCH)
+        cur.execute(SQL_UPDATE_USER_MATCH_POINT)
+        cur.execute(SQL_UPDATE_CORRECT_COUNTER)
+        cur.execute(SQL_UPDATE_WRONG_COUNTER)
+        cur.execute(SQL_DEACTIVE_MATCH)
+    conn.commit()
 
 
 def _get_regular_game(gameInfo: BeautifulSoup):
@@ -705,14 +707,14 @@ def get_nba_games(playoffsLayout: bool):
 
 
 def get_player_url(playerName: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_PLAYER_LINK, (playerName,))
-            return cur.fetchone()[0]
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_PLAYER_LINK, (playerName,))
+        return cur.fetchone()[0]
 
 
 def get_image_url(imgKey: str):
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute(SQL_SELECT_IMAGE_LINK, (imgKey,))
-            return cur.fetchall()
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_IMAGE_LINK, (imgKey,))
+        return cur.fetchall()
