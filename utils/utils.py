@@ -369,7 +369,6 @@ def _pack_stat_carousel_column(
     tomorrowStr: str,
     gameTime: str,
 ):
-    betTitleCN = BET_STAT_TRANSLATION[statType]
     team1Name, team2Name = gameTitle.split(" @ ")
     # title = Anthony Edwards
     # text = 場均得分 28.0\n7:00 國王 @ 灰狼\n大盤 (得分超過 26.5) 4分 / 小盤 (得分低於 26.5) 6分
@@ -378,7 +377,7 @@ def _pack_stat_carousel_column(
     carouselColumn = CarouselColumn(
         thumbnail_image_url=imgSrc,
         title=playerName,
-        text=f"場均{betTitleCN} {statAvg}\n{gameTime} {gameTitle}\n大盤 ({betTitleCN}超過{statTarget}) {overPoint}分\n小盤 ({betTitleCN}低於{statTarget}) {underPoint}分",
+        text=f"場均{statType} {statAvg}\n{gameTime} {gameTitle}\n大盤 ({statType}超過{statTarget}) {overPoint}分\n小盤 ({statType}低於{statTarget}) {underPoint}分",
         actions=[
             PostbackAction(
                 label="大盤",
