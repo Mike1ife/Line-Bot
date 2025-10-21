@@ -177,7 +177,7 @@ ON CONFLICT (uid)
 DO UPDATE
 SET
     name = EXCLUDED.name,
-    picture_url = EXCLUDED.picture_url;
+    picture_url = EXCLUDED.picture_url
 """
 
 
@@ -265,7 +265,7 @@ WHERE
     AND (
         (team1_name = %s AND team2_name = %s)
         OR (team1_name = %s AND team2_name = %s)
-    );
+    )
 """
 
 SQL_SELECT_USER_PREDICT_STAT3 = """
@@ -319,7 +319,7 @@ FROM (
         AND match.is_active = TRUE
     GROUP BY ups.uid
 ) AS result
-WHERE users.uid = result.uid;
+WHERE users.uid = result.uid
 """
 
 
@@ -354,7 +354,7 @@ FROM (
         AND m.is_active = TRUE
     GROUP BY upm.uid
 ) AS result
-WHERE users.uid = result.uid;
+WHERE users.uid = result.uid
 """
 
 

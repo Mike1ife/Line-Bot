@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
 
-DATABASE_URL = "your_db_url"
+DATABASE_URL = "postgres://neondb_owner:npg_gbqMJFcOa9n7@ep-quiet-mud-adc9qb96-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 
 def CREATE_USER_TABLE():
@@ -32,7 +32,9 @@ def CREATE_TEAM_TABLE():
         with conn.cursor() as cur:
             SQL = """
             CREATE TABLE IF NOT EXISTS team (
-                team_name TEXT PRIMARY KEY
+                team_name TEXT PRIMARY KEY,
+                team_url TEXT,
+                team_logo TEXT
             );
             """
             cur.execute(SQL)
@@ -77,17 +79,13 @@ def CREATE_MATCH_TABLE():
                 team1_point INTEGER DEFAULT 30,
                 team2_point INTEGER DEFAULT 30,
                 is_active BOOLEAN DEFAULT TRUE,
-                winner TEXT,
                 CONSTRAINT date_teams_unique UNIQUE (game_date, team1_name, team2_name),
                 CONSTRAINT match_team1_fk FOREIGN KEY (team1_name)
                     REFERENCES team(team_name)
                     ON DELETE CASCADE,
                 CONSTRAINT match_team2_fk FOREIGN KEY (team2_name)
                     REFERENCES team(team_name)
-                    ON DELETE CASCADE,
-                CONSTRAINT match_winner_fk FOREIGN KEY (winner)
-                    REFERENCES team(team_name)
-                    ON DELETE SET NULL
+                    ON DELETE CASCADE
             );
             """
             cur.execute(SQL)
@@ -125,7 +123,8 @@ def CREATE_PLAYER_TABLE():
             SQL = """
             CREATE TABLE IF NOT EXISTS player (
                 player_name TEXT PRIMARY KEY,
-                player_page_url TEXT
+                player_page_url TEXT,
+                player_image TEXT
             );
             """
             cur.execute(SQL)
@@ -196,7 +195,7 @@ def DROP_DATABASE():
 
 
 def INSERT_PLAYER():
-    output = {}
+    output = []
     response = requests.get("https://www.foxsports.com/nba/teams")
     soup = BeautifulSoup(response.text, "html.parser")
     teams = soup.find("div", class_="entity-list-group")
@@ -215,42 +214,53 @@ def INSERT_PLAYER():
                 playerPageUrl = (
                     f"https://www.foxsports.com{playerInfo.find('a').get('href')}"
                 )
+                playerImage = playerInfo.find("img")["src"]
                 playerName = playerInfo.find("h3").text.strip()
                 print(playerName)
-                output[playerName] = playerPageUrl
+                output.append((playerName, playerPageUrl, playerImage))
 
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            for playerName, playerPageUrl in output.items():
+            for playerName, playerPageUrl, playerImage in output:
                 SQL = """
-                INSERT INTO player (player_name, player_page_url)
-                VALUES (%s, %s)
+                INSERT INTO player (player_name, player_page_url, player_image)
+                VALUES (%s, %s, %s)
                 ON CONFLICT (player_name)
-                DO UPDATE SET player_page_url = EXCLUDED.player_page_url
+                DO UPDATE SET
+                    player_page_url = EXCLUDED.player_page_url,
+                    player_image = EXCLUDED.player_image;
                 """
-                cur.execute(SQL, (playerName, playerPageUrl))
+                cur.execute(SQL, (playerName, playerPageUrl, playerImage))
         conn.commit()
 
 
 def INSERT_NBA_TEAM():
+    response = requests.get("https://www.foxsports.com/nba/teams")
+    soup = BeautifulSoup(response.text, "html.parser")
+    teamContainer = soup.find_all("a", class_="entity-list-row-container image-logo")
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            for teamName in NBA_ABBR_ENG_TO_ABBR_CN.values():
+            for teamName, teamSoup in zip(
+                NBA_ABBR_ENG_TO_ABBR_CN.values(), teamContainer
+            ):
+                teamUrl = "https://www.foxsports.com" + teamSoup["href"]
+                teamLogo = teamSoup.find("img", class_="image-logo")["src"]
+                print(teamLogo)
                 cur.execute(
-                    "INSERT INTO team (team_name) VALUES (%s) ON CONFLICT (team_name) DO NOTHING;",
-                    (teamName,),
+                    "INSERT INTO team (team_name, team_url, team_logo) VALUES (%s, %s, %s) ON CONFLICT (team_name) DO NOTHING;",
+                    (teamName, teamUrl, teamLogo),
                 )
             conn.commit()
 
 
-DROP_DATABASE()
-CREATE_USER_TABLE()
-CREATE_TEAM_TABLE()
-CREATE_COUNTER_TABLE()
-CREATE_MATCH_TABLE()
-CREATE_USER_PREDICT_MATCH_TABLE()
-CREATE_PLAYER_TABLE()
-CREATE_PLAYER_STAT_BET_TABLE()
-CREATE_USER_PREDICT_STAT_TABLE()
-INSERT_NBA_TEAM()
-INSERT_PLAYER()
+# DROP_DATABASE()
+# CREATE_USER_TABLE()
+# CREATE_TEAM_TABLE()
+# CREATE_COUNTER_TABLE()
+# CREATE_MATCH_TABLE()
+# CREATE_USER_PREDICT_MATCH_TABLE()
+# CREATE_PLAYER_TABLE()
+# CREATE_PLAYER_STAT_BET_TABLE()
+# CREATE_USER_PREDICT_STAT_TABLE()
+# INSERT_NBA_TEAM()
+# INSERT_PLAYER()
