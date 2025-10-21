@@ -254,16 +254,18 @@ def settle_season_correct_wrong():
             return f"{mostCorrectTeam}是信仰的GOAT\n{mostWrongTeam}是傻鳥的GOAT"
 
 
-def user_exist(userUID: str, userName: str):
+def user_exist(userUID: str, userName: str, pictureUrl: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute(SQL_SELECT_USER)
-            return (userUID, userName) in cur.fetchall()
+            return (userUID, userName, pictureUrl) in cur.fetchall()
 
 
-def add_user(userName: str, userUID: str, pictureUrl: str):
+def add_user(userUID: str, userName: str, pictureUrl: str):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
+            if user_exist(userUID=userUID, userName=userName, pictureUrl=pictureUrl):
+                return f"{userName} 已經註冊了"
             cur.execute(SQL_INSERT_USER, (userName, userUID, pictureUrl))
             cur.execute(SQL_INSERT_COUNTER, (userUID,))
 

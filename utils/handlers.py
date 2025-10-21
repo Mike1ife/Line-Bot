@@ -19,6 +19,7 @@ def handle_postback(event: PostbackEvent):
         userUID = event.source.user_id
         profile = LINE_BOT_API.get_profile(userUID)
         userName = profile.display_name
+        pictureUrl = profile.picture_url
     except LineBotApiError:
         LINE_BOT_API.reply_message(
             event.reply_token, TextSendMessage(text="Unknown User")
@@ -31,8 +32,10 @@ def handle_postback(event: PostbackEvent):
     # NBA球員預測: playerName, team1Name, team2Name statType, statTarget, userPrediction(大盤/小盤), gameDate, gameTime
     # [Anthony Edwards, 國王, 灰狼, 得分, 26.5, 大盤, 2025-03-18, 11:00]
     if postbackType == "NBA球隊預測":
-        response = get_nba_prediction_posback(userName, userUID, *params)
+        response = get_nba_prediction_posback(userName, userUID, pictureUrl, *params)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
     if postbackType == "NBA球員預測":
-        response = get_player_stat_prediction_postback(userName, userUID, *params)
+        response = get_player_stat_prediction_postback(
+            userName, userUID, pictureUrl, pictureUrl, *params
+        )
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))

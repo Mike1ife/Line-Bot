@@ -93,8 +93,8 @@ def get_season_most_correct_and_wrong():
     return response()
 
 
-def user_registration(userName: str, userUID: str, pictureUrl: str):
-    response = add_user(userName=userName, userUID=userUID, pictureUrl=pictureUrl)
+def user_registration(userUID: str, userName: str, pictureUrl: str):
+    response = add_user(userUID=userUID, userName=userName, pictureUrl=pictureUrl)
     return response
 
 
@@ -274,13 +274,14 @@ def _compare_timestring(timeStr1: str, timeStr2: str):
 def get_nba_prediction_posback(
     userName: str,
     userUID: str,
+    pictureUrl: str,
     team1Name: str,
     team2Name: str,
     userPrediction: str,
     gameDate: str,
     gameTime: str,
 ):
-    if not user_exist(userName=userName, userUID=userUID):
+    if not user_exist(userName=userName, userUID=userUID, pictureUrl=pictureUrl):
         return f"{userName} 請先註冊"
 
     nowUTC = datetime.now(timezone.utc)
@@ -464,6 +465,7 @@ def get_player_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
 def get_player_stat_prediction_postback(
     userName: str,
     userUID: str,
+    pictureUrl: str,
     playerName: str,
     team1Name: str,
     team2Name: str,
@@ -473,7 +475,7 @@ def get_player_stat_prediction_postback(
     gameDate: str,
     gameTime: str,
 ):
-    if not user_exist(userName=userName, userUID=userUID):
+    if not user_exist(userName=userName, userUID=userUID, pictureUrl=pictureUrl):
         return f"{userName} 請先註冊"
 
     nowUTC = datetime.now(timezone.utc)

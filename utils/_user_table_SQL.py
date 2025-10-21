@@ -167,7 +167,7 @@ SET season_correct_count = 0, season_wrong_count = 0
 """
 
 SQL_SELECT_USER = """
-SELECT uid, name FROM users ORDER BY created_at
+SELECT uid, name, picture_url FROM users ORDER BY created_at
 """
 
 SQL_INSERT_USER = """

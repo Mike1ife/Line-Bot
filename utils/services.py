@@ -151,7 +151,7 @@ def text_message(event: MessageEvent):
 
     if message == "註冊":
         response = user_registration(
-            userName=userName, userUID=userUID, pictureUrl=pictureUrl
+            userUID=userUID, userName=userName, pictureUrl=pictureUrl
         )
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
