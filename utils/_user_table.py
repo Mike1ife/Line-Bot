@@ -263,7 +263,7 @@ def settle_season_correct_wrong():
 def user_exist(userUID: str, userName: str, pictureUrl: str):
     conn = _get_connection()
     with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_USER)
+        cur.execute(SQL_SELECT_USER_WITH_PICTURE)
         return (userUID, userName, pictureUrl) in cur.fetchall()
 
 
