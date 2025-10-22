@@ -41,8 +41,11 @@ SELECT match_id
 FROM match
 WHERE 
     game_date = %s 
-    AND team1_name = %s 
-    AND team2_name = %s
+    AND (
+        (team1_name = %s AND team2_name = %s)
+        OR
+        (team2_name = %s AND team1_name = %s)
+    )
 """
 
 SQL_INSERT_PLAYER_STAT_BET = """

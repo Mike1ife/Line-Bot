@@ -4,3 +4,5 @@ output.txt
 test.py
 html_parser.py
 build_table.py
+utils_test.py
+table_test.py
