@@ -13,6 +13,7 @@ from utils.utils import *
 
 
 def process_nba_prediction(event: MessageEvent):
+    LINE_BOT_API.push_message(event.source.group_id, TextSendMessage(text="123"))
     try:
         (
             matchList,
