@@ -30,24 +30,28 @@ def text_message(event: MessageEvent):
             )
         try:
             (
+                matchList,
                 response,
-                carouselColumns,
+                matchColumns,
                 gameOfTheDayPage,
                 gameOfTheDayDate,
                 gameOfTheDayTime,
             ) = get_nba_game_prediction(playoffsLayout=False)
 
-            if not carouselColumns:
+            if not matchColumns:
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
                 )
             else:
-                carouselColumns += get_player_stat_prediction(
+                statColumns, playerStatBetList = get_player_stat_prediction(
                     gamePage=gameOfTheDayPage,
                     gameDate=gameOfTheDayDate,
                     gameTime=gameOfTheDayTime,
                 )
-
+                insert_nba_totay(
+                    matchList=matchList, playerStatBetList=playerStatBetList
+                )
+                carouselColumns = matchColumns + statColumns
                 respondMessages = [TextSendMessage(text=response)]
                 for i in range(0, len(carouselColumns), 10):
                     carouselTemplate = CarouselTemplate(

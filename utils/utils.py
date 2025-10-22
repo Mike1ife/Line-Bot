@@ -249,8 +249,8 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
             )
         )
 
-    insert_match(matchList=matchList)
     return (
+        matchList,
         response,
         carouselColumns,
         gameOfTheDayPage,
@@ -450,9 +450,7 @@ def get_player_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
                 )
             )
 
-    if playerStatBetList:  # Only insert if we have player bet
-        insert_player_stat_bet(playerStatBetList=playerStatBetList)
-    return carouselColumns
+    return carouselColumns, playerStatBetList
 
 
 def get_player_stat_prediction_postback(
@@ -495,6 +493,12 @@ def get_player_stat_prediction_postback(
         return f"{userName}預測{playerName}{statType}超過{statTarget}"
     if userPrediction == "小盤":
         return f"{userName}預測{playerName}{statType}低於{statTarget}"
+
+
+def insert_nba_totay(matchList: list, playerStatBetList: list):
+    insert_match(matchList=matchList)
+    if playerStatBetList:
+        insert_player_stat_bet(playerStatBetList=playerStatBetList)
 
 
 def get_nba_guessing():
