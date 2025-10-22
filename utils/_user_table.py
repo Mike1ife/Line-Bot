@@ -434,7 +434,7 @@ def compare_user_prediction(user1Id: int, user2Id: int):
 
 def _get_stat_result(playerName: str, statType: str):
     playerUrl = get_player_url(playerName=playerName)
-    playerStatsPageUrl = playerUrl + "-stats"
+    playerStatsPageUrl = playerUrl + "-game-log"
 
     playerStatsPageData = requests.get(playerStatsPageUrl).text
     playerStatsPageSoup = BeautifulSoup(playerStatsPageData, "html.parser")
@@ -477,6 +477,8 @@ def settle_daily_stat_result():
                     SQL_UPDATE_PLAYER_STAT_BET,
                     (statResult, playerName, matchId, statType),
                 )
+            else:
+                raise ValueError
     conn.commit()
 
 
