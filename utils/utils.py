@@ -133,12 +133,7 @@ def _get_daily_game_results(playoffsLayout: bool):
             teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
             teamScores.append(int(teamScore))
         else:
-            winner = teamNames[0] if teamScores[0] > teamScores[1] else teamNames[1]
-            gameResults[(teamNames[0], teamNames[1])] = (
-                teamScores[0],
-                teamScores[1],
-                winner,
-            )
+            gameResults[(teamNames[0], teamNames[1])] = (teamScores[0], teamScores[1])
     return gameResults
 
 

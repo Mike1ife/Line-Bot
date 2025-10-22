@@ -484,7 +484,7 @@ def settle_daily_match_result(gameResults: dict, playoffsLayout: bool):
     conn = _get_connection()
     with conn.cursor() as cur:
         for team1Name, team2Name in gameResults:
-            team1Score, team2Score, winner = gameResults[(team1Name, team2Name)]
+            team1Score, team2Score = gameResults[(team1Name, team2Name)]
             cur.execute(
                 SQL_UPDATE_MATCH_RESULT,
                 (
@@ -494,7 +494,6 @@ def settle_daily_match_result(gameResults: dict, playoffsLayout: bool):
                     team2Name,
                     team2Score,
                     team1Score,
-                    winner,
                     team1Name,
                     team2Name,
                     team2Name,

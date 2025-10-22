@@ -262,8 +262,7 @@ SET
     team2_score = CASE
         WHEN team2_name = %s THEN %s
         ELSE %s
-    END,
-    winner = %s
+    END
 WHERE 
     is_active = TRUE
     AND (
@@ -328,13 +327,21 @@ WHERE users.uid = result.uid
 
 
 SQL_UPDATE_USER_PREDICT_MATCH = """
-UPDATE user_predict_match as upm
-SET is_correct = (predicted_team = winner)
+UPDATE user_predict_match AS upm
+SET is_correct = (
+    upm.predicted_team = 
+    CASE
+        WHEN match.team1_score > match.team2_score THEN match.team1_name
+        WHEN match.team2_score > match.team1_score THEN match.team2_name
+        ELSE NULL
+    END
+)
 FROM match
 WHERE
-    upm.match_id = match.match_id 
-    AND is_active = TRUE
+    upm.match_id = match.match_id
+    AND match.is_active = TRUE;
 """
+
 
 SQL_UPDATE_USER_MATCH_POINT = """
 UPDATE users
