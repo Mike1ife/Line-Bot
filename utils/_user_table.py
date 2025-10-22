@@ -2,10 +2,13 @@ import re
 import requests
 import psycopg
 from bs4 import BeautifulSoup
+from datetime import datetime, timezone, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from config import DATABASE_URL
 from utils._user_table_SQL import *
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
-from datetime import datetime, timezone, timedelta
+
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 PREDICTION_INDEX = 38
@@ -626,71 +629,106 @@ def _get_nba_games_time_list(timeStr: str):
 def get_nba_games(playoffsLayout: bool):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    year = str(nowTW.year)
-    month = str(nowTW.month) if nowTW.month >= 10 else "0" + str(nowTW.month)
-    day = str(nowTW.day) if nowTW.day >= 10 else "0" + str(nowTW.day)
-    todayStr = "-".join([year, month, day])
+    todayStr = nowTW.strftime("%Y-%m-%d")
 
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
+    # use a persistent session for connection pooling
+    session = requests.Session()
+    session.headers.update({"User-Agent": "Mozilla/5.0"})
+
+    # get today's score page
+    data = session.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
     soup = BeautifulSoup(data, "html.parser")
 
+    # 1️⃣ check if games are already finished
     finalScores = soup.find_all("div", class_="score-team-score")
-
     if len(finalScores) > 0:
-        return [], None, None  # Games already finished -> Previous games (Not today)
+        return [], None, None  # Games already finished
 
+    # 2️⃣ check if no games today
     urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if todayStr not in re.findall(urlPattern, data):
-        return (
-            [],
-            None,
-            None,
-        )  # No game page for this date -> No games today
+        return [], None, None  # No game page for this date
 
+    # 3️⃣ prepare tomorrow's schedule (for gametimes)
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
     gameTimeList = _get_nba_games_time_list(tomorrowStr)
 
+    # 4️⃣ find all pregame entries
     gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
     gamesInfo = soup.find_all("a", class_=gameClass)
-    gameList = []
 
-    # Get the game page and game time of the most intensive game
+    # Build list of URLs to fetch
+    game_urls = ["https://www.foxsports.com" + g.attrs["href"] for g in gamesInfo]
+
+    # 5️⃣ parallel fetch all game pages
+    def fetch_page(url):
+        resp = session.get(url)
+        resp.raise_for_status()
+        return url, resp.text
+
+    pages = {}
+    with ThreadPoolExecutor(max_workers=min(8, len(game_urls))) as executor:
+        futures = [executor.submit(fetch_page, url) for url in game_urls]
+        for future in as_completed(futures):
+            url, data = future.result()
+            pages[url] = data
+
+    # 6️⃣ process results
+    gameList = []
     gameOfTheDay = {"diff": 30, "page": "", "index": -1, "gameTime": ""}
 
     for i, (gameInfo, gameTimeTW) in enumerate(zip(gamesInfo, gameTimeList)):
         gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
-        gamePageData = requests.get(gamePageUrl).text
-        gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
+        gamePageData = pages.get(gamePageUrl)
+        if not gamePageData:
+            continue
 
+        gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
         oddContainer = gamePageSoup.find("div", class_="odds-row-container")
+        if not oddContainer:
+            continue
+
         gameOdds = oddContainer.find_all(
             "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
         )
+        if len(gameOdds) < 2:
+            continue
 
+        # Parse game info
         if playoffsLayout:
-            game = _get_playoffs_game(gameInfo=gameInfo)
+            game = _get_playoffs_game(gameInfo)
         else:
-            game = _get_regular_game(gameInfo=gameInfo)
-
+            game = _get_regular_game(gameInfo)
         if not game:
             continue
 
+        # Add points and time
         game["points"] = [
             int(round(30 + float(gameOdds[0].text.strip()))),
             int(round(30 + float(gameOdds[1].text.strip()))),
         ]
         game["gametime"] = gameTimeTW
 
+        # Find closest odds (most even match)
         oddDiff = abs(float(gameOdds[0].text.strip()))
         if oddDiff < gameOfTheDay["diff"]:
-            gameOfTheDay["diff"] = oddDiff
-            gameOfTheDay["page"] = gamePageUrl
-            gameOfTheDay["index"] = i
-            gameOfTheDay["gameTime"] = gameTimeTW
+            gameOfTheDay.update(
+                {
+                    "diff": oddDiff,
+                    "page": gamePageUrl,
+                    "index": i,
+                    "gameTime": gameTimeTW,
+                }
+            )
+
         gameList.append(game)
 
-    return gameList, gameOfTheDay["page"] + "?tab=odds", gameOfTheDay["gameTime"]
+    return (
+        gameList,
+        (gameOfTheDay["page"] + "?tab=odds" if gameOfTheDay["page"] else None),
+        gameOfTheDay["gameTime"],
+    )
 
 
 def get_player_url(playerName: str):
