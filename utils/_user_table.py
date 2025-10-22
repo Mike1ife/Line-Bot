@@ -67,7 +67,7 @@ def insert_player_stat_bet(playerStatBetList: list):
         ) in playerStatBetList:
             cur.execute(
                 SQL_SELECT_MATCH_ID,
-                (gameDate, team1Name, team2Name, team1Name, team2Name),
+                (gameDate, team1Name, team2Name, team1Name, team2Name, team1Name, team2Name),
             )
             matchID = cur.fetchone()[0]
             cur.execute(
@@ -86,7 +86,7 @@ def insert_user_predict_match(
 ):
     conn = _get_connection()
     with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+        cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name, team1Name, team2Name))
         matchID = cur.fetchone()[0]
         cur.execute(
             SQL_INSERT_USER_PREDICT_MATCH,
