@@ -472,13 +472,11 @@ def settle_daily_stat_result():
             statResult, gameDate = _get_stat_result(
                 playerName=playerName, statType=statType
             )
-            if _has_play_today(gameDate=gameDate):
-                cur.execute(
-                    SQL_UPDATE_PLAYER_STAT_BET,
-                    (statResult, playerName, matchId, statType),
-                )
-            else:
-                raise ValueError
+            # if _has_play_today(gameDate=gameDate):
+            cur.execute(
+                SQL_UPDATE_PLAYER_STAT_BET,
+                (statResult, playerName, matchId, statType),
+            )
     conn.commit()
 
 
