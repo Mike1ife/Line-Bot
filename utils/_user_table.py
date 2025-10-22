@@ -62,7 +62,10 @@ def insert_player_stat_bet(playerStatBetList: list):
             overPoint,
             underPoint,
         ) in playerStatBetList:
-            cur.execute(SQL_SELECT_MATCH_ID, (gameDate, team1Name, team2Name))
+            cur.execute(
+                SQL_SELECT_MATCH_ID,
+                (gameDate, team1Name, team2Name, team1Name, team2Name),
+            )
             matchID = cur.fetchone()[0]
             cur.execute(
                 SQL_INSERT_PLAYER_STAT_BET,
