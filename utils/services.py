@@ -13,7 +13,6 @@ from utils.utils import *
 
 
 def process_nba_prediction(event: MessageEvent):
-    LINE_BOT_API.push_message(event.source.group_id, TextSendMessage(text="123"))
     try:
         (
             matchList,
@@ -23,6 +22,7 @@ def process_nba_prediction(event: MessageEvent):
             gameOfTheDayDate,
             gameOfTheDayTime,
         ) = get_nba_game_prediction(playoffsLayout=False)
+        LINE_BOT_API.push_message(event.source.group_id, TextSendMessage(text="123"))
         if not matchColumns:
             LINE_BOT_API.push_message(
                 event.source.group_id, TextSendMessage(text=response)
