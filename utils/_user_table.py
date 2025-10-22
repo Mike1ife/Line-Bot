@@ -506,22 +506,7 @@ def settle_daily_match_result(gameResults: dict, playoffsLayout: bool):
 def calculate_daily_stat_point():
     conn = _get_connection()
     with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_USER_PREDICT_STAT3)
-        userPredictStatList = cur.fetchall()
-        for (
-            userUID,
-            playerName,
-            matchId,
-            statType,
-            statTarget,
-            statResult,
-        ) in userPredictStatList:
-            finalOutcome = "大盤" if statResult >= statTarget else "小盤"
-            cur.execute(
-                SQL_UPDATE_USER_PREDICT_STAT,
-                (finalOutcome, userUID, playerName, matchId, statType),
-            )
-        cur.execute(SQL_UPDATE_USER_STAT_POINT)
+        cur.execute(SQL_UPDATE_USER_PREDICT_STAT_ALL)
     conn.commit()
 
 

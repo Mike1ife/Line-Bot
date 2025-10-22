@@ -243,57 +243,23 @@ INNER JOIN match
 WHERE is_active = TRUE
 """
 
-SQL_UPDATE_PLAYER_STAT_BET = """
-UPDATE player_stat_bet
-SET stat_result = %s
-WHERE
-    player_name = %s 
-    AND match_id = %s 
-    AND stat_type = %s
-"""
-
-SQL_UPDATE_MATCH_RESULT = """
-UPDATE match
-SET
-    team1_score = CASE
-        WHEN team1_name = %s THEN %s
-        ELSE %s
-    END,
-    team2_score = CASE
-        WHEN team2_name = %s THEN %s
-        ELSE %s
+SQL_UPDATE_USER_PREDICT_STAT_ALL = """
+UPDATE user_predict_stat AS ups
+SET is_correct = (
+    predicted_outcome = 
+    CASE 
+        WHEN psb.stat_result >= psb.stat_target THEN '大盤'
+        ELSE '小盤'
     END
+)
+FROM match
+INNER JOIN player_stat_bet AS psb
+    ON ups.player_name = psb.player_name
+    AND ups.match_id = psb.match_id
+    AND ups.stat_type = psb.stat_type
 WHERE 
-    is_active = TRUE
-    AND (
-        (team1_name = %s AND team2_name = %s)
-        OR (team1_name = %s AND team2_name = %s)
-    )
-"""
-
-SQL_SELECT_USER_PREDICT_STAT3 = """
-SELECT 
-    ups.uid, ups.player_name, ups.match_id,
-    ups.stat_type, psb.stat_target, psb.stat_result
-FROM user_predict_stat as ups
-INNER JOIN match 
-    ON ups.match_id = match.match_id
-INNER JOIN player_stat_bet as psb
-    ON 
-        ups.player_name = psb.player_name  
-        AND ups.match_id = psb.match_id 
-        AND ups.stat_type = psb.stat_type
-WHERE is_active = TRUE
-"""
-
-SQL_UPDATE_USER_PREDICT_STAT = """
-UPDATE user_predict_stat
-SET is_correct = (predicted_outcome = %s)
-WHERE 
-    uid = %s 
-    AND player_name = %s 
-    AND match_id = %s 
-    AND stat_type = %s
+    ups.match_id = match.match_id
+    AND match.is_active = TRUE;
 """
 
 SQL_UPDATE_USER_STAT_POINT = """
