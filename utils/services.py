@@ -65,12 +65,10 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
 
-        # Step 1: reply immediately
+        threading.Thread(target=process_nba_prediction, args=(event,)).start()
         LINE_BOT_API.reply_message(
             event.reply_token, TextSendMessage(text="正在計算今日預測，請稍候...")
         )
-        # Step 2: offload heavy task to another thread
-        threading.Thread(target=process_nba_prediction, args=(event,)).start()
 
     if message == "檢查":
         response = get_user_prediction_check(userName=userName)
