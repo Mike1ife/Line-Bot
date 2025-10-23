@@ -214,6 +214,202 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: st
     return carouselColumn, teamNames, teamPoints
 
 
+def _get_regular_game(gameInfo: BeautifulSoup):
+    teamSoups = gameInfo.find("div", class_="teams").find_all(
+        "div", class_="score-team-row"
+    )
+
+    game = {
+        "names": ["", ""],
+        "standings": ["", ""],
+    }
+    for i, teamSoup in enumerate(teamSoups):
+        teamInfo = teamSoup.find("div", class_="score-team-name abbreviation")
+        teamName = teamInfo.find("span", class_="scores-text capi pd-b-1 ff-ff").text
+        teamStanding = teamInfo.find("sup", class_="scores-team-record ffn-gr-10").text
+
+        if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
+            return None
+
+        game["names"][i] = NBA_ABBR_ENG_TO_ABBR_CN[teamName]
+        game["standings"][i] = teamStanding
+
+    return game
+
+
+def _get_playoffs_game(gameInfo: BeautifulSoup):
+    team1 = gameInfo.find("img", class_="team-logo-1").attrs["alt"]
+    team2 = gameInfo.find("img", class_="team-logo-2").attrs["alt"]
+
+    standingText = gameInfo.find(
+        "div", class_="playoff-game-info ffn-gr-11 uc fs-sm-10"
+    ).text.strip()
+
+    standingInfo = standingText.split()
+    # 3 Cases:
+    # GM 4 TIED 2-2
+    # GM 5 LAL LEADS 3-1
+    # CONF SEMIS GAME 1
+    if standingInfo[2] == "TIED":
+        gameNumber = standingInfo[1]
+        tie = standingInfo[-1].split("-")[0]
+        teamStandings = [tie, tie]
+    else:
+        if standingInfo[0] == "GM":
+            gameNumber = standingInfo[1]
+            leadingTeam = standingInfo[2]
+            gameStatus = standingInfo[-1]
+            teamStandings = gameStatus.split("-")
+            if leadingTeam == team2:
+                teamStandings.reverse()
+        else:
+            gameNumber = "1"
+            teamStandings = ["0", "0"]
+
+    game = {
+        "names": [
+            NBA_ABBR_ENG_TO_ABBR_CN[team1],
+            NBA_ABBR_ENG_TO_ABBR_CN[team2],
+        ],
+        "standings": teamStandings,
+        "number": gameNumber,
+    }
+
+    return game
+
+
+def _get_nba_games_time_list(timeStr: str):
+    data = requests.get(f"https://nba.hupu.com/games/{timeStr}").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameCenter = soup.find("div", class_="gamecenter_content_l")
+    gameContainers = gameCenter.find_all("div", class_="list_box")
+
+    gameTimeList = []
+    for gameContainer in gameContainers:
+        teams = gameContainer.find("div", class_="team_vs_a")
+        team1 = teams.find("div", class_="team_vs_a_1 clearfix")
+        team2 = teams.find("div", class_="team_vs_a_2 clearfix")
+        team1Name = team1.find("div", class_="txt").find("a").text
+        team2Name = team2.find("div", class_="txt").find("a").text
+
+        if (
+            team1Name not in NBA_SIMP_CN_TO_TRAD_CN
+            or team2Name not in NBA_SIMP_CN_TO_TRAD_CN
+        ):
+            continue
+
+        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
+        team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
+
+        gameTime = (
+            gameContainer.find("div", class_="team_vs_b")
+            .find("span", class_="b")
+            .find("p")
+            .text
+        )
+        gameTimeList.append(gameTime)
+
+    return gameTimeList
+
+
+def get_nba_games(playoffsLayout: bool):
+    nowUTC = datetime.now(timezone.utc)
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+    todayStr = nowTW.strftime("%Y-%m-%d")
+
+    # use a persistent session for connection pooling
+    session = requests.Session()
+    session.headers.update({"User-Agent": "Mozilla/5.0"})
+    # get today's score page
+    data = session.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    finalScores = soup.find_all("div", class_="score-team-score")
+    if len(finalScores) > 0:
+        return [], None, None  # Games already finished
+
+    urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
+    if todayStr not in re.findall(urlPattern, data):
+        return [], None, None  # No game page for this date
+
+    tomorrowTW = nowTW + timedelta(days=1)
+    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
+    gameTimeList = _get_nba_games_time_list(tomorrowStr)
+
+    gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
+    gamesInfo = soup.find_all("a", class_=gameClass)
+
+    game_urls = ["https://www.foxsports.com" + g.attrs["href"] for g in gamesInfo]
+
+    def fetch_page(url):
+        resp = session.get(url)
+        resp.raise_for_status()
+        return url, resp.text
+
+    pages = {}
+    with ThreadPoolExecutor(max_workers=min(8, len(game_urls))) as executor:
+        futures = [executor.submit(fetch_page, url) for url in game_urls]
+        for future in as_completed(futures):
+            url, data = future.result()
+            pages[url] = data
+
+    gameList = []
+    gameOfTheDay = {"diff": 30, "page": "", "index": -1, "gameTime": ""}
+
+    for i, (gameInfo, gameTimeTW) in enumerate(zip(gamesInfo, gameTimeList)):
+        gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
+        gamePageData = pages.get(gamePageUrl)
+        if not gamePageData:
+            continue
+
+        gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
+        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
+        if not oddContainer:
+            continue
+
+        gameOdds = oddContainer.find_all(
+            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+        )
+        if len(gameOdds) < 2:
+            continue
+
+        # Parse game info
+        if playoffsLayout:
+            game = _get_playoffs_game(gameInfo)
+        else:
+            game = _get_regular_game(gameInfo)
+        if not game:
+            continue
+
+        # Add points and time
+        game["points"] = [
+            int(round(30 + float(gameOdds[0].text.strip()))),
+            int(round(30 + float(gameOdds[1].text.strip()))),
+        ]
+        game["gametime"] = gameTimeTW
+
+        # Find closest odds (most even match)
+        oddDiff = abs(float(gameOdds[0].text.strip()))
+        if oddDiff < gameOfTheDay["diff"]:
+            gameOfTheDay.update(
+                {
+                    "diff": oddDiff,
+                    "page": gamePageUrl,
+                    "index": i,
+                    "gameTime": gameTimeTW,
+                }
+            )
+
+        gameList.append(game)
+
+    return (
+        gameList,
+        (gameOfTheDay["page"] + "?tab=odds" if gameOfTheDay["page"] else None),
+        gameOfTheDay["gameTime"],
+    )
+
+
 def get_nba_game_prediction(playoffsLayout: bool = False):
     response = get_user_type_point(rankType="week_points")
 
@@ -307,23 +503,23 @@ def _get_game_translation(gameDescription: str):
     return f"{NBA_ABBR_ENG_TO_ABBR_CN[awayTeam]} @ {NBA_ABBR_ENG_TO_ABBR_CN[homeTeam]}"
 
 
-def _get_player_bet_info(playerSoup: BeautifulSoup, statType: str):
+def _get_player_bet_info(
+    playerSoup: BeautifulSoup, statType: str, session: requests.Session
+):
     imgSrc = playerSoup.find("img").get("src")
     playerName = playerSoup.find("img").get("alt")
     gameDescription = playerSoup.find("div", class_="ffn-gr-11").text
     gameTitle = _get_game_translation(gameDescription=gameDescription)
 
     playerUrl = get_player_url(playerName=playerName)
-
     playerStatsUrl = playerUrl + "-stats"
-    playerStatsPage = requests.get(playerStatsUrl).text
-    playerStatsSoup = BeautifulSoup(playerStatsPage, "html.parser")
-    statTypeToContainerIndex = {
-        "得分": 0,
-        "籃板": 1,
-        "抄截": 4,
-    }
 
+    # Use session instead of requests.get
+    resp = session.get(playerStatsUrl)
+    resp.raise_for_status()
+    playerStatsSoup = BeautifulSoup(resp.text, "html.parser")
+
+    statTypeToContainerIndex = {"得分": 0, "籃板": 1, "抄截": 4}
     playerStats = playerStatsSoup.find_all("a", class_="stats-overview")
     statContainer = playerStats[statTypeToContainerIndex[statType]]
 
@@ -394,15 +590,19 @@ def get_player_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
 
-    data = requests.get(gamePage).text
+    session = requests.Session()
+    session.headers.update({"User-Agent": "Mozilla/5.0"})
+
+    data = session.get(gamePage).text
     soup = BeautifulSoup(data, "html.parser")
     betContainer = soup.find_all("div", class_="odds-component-prop-bet")
 
     playerStatBetList = []
     carouselColumns = []
 
+    # Step 1: gather all (playerSoup, statType)
+    playerTasks = []
     for betInfo in betContainer:
-        # PLAYER POINTS / PLAYER REBOUNDS / PLAYER STEALS
         betTitle = betInfo.find("h2", class_="pb-name fs-30").text.strip()
         if betTitle not in BET_STAT_TRANSLATION:
             continue
@@ -410,45 +610,63 @@ def get_player_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
         playerContainers = betInfo.find_all(
             "div", class_="prop-bet-data pointer prop-future"
         )
+
         for playerSoup in playerContainers:
-            (
-                imgSrc,
-                playerName,
-                gameTitle,
-                statAvg,
-                statTarget,
-                overPoint,
-                underPoint,
-            ) = _get_player_bet_info(playerSoup=playerSoup, statType=statType)
+            playerTasks.append((playerSoup, statType))
 
-            carouselColumn = _pack_stat_carousel_column(
-                imgSrc=imgSrc,
-                playerName=playerName,
-                gameTitle=gameTitle,
-                statAvg=statAvg,
-                statTarget=statTarget,
-                overPoint=overPoint,
-                underPoint=underPoint,
-                statType=statType,
-                tomorrowStr=tomorrowStr,
-                gameTime=gameTime,
+    # Step 2: run concurrently (limit to 5 threads to avoid blocking site)
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures = {
+            executor.submit(_get_player_bet_info, playerSoup, statType, session): (
+                playerSoup,
+                statType,
             )
+            for playerSoup, statType in playerTasks
+        }
 
-            carouselColumns.append(carouselColumn)
-
-            team1Name, team2Name = gameTitle.split(" @ ")
-            playerStatBetList.append(
+        for future in as_completed(futures):
+            try:
                 (
+                    imgSrc,
                     playerName,
-                    gameDate,
-                    team1Name,
-                    team2Name,
-                    statType,
-                    float(statTarget),
+                    gameTitle,
+                    statAvg,
+                    statTarget,
                     overPoint,
                     underPoint,
+                ) = future.result()
+
+                carouselColumn = _pack_stat_carousel_column(
+                    imgSrc=imgSrc,
+                    playerName=playerName,
+                    gameTitle=gameTitle,
+                    statAvg=statAvg,
+                    statTarget=statTarget,
+                    overPoint=overPoint,
+                    underPoint=underPoint,
+                    statType=futures[future][1],
+                    tomorrowStr=tomorrowStr,
+                    gameTime=gameTime,
                 )
-            )
+
+                carouselColumns.append(carouselColumn)
+
+                team1Name, team2Name = gameTitle.split(" @ ")
+                playerStatBetList.append(
+                    (
+                        playerName,
+                        gameDate,
+                        team1Name,
+                        team2Name,
+                        futures[future][1],
+                        float(statTarget),
+                        overPoint,
+                        underPoint,
+                    )
+                )
+
+            except Exception as e:
+                raise Exception(f"[WARN] Player fetch failed: {e}")
 
     return carouselColumns, playerStatBetList
 
