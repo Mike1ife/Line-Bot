@@ -525,6 +525,7 @@ def calculate_daily_stat_point():
     conn = _get_connection()
     with conn.cursor() as cur:
         cur.execute(SQL_UPDATE_USER_PREDICT_STAT_ALL)
+        cur.execute(SQL_UPDATE_USER_STAT_POINT)
     conn.commit()
 
 
