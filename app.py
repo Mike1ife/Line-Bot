@@ -8,7 +8,7 @@ from linebot.models import (
 
 from config import HANDLER, LINE_BOT_API
 from utils.api import *
-from utils.handlers import handle_message, handle_postback, TextSendMessage
+from utils.handlers import handle_message, handle_postback, process_daily_prediction
 
 app = Flask(__name__)
 
@@ -27,13 +27,7 @@ def all_user_info():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    GID = "Cbb4733349bd2459a4fbe10a1068025ed"
-    LINE_BOT_API.push_message(
-        GID,
-        TextSendMessage(
-            text="紅燒牛肉麵連環屁蛋捲包皮螺絲釘黃牙齙牙口臭男王品免費吃爽爽我的天我的地"
-        ),
-    )
+    process_daily_prediction()
 
 
 @app.route("/webhook", methods=["POST"])
