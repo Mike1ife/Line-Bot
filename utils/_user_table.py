@@ -73,8 +73,6 @@ def insert_player_stat_bet(playerStatBetList: list):
                     team2Name,
                     team1Name,
                     team2Name,
-                    team1Name,
-                    team2Name,
                 ),
             )
             matchID = cur.fetchone()[0]
