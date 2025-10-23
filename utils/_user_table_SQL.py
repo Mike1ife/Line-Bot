@@ -277,20 +277,20 @@ WHERE
 SQL_UPDATE_USER_PREDICT_STAT_ALL = """
 UPDATE user_predict_stat AS ups
 SET is_correct = (
-    predicted_outcome = 
-    CASE 
+    predicted_outcome =
+    CASE
         WHEN psb.stat_result >= psb.stat_target THEN '大盤'
         ELSE '小盤'
     END
 )
-FROM match
-INNER JOIN player_stat_bet AS psb
-    ON ups.player_name = psb.player_name
-    AND ups.match_id = psb.match_id
-    AND ups.stat_type = psb.stat_type
-WHERE 
-    ups.match_id = match.match_id
-    AND match.is_active = TRUE;
+FROM player_stat_bet AS psb
+JOIN match
+  ON psb.match_id = match.match_id
+WHERE
+  ups.player_name = psb.player_name
+  AND ups.match_id = psb.match_id
+  AND ups.stat_type = psb.stat_type
+  AND match.is_active = TRUE
 """
 
 SQL_UPDATE_USER_STAT_POINT = """
