@@ -23,6 +23,11 @@ def text_message(event: MessageEvent):
             event.reply_token, TextSendMessage(text="Unknown User")
         )
 
+    if message == "gid":
+        LINE_BOT_API.reply_message(
+            event.reply_token, TextSendMessage(text=event.source.group_id)
+        )
+
     if message == "NBA每日預測":
         if not user_is_admin(userUID):
             LINE_BOT_API.reply_message(
