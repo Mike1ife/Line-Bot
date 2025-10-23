@@ -8,7 +8,7 @@ from linebot.models import (
 
 from config import HANDLER, LINE_BOT_API
 from utils.api import *
-from utils.handlers import handle_message, handle_postback, process_daily_prediction
+from utils.handlers import handle_message, handle_postback, handle_daily_prediction
 
 app = Flask(__name__)
 
@@ -27,7 +27,7 @@ def all_user_info():
 
 @app.route("/api/cron", methods=["GET", "POST"])
 def cron_job():
-    process_daily_prediction()
+    handle_daily_prediction()
 
 
 @app.route("/webhook", methods=["POST"])
