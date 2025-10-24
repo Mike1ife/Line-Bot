@@ -522,6 +522,7 @@ def settle_daily_match_result(gameResults: dict, playoffsLayout: bool):
 def calculate_daily_stat_point():
     conn = _get_connection()
     with conn.cursor() as cur:
+        cur.execute(SQL_RESET_DAY_POINT)
         cur.execute(SQL_UPDATE_USER_PREDICT_STAT_ALL)
         cur.execute(SQL_UPDATE_USER_STAT_POINT)
     conn.commit()

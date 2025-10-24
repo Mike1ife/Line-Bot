@@ -343,7 +343,7 @@ WHERE
 SQL_UPDATE_USER_MATCH_POINT = """
 UPDATE users
 SET
-    day_points = result.total_points,
+    day_points = users.day_points + result.total_points,
     week_points = users.week_points + result.total_points
 FROM (
     SELECT
