@@ -238,19 +238,29 @@ def INSERT_NBA_TEAM():
     response = requests.get("https://www.foxsports.com/nba/teams")
     soup = BeautifulSoup(response.text, "html.parser")
     teamContainer = soup.find_all("a", class_="entity-list-row-container image-logo")
+
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             for teamName, teamSoup in zip(
                 NBA_ABBR_ENG_TO_ABBR_CN.values(), teamContainer
             ):
                 teamUrl = "https://www.foxsports.com" + teamSoup["href"]
-                teamLogo = teamSoup.find("img", class_="image-logo")["src"]
-                print(teamLogo)
+                x = requests.get(teamUrl)
+                s = BeautifulSoup(x.text, "html.parser")
+                teamLogo = s.find("img", class_="image-logo entity-card-logo")["src"]
+
                 cur.execute(
-                    "INSERT INTO team (team_name, team_url, team_logo) VALUES (%s, %s, %s) ON CONFLICT (team_name) DO NOTHING;",
+                    """
+                    INSERT INTO team (team_name, team_url, team_logo)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (team_name)
+                    DO UPDATE SET
+                        team_url = EXCLUDED.team_url,
+                        team_logo = EXCLUDED.team_logo;
+                    """,
                     (teamName, teamUrl, teamLogo),
                 )
-            conn.commit()
+        conn.commit()
 
 
 # DROP_DATABASE()
@@ -262,5 +272,5 @@ def INSERT_NBA_TEAM():
 # CREATE_PLAYER_TABLE()
 # CREATE_PLAYER_STAT_BET_TABLE()
 # CREATE_USER_PREDICT_STAT_TABLE()
-# INSERT_NBA_TEAM()
+INSERT_NBA_TEAM()
 # INSERT_PLAYER()

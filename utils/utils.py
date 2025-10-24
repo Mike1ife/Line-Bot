@@ -117,7 +117,10 @@ def _get_daily_game_results(playoffsLayout: bool):
     soup = BeautifulSoup(data, "html.parser")
 
     gameResults = {}  # (team1Name, team2Name): (team1Score, team2Score, winner)
+    liveGameContainers = soup.find_all("a", class_="score-chip live")
     gameContainers = soup.find_all("a", class_="score-chip final")
+    if liveGameContainers or not gameContainers:
+        raise ValueError("Games Not Finished")
     for gameContainer in gameContainers:
         teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
         scoresInfo = gameContainer.find_all("div", class_="score-team-score")
@@ -140,8 +143,6 @@ def _get_daily_game_results(playoffsLayout: bool):
 def settle_daily_prediction(playoffsLayout: bool):
     """TODO playoffs layout"""
     gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
-    if not gameResults:
-        raise Exception("Games Not Finished")
     settle_daily_match_result(gameResults=gameResults, playoffsLayout=playoffsLayout)
     settle_daily_stat_result()
 
