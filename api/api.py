@@ -3,8 +3,8 @@ import psycopg
 from bs4 import BeautifulSoup
 
 from api._api_SQL import *
+from utils._team_table import NBA_SIMP_CN_TO_TRAD_CN
 from utils._user_table_SQL import SQL_UPDATE_MATCH_SCORE
-from utils.utils import get_daily_game_results
 from config import DATABASE_URL
 
 _conn = None
@@ -29,12 +29,73 @@ def get_user_info_and_type_point(rankType: str):
         return resultDict
 
 
+def _get_nba_live_score():
+    data = requests.get("https://nba.hupu.com/games").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameCenter = soup.find("div", class_="gamecenter_content_l")
+    gameContainers = gameCenter.find_all("div", class_="list_box")
+
+    gameScores = {}
+    gameTimeList = []
+    for gameContainer in gameContainers:
+        teams = gameContainer.find("div", class_="team_vs_a")
+        team1 = teams.find("div", class_="team_vs_a_1 clearfix")
+        team2 = teams.find("div", class_="team_vs_a_2 clearfix")
+        team1Name = team1.find("div", class_="txt").find("a").text
+        team2Name = team2.find("div", class_="txt").find("a").text
+
+        if (
+            team1Name not in NBA_SIMP_CN_TO_TRAD_CN
+            or team2Name not in NBA_SIMP_CN_TO_TRAD_CN
+        ):
+            continue
+
+        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
+        team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
+
+        team1Score = team2Score = gameTime = ""
+        gameStatus = gameContainer.find("div", class_="team_vs").text
+        if "进行中" in gameStatus:
+            team1Score = team1.find("div", class_="txt").find("span", class_="num").text
+            team2Score = team2.find("div", class_="txt").find("span", class_="num").text
+        elif "未开始" in gameStatus:
+            gameTime = (
+                gameContainer.find("div", class_="team_vs_b")
+                .find("span", class_="b")
+                .find("p")
+                .text
+            )
+        elif "已结束" in gameStatus:
+            team1Win = team1.find("div", class_="txt").find("span", class_="num red")
+            if team1Win:
+                team1Score = team1Win.text
+                team2Score = (
+                    team2.find("div", class_="txt").find("span", class_="num").text
+                )
+            else:
+                team1Score = (
+                    team1.find("div", class_="txt").find("span", class_="num").text
+                )
+                team2Score = (
+                    team2.find("div", class_="txt").find("span", class_="num red").text
+                )
+
+        gameScores[(team1Name, team2Name)] = (
+            int(team1Score) if team1Score else 0,
+            int(team2Score) if team2Score else 0,
+        )
+        gameTimeList[(team1Name, team2Name)] = gameTime
+
+    return gameScores, gameTimeList
+
+
 def get_daily_match_info():
     conn = _get_connection()
 
     resultDict = []
     with conn.cursor() as cur:
-        gameScores = get_daily_game_results()
+        gameScores, gameTimeList = _get_nba_live_score()
         for team1Name, team2Name in gameScores:
             team1Score, team2Score = gameScores[(team1Name, team2Name)]
             cur.execute(
@@ -52,18 +113,20 @@ def get_daily_match_info():
                     team1Name,
                 ),
             )
+        conn.commit()
 
         cur.execute(SQL_SELECT_MATCH_TODAY)
         # [(team1Name, team2Name, team1Score, team2Score, team1Point, team2Point)]
         matchInfoList = cur.fetchall()
         for (
+            i,
             team1Name,
             team2Name,
             team1Score,
             team2Score,
             team1Point,
             team2Point,
-        ) in matchInfoList:
+        ) in enumerate(matchInfoList):
             # (team1LogoUrl, team1Standing)
             cur.execute(SQL_SELECT_TEAM_LOGO_AND_STANDING, (team1Name,))
             team1LogoUrl, team1Standing = cur.fetchone()
@@ -79,7 +142,8 @@ def get_daily_match_info():
                     "team2_score": team2Score,
                     "team1_point": team1Point,
                     "team2_point": team2Point,
+                    "game_time": gameTimeList[i],
                 }
             )
 
-        return resultDict
+    return resultDict

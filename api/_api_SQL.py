@@ -40,6 +40,7 @@ SQL_SELECT_MATCH_TODAY = """
     SELECT team1_name, team2_name, team1_score, team2_score, team1_point, team2_point
     FROM match
     WHERE is_active = TRUE
+    ORDER BY match_id
 """
 
 SQL_SELECT_TEAM_LOGO_AND_STANDING = """
