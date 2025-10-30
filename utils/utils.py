@@ -115,7 +115,7 @@ def get_prediction_comparison(user1Id: int, user2Id: int):
 
 
 def _get_daily_game_results():
-    data = requests.get("https://nba.hupu.com/games/2025-10-30").text
+    data = requests.get("https://nba.hupu.com/games").text
     soup = BeautifulSoup(data, "html.parser")
 
     gameCenter = soup.find("div", class_="gamecenter_content_l")
@@ -955,7 +955,7 @@ def get_random_image(imgKey: str):
 
 
 def get_nba_scoreboard():
-    data = requests.get("https://nba.hupu.com/games/2025-10-30").text
+    data = requests.get("https://nba.hupu.com/games").text
     soup = BeautifulSoup(data, "html.parser")
 
     gameCenter = soup.find("div", class_="gamecenter_content_l")
