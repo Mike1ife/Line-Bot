@@ -8,7 +8,7 @@ from linebot.models import (
 )
 
 from config import HANDLER
-from utils.api import *
+from api.api import *
 from utils.handlers import handle_message, handle_postback, handle_daily_prediction
 
 app = Flask(__name__)
@@ -21,33 +21,39 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/leaderboard/user_day_point", methods=["GET"])
+@app.route("/api/home/leaderboard/user_day_point", methods=["GET"])
 def get_user_day_point():
     response = get_user_info_and_type_point("day_points")
     return jsonify(response)
 
 
-@app.route("/api/leaderboard/user_week_point", methods=["GET"])
+@app.route("/api/home/leaderboard/user_week_point", methods=["GET"])
 def get_user_week_point():
     response = get_user_info_and_type_point("week_points")
     return jsonify(response)
 
 
-@app.route("/api/leaderboard/user_month_point", methods=["GET"])
+@app.route("/api/home/leaderboard/user_month_point", methods=["GET"])
 def get_user_month_point():
     response = get_user_info_and_type_point("month_points")
     return jsonify(response)
 
 
-@app.route("/api/leaderboard/user_season_point", methods=["GET"])
+@app.route("/api/home/leaderboard/user_season_point", methods=["GET"])
 def get_user_season_point():
     response = get_user_info_and_type_point("season_points")
     return jsonify(response)
 
 
-@app.route("/api/leaderboard/user_all_time_point", methods=["GET"])
+@app.route("/api/home/leaderboard/user_all_time_point", methods=["GET"])
 def get_user_all_time_point():
     response = get_user_info_and_type_point("all_time_points")
+    return jsonify(response)
+
+
+@app.route("/api/home/nba_today", method=["GET"])
+def get_nba_today():
+    response = get_daily_match_info()
     return jsonify(response)
 
 
