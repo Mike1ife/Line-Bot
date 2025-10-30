@@ -114,7 +114,7 @@ def get_prediction_comparison(user1Id: int, user2Id: int):
     return response
 
 
-def _get_daily_game_results():
+def get_daily_game_results():
     data = requests.get("https://nba.hupu.com/games").text
     soup = BeautifulSoup(data, "html.parser")
 
@@ -159,13 +159,12 @@ def _get_daily_game_results():
             int(team2Score) if team2Score else 0,
         )
 
-    update_daily_match_score(gameScores=gameResults)
     return gameResults
 
 
 def settle_daily_prediction():
     """TODO playoffs layout"""
-    gameResults = _get_daily_game_results()
+    gameResults = get_daily_game_results()
     update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 

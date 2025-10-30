@@ -1,6 +1,10 @@
+import requests
 import psycopg
+from bs4 import BeautifulSoup
+
 from api._api_SQL import *
-from utils.utils import get_nba_scoreboard
+from utils._user_table_SQL import SQL_UPDATE_MATCH_SCORE
+from utils.utils import get_daily_game_results
 from config import DATABASE_URL
 
 _conn = None
@@ -27,11 +31,28 @@ def get_user_info_and_type_point(rankType: str):
 
 def get_daily_match_info():
     conn = _get_connection()
-    # update table first
-    get_nba_scoreboard()
 
     resultDict = []
     with conn.cursor() as cur:
+        gameScores = get_daily_game_results()
+        for team1Name, team2Name in gameScores:
+            team1Score, team2Score = gameScores[(team1Name, team2Name)]
+            cur.execute(
+                SQL_UPDATE_MATCH_SCORE,
+                (
+                    team1Name,
+                    team1Score,
+                    team2Score,
+                    team2Name,
+                    team2Score,
+                    team1Score,
+                    team1Name,
+                    team2Name,
+                    team2Name,
+                    team1Name,
+                ),
+            )
+
         cur.execute(SQL_SELECT_MATCH_TODAY)
         # [(team1Name, team2Name, team1Score, team2Score, team1Point, team2Point)]
         matchInfoList = cur.fetchall()
