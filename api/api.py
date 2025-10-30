@@ -119,14 +119,13 @@ def get_daily_match_info():
         # [(team1Name, team2Name, team1Score, team2Score, team1Point, team2Point)]
         matchInfoList = cur.fetchall()
         for (
-            i,
             team1Name,
             team2Name,
             team1Score,
             team2Score,
             team1Point,
             team2Point,
-        ) in enumerate(matchInfoList):
+        ) in matchInfoList:
             # (team1LogoUrl, team1Standing)
             cur.execute(SQL_SELECT_TEAM_LOGO_AND_STANDING, (team1Name,))
             team1LogoUrl, team1Standing = cur.fetchone()
