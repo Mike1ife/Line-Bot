@@ -1,3 +1,3 @@
-SELECT_ALL_USER_INFO = """
-SELECT name, picture_url FROM users
+SELECT_USER_DAY_POINT = """
+SELECT name, picture_url, day_points FROM users
 """

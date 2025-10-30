@@ -19,9 +19,9 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/all_user_info", methods=["GET"])
-def all_user_info():
-    response = get_all_user_info()
+@app.route("/api/leaderboard/user_day_point", methods=["GET"])
+def get_user_day_point():
+    response = get_user_info_and_day_point()
     return jsonify(response)
 
 
