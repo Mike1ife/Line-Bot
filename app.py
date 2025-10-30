@@ -51,7 +51,7 @@ def get_user_all_time_point():
     return jsonify(response)
 
 
-@app.route("/api/home/nba_today", method=["GET"])
+@app.route("/api/home/nba_today", methods=["GET"])
 def get_nba_today():
     response = get_daily_match_info()
     return jsonify(response)
