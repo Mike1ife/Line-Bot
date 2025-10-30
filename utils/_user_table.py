@@ -3,10 +3,10 @@ import requests
 import psycopg
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from config import DATABASE_URL
 from utils._user_table_SQL import *
-
+from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 PREDICTION_INDEX = 38
