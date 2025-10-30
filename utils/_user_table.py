@@ -3,10 +3,8 @@ import requests
 import psycopg
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from config import DATABASE_URL
 from utils._user_table_SQL import *
-from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 PREDICTION_INDEX = 38
@@ -494,13 +492,13 @@ def settle_daily_stat_result():
     conn.commit()
 
 
-def settle_daily_match_result(gameResults: dict, playoffsLayout: bool):
+def update_daily_match_score(gameScores: dict):
     conn = _get_connection()
     with conn.cursor() as cur:
-        for team1Name, team2Name in gameResults:
-            team1Score, team2Score = gameResults[(team1Name, team2Name)]
+        for team1Name, team2Name in gameScores:
+            team1Score, team2Score = gameScores[(team1Name, team2Name)]
             cur.execute(
-                SQL_UPDATE_MATCH_RESULT,
+                SQL_UPDATE_MATCH_SCORE,
                 (
                     team1Name,
                     team1Score,

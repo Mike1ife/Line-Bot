@@ -255,7 +255,7 @@ WHERE
     AND stat_type = %s
 """
 
-SQL_UPDATE_MATCH_RESULT = """
+SQL_UPDATE_MATCH_SCORE = """
 UPDATE match
 SET
     team1_score = CASE

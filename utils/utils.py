@@ -1,5 +1,7 @@
 import random
 from urllib.parse import quote
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from utils._user_table import *
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from linebot.models import (
@@ -112,38 +114,59 @@ def get_prediction_comparison(user1Id: int, user2Id: int):
     return response
 
 
-def _get_daily_game_results(playoffsLayout: bool):
-    data = requests.get("https://www.foxsports.com/nba/scores").text
+def _get_daily_game_results():
+    data = requests.get("https://nba.hupu.com/games/2025-10-30").text
     soup = BeautifulSoup(data, "html.parser")
 
-    gameResults = {}  # (team1Name, team2Name): (team1Score, team2Score, winner)
-    liveGameContainers = soup.find_all("a", class_="score-chip live")
-    gameContainers = soup.find_all("a", class_="score-chip final")
-    if liveGameContainers or not gameContainers:
-        raise ValueError("Games Not Finished")
-    for gameContainer in gameContainers:
-        teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
-        scoresInfo = gameContainer.find_all("div", class_="score-team-score")
+    gameCenter = soup.find("div", class_="gamecenter_content_l")
+    gameContainers = gameCenter.find_all("div", class_="list_box")
 
-        teamNames, teamScores = [], []
-        for teamInfo, scoreInfo in zip(teamsInfo, scoresInfo):
-            teamName = teamInfo.find(
-                "span", class_="scores-text capi pd-b-1 ff-ff"
-            ).text.strip()
-            if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
-                break
-            teamScore = scoreInfo.text.strip()
-            teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
-            teamScores.append(int(teamScore))
+    gameResults = {}
+    for gameContainer in gameContainers:
+        teams = gameContainer.find("div", class_="team_vs_a")
+        team1 = teams.find("div", class_="team_vs_a_1 clearfix")
+        team2 = teams.find("div", class_="team_vs_a_2 clearfix")
+        team1Name = team1.find("div", class_="txt").find("a").text
+        team2Name = team2.find("div", class_="txt").find("a").text
+
+        if (
+            team1Name not in NBA_SIMP_CN_TO_TRAD_CN
+            or team2Name not in NBA_SIMP_CN_TO_TRAD_CN
+        ):
+            continue
+
+        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
+        team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
+
+        team1Score = team2Score = ""
+
+        gameStatus = gameContainer.find("div", class_="team_vs").text
+        if "进行中" in gameStatus or "未开始" in gameStatus:
+            raise ValueError(f"{team1Name} - {team2Name} Not Finished")
+
+        team1Win = team1.find("div", class_="txt").find("span", class_="num red")
+        if team1Win:
+            team1Score = team1Win.text
+            team2Score = team2.find("div", class_="txt").find("span", class_="num").text
         else:
-            gameResults[(teamNames[0], teamNames[1])] = (teamScores[0], teamScores[1])
+            team1Score = team1.find("div", class_="txt").find("span", class_="num").text
+            team2Score = (
+                team2.find("div", class_="txt").find("span", class_="num red").text
+            )
+
+        gameResults[(team1Name, team2Name)] = (
+            int(team1Score) if team1Score else 0,
+            int(team2Score) if team2Score else 0,
+        )
+
+    update_daily_match_score(gameScores=gameResults)
     return gameResults
 
 
-def settle_daily_prediction(playoffsLayout: bool):
+def settle_daily_prediction():
     """TODO playoffs layout"""
-    gameResults = _get_daily_game_results(playoffsLayout=playoffsLayout)
-    settle_daily_match_result(gameResults=gameResults, playoffsLayout=playoffsLayout)
+    gameResults = _get_daily_game_results()
+    update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 
     calculate_daily_stat_point()
@@ -932,13 +955,14 @@ def get_random_image(imgKey: str):
 
 
 def get_nba_scoreboard():
-    data = requests.get("https://nba.hupu.com/games").text
+    data = requests.get("https://nba.hupu.com/games/2025-10-30").text
     soup = BeautifulSoup(data, "html.parser")
 
     gameCenter = soup.find("div", class_="gamecenter_content_l")
     gameContainers = gameCenter.find_all("div", class_="list_box")
 
     gameStrList = []
+    gameScores = {}
     for gameContainer in gameContainers:
         teams = gameContainer.find("div", class_="team_vs_a")
         team1 = teams.find("div", class_="team_vs_a_1 clearfix")
@@ -959,12 +983,8 @@ def get_nba_scoreboard():
 
         gameStatus = gameContainer.find("div", class_="team_vs").text
         if "进行中" in gameStatus:
-            team1Score = (
-                " " + team1.find("div", class_="txt").find("span", class_="num").text
-            )
-            team2Score = (
-                " " + team2.find("div", class_="txt").find("span", class_="num").text
-            )
+            team1Score = team1.find("div", class_="txt").find("span", class_="num").text
+            team2Score = team2.find("div", class_="txt").find("span", class_="num").text
             gameTime = (
                 gameContainer.find("div", class_="team_vs_c")
                 .find("span", class_="b")
@@ -982,27 +1002,27 @@ def get_nba_scoreboard():
             gameTime = "Finish"
             team1Win = team1.find("div", class_="txt").find("span", class_="num red")
             if team1Win:
-                team1Score = " " + team1Win.text
+                team1Score = team1Win.text
                 team2Score = (
-                    " "
-                    + team2.find("div", class_="txt").find("span", class_="num").text
+                    team2.find("div", class_="txt").find("span", class_="num").text
                 )
             else:
                 team1Score = (
-                    " "
-                    + team1.find("div", class_="txt").find("span", class_="num").text
+                    team1.find("div", class_="txt").find("span", class_="num").text
                 )
                 team2Score = (
-                    " "
-                    + team2.find("div", class_="txt")
-                    .find("span", class_="num red")
-                    .text
+                    team2.find("div", class_="txt").find("span", class_="num red").text
                 )
 
         gameStrList.append(
-            f"{team1Name}{team1Score} - {team2Name}{team2Score} ({gameTime})"
+            f"{team1Name} {team1Score} - {team2Name} {team2Score} ({gameTime})"
+        )
+        gameScores[(team1Name, team2Name)] = (
+            int(team1Score) if team1Score else 0,
+            int(team2Score) if team2Score else 0,
         )
 
+    update_daily_match_score(gameScores=gameScores)
     return "\n".join(gameStrList)
 
 
