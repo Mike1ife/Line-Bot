@@ -37,7 +37,7 @@ def _get_nba_live_score():
     gameContainers = gameCenter.find_all("div", class_="list_box")
 
     gameScores = {}
-    gameTimeList = []
+    gameTimes = {}
     for gameContainer in gameContainers:
         teams = gameContainer.find("div", class_="team_vs_a")
         team1 = teams.find("div", class_="team_vs_a_1 clearfix")
@@ -85,9 +85,9 @@ def _get_nba_live_score():
             int(team1Score) if team1Score else 0,
             int(team2Score) if team2Score else 0,
         )
-        gameTimeList[(team1Name, team2Name)] = gameTime
+        gameTimes[(team1Name, team2Name)] = gameTime
 
-    return gameScores, gameTimeList
+    return gameScores, gameTimes
 
 
 def get_daily_match_info():
@@ -95,7 +95,7 @@ def get_daily_match_info():
 
     resultDict = []
     with conn.cursor() as cur:
-        gameScores, gameTimeList = _get_nba_live_score()
+        gameScores, gameTimes = _get_nba_live_score()
         for team1Name, team2Name in gameScores:
             team1Score, team2Score = gameScores[(team1Name, team2Name)]
             cur.execute(
@@ -142,7 +142,11 @@ def get_daily_match_info():
                     "team2_score": team2Score,
                     "team1_point": team1Point,
                     "team2_point": team2Point,
-                    "game_time": gameTimeList[i],
+                    "game_time": (
+                        gameTimes[(team1Name, team2Name)]
+                        if (team1Name, team2Name) in gameTimes
+                        else gameTimes[(team2Name, team1Name)]
+                    ),
                 }
             )
 
