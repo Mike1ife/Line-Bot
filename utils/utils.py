@@ -235,7 +235,7 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: st
             ),
         ],
     )
-    return carouselColumn, teamNames, teamPoints
+    return carouselColumn, teamNames, teamPoints, teamStandings
 
 
 def _get_regular_game(gameInfo: BeautifulSoup):
@@ -454,8 +454,10 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     gameOfTheDayDate = tomorrowStr
 
     for game in gameList:
-        carouselColumn, teamNames, teamPoints = _pack_game_carousel_column(
-            game=game, playoffsLayout=playoffsLayout, tomorrowStr=tomorrowStr
+        carouselColumn, teamNames, teamPoints, teamStandings = (
+            _pack_game_carousel_column(
+                game=game, playoffsLayout=playoffsLayout, tomorrowStr=tomorrowStr
+            )
         )
         carouselColumns.append(carouselColumn)
 
@@ -464,6 +466,8 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
                 tomorrowStr,
                 teamNames[0],
                 teamNames[1],
+                teamStandings[0],
+                teamStandings[1],
                 teamPoints[0],
                 teamPoints[1],
             )

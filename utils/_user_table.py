@@ -35,14 +35,24 @@ def get_type_points(rankType: str):
 
 
 def insert_match(matchList: list):
-    # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Point: int, team2Point: int)]
+    # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Standing: str, team2Standing: str, team1Point: int, team2Point: int)]
     conn = _get_connection()
     with conn.cursor() as cur:
-        for gameDate, team1Name, team2Name, team1Odd, team2Odd in matchList:
+        for (
+            gameDate,
+            team1Name,
+            team2Name,
+            team1Standing,
+            team2Standing,
+            team1Point,
+            team2Point,
+        ) in matchList:
             cur.execute(
                 SQL_INSERT_MATCH,
-                (gameDate, team1Name, team2Name, team1Odd, team2Odd),
+                (gameDate, team1Name, team2Name, team1Point, team2Point),
             )
+            cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Name, team1Standing))
+            cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Name, team2Standing))
     conn.commit()
 
 

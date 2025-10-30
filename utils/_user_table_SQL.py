@@ -36,6 +36,10 @@ INSERT INTO match
 VALUES (%s, %s, %s, %s, %s)
 """
 
+SQL_UPDATE_TEAM_STANDING = """
+UPDATE team SET team_standing = %s WHERE team_name = %s
+"""
+
 SQL_SELECT_MATCH_ID = """
 SELECT match_id
 FROM match
