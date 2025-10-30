@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, abort
+from flask_cors import CORS
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent,
@@ -6,11 +7,12 @@ from linebot.models import (
     PostbackEvent,
 )
 
-from config import HANDLER, LINE_BOT_API
+from config import HANDLER
 from utils.api import *
 from utils.handlers import handle_message, handle_postback, handle_daily_prediction
 
 app = Flask(__name__)
+CORS(app)
 
 
 # domain root

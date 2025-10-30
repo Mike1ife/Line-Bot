@@ -1,5 +1,6 @@
 line-bot-sdk
 flask
+flask_cors
 requests
 datetime
 beautifulsoup4
