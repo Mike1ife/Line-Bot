@@ -345,7 +345,7 @@ def get_nba_games(playoffsLayout: bool):
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0"})
     # get today's score page
-    data = session.get(f"https://www.foxsports.com/nba/scores").text
+    data = session.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
     soup = BeautifulSoup(data, "html.parser")
 
     finalScores = soup.find_all("div", class_="score-team-score")
