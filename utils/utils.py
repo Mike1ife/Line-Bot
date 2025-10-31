@@ -1031,3 +1031,17 @@ def get_nba_scoreboard():
 
 def get_team_injury(teamName: str):
     pass
+
+
+def get_imgur_url(albumId):
+    ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
+    endpoint = f"https://api.imgur.com/3/album/{albumId}/images"
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+    response = requests.get(endpoint, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        images = data["data"]
+        if images:
+            random_image = random.choice(images)
+            image_url = random_image["link"]
+            return image_url

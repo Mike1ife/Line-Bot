@@ -241,14 +241,14 @@ def random_message(event: MessageEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=content))
 
     if message == "抽":
-        imgSrc = get_random_image(imgKey="draw")
+        imgSrc = get_random_image(imgKey="ZDcNFCL")
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
         )
 
     if message == "兄弟":
-        imgSrc = get_random_image(imgKey="bro")
+        imgSrc = get_random_image(imgKey="tb0BGKk")
         LINE_BOT_API.reply_message(
             event.reply_token,
             ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
