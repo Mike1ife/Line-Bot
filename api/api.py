@@ -144,13 +144,11 @@ def get_daily_match_info():
                     "game_time": (
                         gameTimes[(team1Name, team2Name)]
                         if (team1Name, team2Name) in gameTimes
-                        else gameTimes[
-                            (
-                                (team2Name, team1Name)
-                                if (team2Name, team1Name) in gameTimes
-                                else ""
-                            )
-                        ]
+                        else (
+                            gameTimes[(team2Name, team1Name)]
+                            if (team2Name, team1Name) in gameTimes
+                            else ""
+                        )
                     ),
                 }
             )
