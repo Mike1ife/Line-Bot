@@ -74,7 +74,7 @@ def text_message(event: MessageEvent):
 
     if message == "結算":
         try:
-            response = settle_daily_prediction(playoffsLayout=False)
+            response = settle_daily_prediction()
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text=response)
             )
