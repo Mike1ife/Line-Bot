@@ -2,6 +2,7 @@ import random
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from config import IMGUR_CLIENT_ID
 from utils._user_table import *
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
 from linebot.models import (
@@ -11,7 +12,6 @@ from linebot.models import (
     MessageAction,
 )
 
-ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
 RANK_TYPE_TRANSLATION = {
     "week_points": "本週",
     "month_points": "本月",
@@ -1033,15 +1033,14 @@ def get_team_injury(teamName: str):
     pass
 
 
-def get_imgur_url(albumId):
-    ACCESS_TOKEN = "a93827221b1aaca669344e401c8375c6ccdd5ef4"
-    endpoint = f"https://api.imgur.com/3/album/{albumId}/images"
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-    response = requests.get(endpoint, headers=headers)
+def get_imgur_url(albumHash: str):
+    endPoint = f"https://api.imgur.com/3/album/{albumHash}/images"
+    headers = {"Authorization": f"Bearer {IMGUR_CLIENT_ID}"}
+    response = requests.get(endPoint, headers=headers)
     if response.status_code == 200:
         data = response.json()
         images = data["data"]
         if images:
-            random_image = random.choice(images)
-            image_url = random_image["link"]
-            return image_url
+            randomImage = random.choice(images)
+            imageUrl = randomImage["link"]
+            return imageUrl
