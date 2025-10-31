@@ -1035,7 +1035,7 @@ def get_team_injury(teamName: str):
 
 def get_imgur_url(albumHash: str):
     endPoint = f"https://api.imgur.com/3/album/{albumHash}/images"
-    headers = {"Authorization": f"Bearer {IMGUR_CLIENT_ID}"}
+    headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
     response = requests.get(endPoint, headers=headers)
     if response.status_code == 200:
         data = response.json()
