@@ -164,8 +164,8 @@ def _get_daily_game_results():
 
 def settle_daily_prediction():
     """TODO playoffs layout"""
-    gameResults = _get_daily_game_results()
-    update_daily_match_score(gameScores=gameResults)
+    # gameResults = _get_daily_game_results()
+    # update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 
     calculate_daily_stat_point()
