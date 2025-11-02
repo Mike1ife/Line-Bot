@@ -206,7 +206,7 @@ LEFT OUTER JOIN user_predict_match as upm
         upm.uid = (SELECT uid FROM users WHERE name = %s)
         AND upm.match_id = match.match_id
 WHERE match.is_active = TRUE
-ORDER BY match_id
+ORDER BY match.match_id 
 """
 
 SQL_SELECT_USER_PREDICT_STAT1 = """
