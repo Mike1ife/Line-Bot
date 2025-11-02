@@ -233,7 +233,7 @@ INNER JOIN match
 WHERE 
     upm.uid = %s 
     AND match.is_active = TRUE           
-ORDER BY match_id 
+ORDER BY match.match_id 
 """
 
 SQL_SELECT_USER_PREDICT_STAT2 = """
