@@ -206,6 +206,7 @@ LEFT OUTER JOIN user_predict_match as upm
         upm.uid = (SELECT uid FROM users WHERE name = %s)
         AND upm.match_id = match.match_id
 WHERE match.is_active = TRUE
+ORDER BY match_id
 """
 
 SQL_SELECT_USER_PREDICT_STAT1 = """
@@ -217,9 +218,11 @@ INNER JOIN match
 LEFT OUTER JOIN user_predict_stat AS ups
     ON 
         ups.uid = (SELECT uid FROM users WHERE name = %s) 
+        AND ups.match_id = match.match_id
         AND ups.player_name = psb.player_name 
         AND ups.stat_type = psb.stat_type
 WHERE match.is_active = TRUE
+ORDER BY stat_type, player_name
 """
 
 SQL_SELECT_USER_PREDICT_MATCH2 = """
@@ -229,7 +232,8 @@ INNER JOIN match
     ON upm.match_id = match.match_id
 WHERE 
     upm.uid = %s 
-    AND match.is_active = TRUE            
+    AND match.is_active = TRUE           
+ORDER BY match_id 
 """
 
 SQL_SELECT_USER_PREDICT_STAT2 = """
@@ -240,6 +244,7 @@ INNER JOIN match
 WHERE 
     ups.uid = %s 
     AND match.is_active = TRUE
+ORDER BY stat_type, player_name
 """
 
 SQL_SELECT_PLAYER_STAT_BET = """
