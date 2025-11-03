@@ -248,7 +248,7 @@ def INSERT_NBA_TEAM():
                 x = requests.get(teamUrl)
                 s = BeautifulSoup(x.text, "html.parser")
                 teamLogo = s.find("img", class_="image-logo entity-card-logo")["src"]
-
+                # TODO: standing
                 cur.execute(
                     """
                     INSERT INTO team (team_name, team_url, team_logo)
