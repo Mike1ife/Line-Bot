@@ -51,8 +51,8 @@ def insert_match(matchList: list):
                 SQL_INSERT_MATCH,
                 (gameDate, team1Name, team2Name, team1Point, team2Point),
             )
-            cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Name, team1Standing))
-            cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Name, team2Standing))
+            cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Standing, team1Name))
+            cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Standing, team2Name))
     conn.commit()
 
 
