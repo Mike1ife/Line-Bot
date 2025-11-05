@@ -12,8 +12,8 @@ from utils.utils import *
 
 CORRECT_PATTERN = re.compile(r"^信仰(?: ([^\s]+))?$")
 WRONG_PATTERN = re.compile(r"^傻鳥(?: ([^\s]+))?$")
-FOLLOW_PATTERRN = re.compile(r"^跟盤 ([^\s]+)$")
-COMPARE_PATTERN = re.compile(r"^比較 ([^\s]+) ([^\s]+)$")
+FOLLOW_PATTERN = re.compile(r"^跟盤(?: ([^\s]+))?$")
+COMPARE_PATTERN = re.compile(r"^比較(?: ([^\s]+)(?: ([^\s]+))?)?$")
 INJURY_PATTERN = re.compile(r"^傷病(?: ([^\s]+))?$")
 YT_PATTERN = re.compile(r"^yt ([^\s]+)$")
 GG_PATTERN = re.compile(r"^gg ([^\s]+)$")
@@ -127,18 +127,24 @@ def text_message(event: MessageEvent):
         response = get_user_type_point("all_time_points")
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    followMatch = FOLLOW_PATTERRN.match(message)
+    followMatch = FOLLOW_PATTERN.match(message)
     if followMatch:
-        userId = int(followMatch.group(1)) if followMatch.group(1).isdigit() else -1
+        userId = (
+            int(followMatch.group(1))
+            if followMatch.group(1) and followMatch.group(1).isdigit()
+            else -1
+        )
         response = get_prediction_by_id(userId=userId)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     compareMatch = COMPARE_PATTERN.match(message)
     if compareMatch:
-        words = message.split()
         user1Id, user2Id = (
             (int(compareMatch.group(1)), int(compareMatch.group(2)))
-            if compareMatch.group(1).isdigit() and compareMatch.group(2).isdigit()
+            if compareMatch.group(1)
+            and compareMatch.group(2)
+            and compareMatch.group(1).isdigit()
+            and compareMatch.group(2).isdigit()
             else (-1, -1)
         )
         response = get_prediction_comparison(user1Id=user1Id, user2Id=user2Id)
