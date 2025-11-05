@@ -10,6 +10,14 @@ from linebot.exceptions import LineBotApiError
 from config import LINE_BOT_API
 from utils.utils import *
 
+CORRECT_PATTERN = re.compile(r"^信仰(?: ([^\s]+))?$")
+WRONG_PATTERN = re.compile(r"^傻鳥(?: ([^\s]+))?$")
+FOLLOW_PATTERRN = re.compile(r"^跟盤 ([^\s]+)$")
+COMPARE_PATTERN = re.compile(r"^比較 ([^\s]+) ([^\s]+)$")
+INJURY_PATTERN = re.compile(r"^傷病(?: ([^\s]+))?$")
+YT_PATTERN = re.compile(r"^yt ([^\s]+)$")
+GG_PATTERN = re.compile(r"^gg ([^\s]+)$")
+
 
 def text_message(event: MessageEvent):
     message = event.message.text
@@ -87,15 +95,15 @@ def text_message(event: MessageEvent):
                 event.reply_token, [errorMessage, respondMessage]
             )
 
-    if message[:2] == "信仰":
-        words = message.split()
-        teamName = "" if len(words) != 2 else words[1]
+    correctMatch = CORRECT_PATTERN.match(message)
+    if correctMatch:
+        teamName = correctMatch.group(1) if correctMatch.group(1) else ""
         response = get_user_season_correct_count(userName=userName, teamName=teamName)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message[:2] == "傻鳥":
-        words = message.split()
-        teamName = "" if len(words) != 2 else words[1]
+    wrongMatch = WRONG_PATTERN.match(message)
+    if wrongMatch:
+        teamName = wrongMatch.group(1) if correctMatch.group(1) else ""
         response = get_user_season_wrong_count(userName=userName, teamName=teamName)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
@@ -119,17 +127,18 @@ def text_message(event: MessageEvent):
         response = get_user_type_point("all_time_points")
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message[:2] == "跟盤":
-        words = message.split()
-        userId = int(words[1]) if len(words) == 2 and words[1].isdigit() else -1
+    followMatch = FOLLOW_PATTERRN.match(message)
+    if followMatch:
+        userId = int(followMatch.group(1)) if followMatch.group(1).isdigit() else -1
         response = get_prediction_by_id(userId=userId)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message[:2] == "比較":
+    compareMatch = COMPARE_PATTERN.match(message)
+    if compareMatch:
         words = message.split()
         user1Id, user2Id = (
-            (int(words[1]), int(words[2]))
-            if len(words) == 3 and words[1].isdigit() and words[2].isdigit()
+            (int(compareMatch.group(1)), int(compareMatch.group(2)))
+            if compareMatch.group(1).isdigit() and compareMatch.group(2).isdigit()
             else (-1, -1)
         )
         response = get_prediction_comparison(user1Id=user1Id, user2Id=user2Id)
@@ -199,12 +208,14 @@ def text_message(event: MessageEvent):
         response = get_hupu_news()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message[:2].lower() == "yt":
-        response = get_youtube(keyword=message[3:])
+    ytMatch = YT_PATTERN.match(message.lower())
+    if ytMatch:
+        response = get_youtube(keyword=ytMatch.group(1))
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message[:2].lower() == "gg":
-        statusCode, imgSrc = get_google_image(message[3:])
+    ggMatch = GG_PATTERN.match(message.lower())
+    if ggMatch:
+        statusCode, imgSrc = get_google_image(keyword=ggMatch.group(1))
         if statusCode == 200:
             LINE_BOT_API.reply_message(
                 event.reply_token,
@@ -225,8 +236,11 @@ def text_message(event: MessageEvent):
         response = get_nba_scoreboard()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message[:2] == "傷病":
-        pass
+    injuryMatch = INJURY_PATTERN.match(message)
+    if injuryMatch:
+        teamName = injuryMatch.group(1) if injuryMatch.group(1) else ""
+        response = get_team_injury(teamName=teamName)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
 
 def random_message(event: MessageEvent):

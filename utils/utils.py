@@ -4,7 +4,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from config import IMGUR_CLIENT_ID
 from utils._user_table import *
-from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN, NBA_SIMP_CN_TO_TRAD_CN
+from utils._team_table import (
+    NBA_ABBR_ENG_TO_ABBR_CN,
+    NBA_SIMP_CN_TO_TRAD_CN,
+    NBA_TRAD_CN_TO_CBS,
+)
 from linebot.models import (
     CarouselColumn,
     PostbackAction,
@@ -1044,7 +1048,34 @@ def get_nba_scoreboard():
 
 
 def get_team_injury(teamName: str):
-    pass
+    if teamName not in NBA_TRAD_CN_TO_CBS:
+        return "使用方式: 傷病 球隊"
+
+    response = requests.get("https://www.cbssports.com/nba/injuries/")
+    soup = BeautifulSoup(response.text, "html.parser")
+    teamContainers = soup.find_all("div", class_="TableBaseWrapper")
+
+    teamInjury = {cbsTeamName: [] for cbsTeamName in NBA_TRAD_CN_TO_CBS.values()}
+    for teamContainer in teamContainers:
+        teamName = teamContainer.find("span", class_="TeamName").text.strip()
+        teamInjury[teamName] = []
+
+        injuredPlayers = (
+            teamContainer.find("table", class_="TableBase-table")
+            .find("tbody")
+            .find_all("tr", class_="TableBase-bodyTr")
+        )
+        for injuredPlayer in injuredPlayers:
+            playerInfo = injuredPlayer.find_all("td")
+            playerName = (
+                playerInfo[0].find("span", class_="CellPlayerName--long").text.strip()
+            )
+            injuryStatus = playerInfo[4].text.strip()
+            teamInjury[teamName].append(f"{playerName}: {injuryStatus}")
+
+    if len(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]]) == 0:
+        return f"{teamName} 沒有任何傷病"
+    return "\n".join(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]])
 
 
 def get_imgur_url(albumHash: str):
