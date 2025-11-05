@@ -1057,8 +1057,8 @@ def get_team_injury(teamName: str):
 
     teamInjury = {cbsTeamName: [] for cbsTeamName in NBA_TRAD_CN_TO_CBS.values()}
     for teamContainer in teamContainers:
-        teamName = teamContainer.find("span", class_="TeamName").text.strip()
-        teamInjury[teamName] = []
+        cbsTeamName = teamContainer.find("span", class_="TeamName").text.strip()
+        teamInjury[cbsTeamName] = []
 
         injuredPlayers = (
             teamContainer.find("table", class_="TableBase-table")
@@ -1071,7 +1071,7 @@ def get_team_injury(teamName: str):
                 playerInfo[0].find("span", class_="CellPlayerName--long").text.strip()
             )
             injuryStatus = playerInfo[4].text.strip()
-            teamInjury[teamName].append(f"{playerName}: {injuryStatus}")
+            teamInjury[cbsTeamName].append(f"{playerName}: {injuryStatus}")
 
     if len(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]]) == 0:
         return f"{teamName} 沒有任何傷病"
