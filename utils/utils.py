@@ -1075,7 +1075,8 @@ def get_team_injury(teamName: str):
 
     if len(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]]) == 0:
         return f"{teamName} 沒有任何傷病"
-    return "\n".join(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]])
+    spliter = "\n" + "-" * 53 + "\n"
+    return spliter.join(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]])
 
 
 def get_imgur_url(albumHash: str):
