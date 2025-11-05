@@ -308,7 +308,7 @@ def _get_nba_games_time_list(timeStr: str):
     gameCenter = soup.find("div", class_="gamecenter_content_l")
     gameContainers = gameCenter.find_all("div", class_="list_box")
 
-    gameTimeList = []
+    gameTimeMap = {}
     for gameContainer in gameContainers:
         teams = gameContainer.find("div", class_="team_vs_a")
         team1 = teams.find("div", class_="team_vs_a_1 clearfix")
@@ -331,9 +331,11 @@ def _get_nba_games_time_list(timeStr: str):
             .find("p")
             .text
         )
-        gameTimeList.append(gameTime)
+        gameTimeMap[(team1Name, team2Name)] = (
+            gameTime if gameTime != "00:00" else "12:00"
+        )
 
-    return gameTimeList
+    return gameTimeMap
 
 
 def get_nba_games(playoffsLayout: bool):
@@ -358,7 +360,7 @@ def get_nba_games(playoffsLayout: bool):
 
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
-    gameTimeList = _get_nba_games_time_list(tomorrowStr)
+    gameTimeMap = _get_nba_games_time_list(tomorrowStr)
 
     gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
     gamesInfo = soup.find_all("a", class_=gameClass)
@@ -380,7 +382,7 @@ def get_nba_games(playoffsLayout: bool):
     gameList = []
     gameOfTheDay = {"diff": 30, "page": "", "index": -1, "gameTime": ""}
 
-    for i, (gameInfo, gameTimeTW) in enumerate(zip(gamesInfo, gameTimeList)):
+    for i, gameInfo in enumerate(gamesInfo):
         gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
         gamePageData = pages.get(gamePageUrl)
         if not gamePageData:
@@ -398,6 +400,10 @@ def get_nba_games(playoffsLayout: bool):
             continue
 
         # Parse game info
+        # game = {
+        #   "name": []
+        #   "standing": []
+        # }
         if playoffsLayout:
             game = _get_playoffs_game(gameInfo)
         else:
@@ -410,7 +416,13 @@ def get_nba_games(playoffsLayout: bool):
             int(round(30 + float(gameOdds[0].text.strip()))),
             int(round(30 + float(gameOdds[1].text.strip()))),
         ]
-        game["gametime"] = gameTimeTW
+
+        team1Name, team2Name = game["name"]
+        game["gametime"] = (
+            gameTimeMap[(team1Name, team2Name)]
+            if (team1Name, team2Name) in gameTimeMap
+            else gameTimeMap[(team2Name, team1Name)]
+        )
 
         # Find closest odds (most even match)
         oddDiff = abs(float(gameOdds[0].text.strip()))
@@ -420,7 +432,7 @@ def get_nba_games(playoffsLayout: bool):
                     "diff": oddDiff,
                     "page": gamePageUrl,
                     "index": i,
-                    "gameTime": gameTimeTW,
+                    "gameTime": game["gametime"],
                 }
             )
 
@@ -1001,6 +1013,8 @@ def get_nba_scoreboard():
                 .find("p")
                 .text
             )
+            if gameTime == "00:00":
+                gameTime = "12:00"
         elif "已结束" in gameStatus:
             gameTime = "Finish"
             team1Win = team1.find("div", class_="txt").find("span", class_="num red")

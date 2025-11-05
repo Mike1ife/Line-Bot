@@ -66,6 +66,8 @@ def _get_nba_live_score():
                 .find("p")
                 .text
             )
+            if gameTime == "00:00":
+                gameTime = "12:00"
         elif "已结束" in gameStatus:
             team1Win = team1.find("div", class_="txt").find("span", class_="num red")
             if team1Win:
