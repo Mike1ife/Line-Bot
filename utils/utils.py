@@ -1071,7 +1071,7 @@ def get_team_injury(teamName: str):
                 playerInfo[0].find("span", class_="CellPlayerName--long").text.strip()
             )
             injuryStatus = playerInfo[4].text.strip()
-            teamInjury[cbsTeamName].append(f"{playerName}: {injuryStatus}")
+            teamInjury[cbsTeamName].append(playerName + "\n" + injuryStatus)
 
     if len(teamInjury[NBA_TRAD_CN_TO_CBS[teamName]]) == 0:
         return f"{teamName} 沒有任何傷病"
