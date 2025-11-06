@@ -405,8 +405,8 @@ def get_nba_games(playoffsLayout: bool):
 
         # Parse game info
         # game = {
-        #   "name": []
-        #   "standing": []
+        #   "names": []
+        #   "standings": []
         # }
         if playoffsLayout:
             game = _get_playoffs_game(gameInfo)
@@ -421,7 +421,7 @@ def get_nba_games(playoffsLayout: bool):
             int(round(30 + float(gameOdds[1].text.strip()))),
         ]
 
-        team1Name, team2Name = game["name"]
+        team1Name, team2Name = game["names"]
         game["gametime"] = (
             gameTimeMap[(team1Name, team2Name)]
             if (team1Name, team2Name) in gameTimeMap
