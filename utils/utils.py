@@ -118,7 +118,7 @@ def get_prediction_comparison(user1Id: int, user2Id: int):
     return response
 
 
-def _get_daily_game_results():
+def _get_daily_game_results_hupu():
     data = requests.get("https://nba.hupu.com/games").text
     soup = BeautifulSoup(data, "html.parser")
 
@@ -166,9 +166,37 @@ def _get_daily_game_results():
     return gameResults
 
 
+def _get_daily_game_results_fox():
+    data = requests.get("https://www.foxsports.com/nba/scores").text
+    soup = BeautifulSoup(data, "html.parser")
+
+    gameResults = {}  # (team1Name, team2Name): (team1Score, team2Score, winner)
+    liveGameContainers = soup.find_all("a", class_="score-chip live")
+    gameContainers = soup.find_all("a", class_="score-chip final")
+    if liveGameContainers or not gameContainers:
+        raise ValueError("Games Not Finished")
+    for gameContainer in gameContainers:
+        teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
+        scoresInfo = gameContainer.find_all("div", class_="score-team-score")
+
+        teamNames, teamScores = [], []
+        for teamInfo, scoreInfo in zip(teamsInfo, scoresInfo):
+            teamName = teamInfo.find(
+                "span", class_="scores-text capi pd-b-1 ff-ff"
+            ).text.strip()
+            if teamName not in NBA_ABBR_ENG_TO_ABBR_CN:
+                break
+            teamScore = scoreInfo.text.strip()
+            teamNames.append(NBA_ABBR_ENG_TO_ABBR_CN[teamName])
+            teamScores.append(int(teamScore))
+        else:
+            gameResults[(teamNames[0], teamNames[1])] = (teamScores[0], teamScores[1])
+    return gameResults
+
+
 def settle_daily_prediction():
     """TODO playoffs layout"""
-    gameResults = _get_daily_game_results()
+    gameResults = _get_daily_game_results_fox()
     update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 
