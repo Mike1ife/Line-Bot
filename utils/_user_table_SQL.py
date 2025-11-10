@@ -283,7 +283,7 @@ WHERE
     )
 """
 
-SQL_UPDATE_USER_PREDICT_STAT_ALL = """
+SQL_UPDATE_USER_PREDICT_STAT = """
 UPDATE user_predict_stat AS ups
 SET is_correct = (
     predicted_outcome =

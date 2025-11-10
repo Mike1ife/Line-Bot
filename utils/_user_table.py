@@ -525,22 +525,22 @@ def update_daily_match_score(gameScores: dict):
     conn.commit()
 
 
-def calculate_daily_stat_point():
+def calculate_daily_point():
     conn = _get_connection()
     with conn.cursor() as cur:
+        # Reset Daily Point
         cur.execute(SQL_RESET_DAY_POINT)
-        cur.execute(SQL_UPDATE_USER_PREDICT_STAT_ALL)
-        cur.execute(SQL_UPDATE_USER_STAT_POINT)
-    conn.commit()
-
-
-def calculate_daily_match_point():
-    conn = _get_connection()
-    with conn.cursor() as cur:
+        # Stat Result
+        cur.execute(SQL_UPDATE_USER_PREDICT_STAT)
+        # Match Result
         cur.execute(SQL_UPDATE_USER_PREDICT_MATCH)
-        cur.execute(SQL_UPDATE_USER_MATCH_POINT)
         cur.execute(SQL_UPDATE_CORRECT_COUNTER)
         cur.execute(SQL_UPDATE_WRONG_COUNTER)
+        # Stat Point
+        cur.execute(SQL_UPDATE_USER_STAT_POINT)
+        # Match Point
+        cur.execute(SQL_UPDATE_USER_MATCH_POINT)
+        # Deactivate Match
         cur.execute(SQL_DEACTIVE_MATCH)
     conn.commit()
 

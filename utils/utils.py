@@ -200,8 +200,7 @@ def settle_daily_prediction():
     update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 
-    calculate_daily_stat_point()
-    calculate_daily_match_point()
+    calculate_daily_point()
 
     dayPoints = get_type_points(rankType="day_points")
     weekPoints = get_type_points(rankType="week_points")
