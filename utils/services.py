@@ -103,7 +103,7 @@ def text_message(event: MessageEvent):
 
     wrongMatch = WRONG_PATTERN.match(message)
     if wrongMatch:
-        teamName = wrongMatch.group(1) if correctMatch.group(1) else ""
+        teamName = wrongMatch.group(1) if wrongMatch.group(1) else ""
         response = get_user_season_wrong_count(userName=userName, teamName=teamName)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
