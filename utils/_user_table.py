@@ -16,6 +16,8 @@ def _get_connection():
     global _conn
     if _conn is None or _conn.closed:
         _conn = psycopg.connect(DATABASE_URL)
+        _conn.autocommit = False
+    _conn.rollback()
     return _conn
 
 
@@ -37,23 +39,28 @@ def get_type_points(rankType: str):
 def insert_match(matchList: list):
     # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Standing: str, team2Standing: str, team1Point: int, team2Point: int)]
     conn = _get_connection()
-    with conn.cursor() as cur:
-        for (
-            gameDate,
-            team1Name,
-            team2Name,
-            team1Standing,
-            team2Standing,
-            team1Point,
-            team2Point,
-        ) in matchList:
-            cur.execute(
-                SQL_INSERT_MATCH,
-                (gameDate, team1Name, team2Name, team1Point, team2Point),
-            )
-            cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Standing, team1Name))
-            cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Standing, team2Name))
-    conn.commit()
+    try:
+        with conn.cursor() as cur:
+            for (
+                gameDate,
+                team1Name,
+                team2Name,
+                team1Standing,
+                team2Standing,
+                team1Point,
+                team2Point,
+            ) in matchList:
+                cur.execute(
+                    SQL_INSERT_MATCH,
+                    (gameDate, team1Name, team2Name, team1Point, team2Point),
+                )
+                cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Standing, team1Name))
+                cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Standing, team2Name))
+        conn.commit()
+    except Exception as e:
+        print(f"[DB Error] insert_match failed: {e}")
+        conn.rollback()
+        raise
 
 
 def insert_player_stat_bet(playerStatBetList: list):
