@@ -11,13 +11,27 @@ PREDICTION_INDEX = 38
 
 _conn = None
 
-
 def _get_connection():
     global _conn
-    if _conn is None or _conn.closed:
+    try:
+        # If no connection or already closed, reconnect
+        if _conn is None or _conn.closed:
+            _conn = psycopg.connect(DATABASE_URL)
+            _conn.autocommit = False
+        else:
+            # Try a lightweight test query to ensure connection is still alive
+            with _conn.cursor() as cur:
+                cur.execute("SELECT 1")
+    except Exception:
+        # If the connection test or rollback fails, reconnect
+        try:
+            if _conn:
+                _conn.close()
+        except Exception:
+            pass
         _conn = psycopg.connect(DATABASE_URL)
         _conn.autocommit = False
-    _conn.rollback()
+
     return _conn
 
 
