@@ -784,9 +784,7 @@ def get_player_stat_prediction_postback(
 
 
 def insert_nba_totay(matchList: list, playerStatBetList: list):
-    insert_match(matchList=matchList)
-    if playerStatBetList:
-        insert_player_stat_bet(playerStatBetList=playerStatBetList)
+    insert_prediction(mattchList=matchList, playerStatBetList=playerStatBetList)
 
 
 def get_nba_guessing():
