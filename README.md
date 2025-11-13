@@ -109,6 +109,10 @@ Once the bot is deployed and connected to LINE, you can interact with it using t
 
 📂 Screenshots: [assets/others](./assets/others)  
 
+---
+
+### 🔌 **REST API Backend**
+Used by the web dashboard ([**Line-Bot-Web**](https://github.com/Mike1ife/Line-Bot-Web)  ).  
 
 ## ⚠️ Disclaimer
 
