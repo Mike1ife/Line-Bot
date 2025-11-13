@@ -2,8 +2,7 @@ import psycopg
 import requests
 from bs4 import BeautifulSoup
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
-
-DATABASE_URL = "your-db-url"
+from config import DATABASE_URL
 
 
 def CREATE_USER_TABLE():
