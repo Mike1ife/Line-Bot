@@ -374,6 +374,14 @@ FROM (
 WHERE users.uid = result.uid
 """
 
+SQL_INSERT_DAY_HISTORY = """
+INSERT INTO user_point_history (uid, point_type, created_at, point_value)
+SELECT uid, 'daily', CURRENT_DATE, day_points
+FROM users
+ON CONFLICT (uid, point_type, created_at)
+DO UPDATE SET point_value = EXCLUDED.point_value
+"""
+
 
 SQL_UPDATE_CORRECT_COUNTER = """
 UPDATE counter

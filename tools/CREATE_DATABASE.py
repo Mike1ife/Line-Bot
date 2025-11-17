@@ -2,7 +2,8 @@ import psycopg
 import requests
 from bs4 import BeautifulSoup
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
-from config import DATABASE_URL
+
+DATABASE_URL = "your db url"
 
 
 def CREATE_USER_TABLE():
@@ -21,6 +22,27 @@ def CREATE_USER_TABLE():
                 all_time_points INTEGER DEFAULT 0,
                 is_admin BOOLEAN DEFAULT FALSE
             );
+            """
+            cur.execute(SQL)
+            conn.commit()
+
+
+def CREATE_USER_POINT_HISTORY():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            SQL = """
+            CREATE TABLE IF NOT EXISTS user_point_history (
+                uid TEXT NOT NULL,
+                point_type TEXT NOT NULL CHECK (
+                    point_type IN ('day_points', 'week_points', 'month_points', 'season_points', 'all_time_points')
+                ),
+                created_at DATE NOT NULL DEFAULT NOW(),
+                point_value INTEGER NOT NULL,
+                CONSTRAINT user_point_history_pk PRIMARY KEY (uid, point_type, created_at),
+                CONSTRAINT user_point_history_user_fk FOREIGN KEY (uid)
+                    REFERENCES users(uid)
+                    ON UPDATE CASCADE ON DELETE CASCADE
+            )
             """
             cur.execute(SQL)
             conn.commit()
@@ -155,6 +177,28 @@ def CREATE_PLAYER_STAT_BET_TABLE():
             conn.commit()
 
 
+def CREATE_USER_POINT_HISTORY():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            SQL = """
+            CREATE TABLE IF NOT EXISTS user_point_history (
+                uid TEXT NOT NULL,
+                point_type TEXT NOT NULL CHECK (
+                    point_type IN ('daily', 'weekly', 'monthly', 'season', 'all_time')
+                ),
+                created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+                point_value INTEGER NOT NULL,
+                CONSTRAINT user_point_history_pk 
+                    PRIMARY KEY (uid, point_type, created_at),
+                CONSTRAINT user_point_history_user_fk FOREIGN KEY (uid)
+                    REFERENCES users(uid)
+                    ON UPDATE CASCADE ON DELETE CASCADE
+            );
+            """
+            cur.execute(SQL)
+            conn.commit()
+
+
 def CREATE_USER_PREDICT_STAT_TABLE():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -176,20 +220,6 @@ def CREATE_USER_PREDICT_STAT_TABLE():
             );
             """
             cur.execute(SQL)
-            conn.commit()
-
-
-def DROP_DATABASE():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("DROP TABLE IF EXISTS player CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS user_predict_stat CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS player_stat_bet CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS user_predict_match CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS match CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS counter CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS team CASCADE;")
-            cur.execute("DROP TABLE IF EXISTS users CASCADE;")
             conn.commit()
 
 
@@ -262,14 +292,18 @@ def INSERT_NBA_TEAM():
         conn.commit()
 
 
-# DROP_DATABASE()
-# CREATE_USER_TABLE()
-# CREATE_TEAM_TABLE()
-# CREATE_COUNTER_TABLE()
-# CREATE_MATCH_TABLE()
-# CREATE_USER_PREDICT_MATCH_TABLE()
-# CREATE_PLAYER_TABLE()
-# CREATE_PLAYER_STAT_BET_TABLE()
-# CREATE_USER_PREDICT_STAT_TABLE()
-INSERT_NBA_TEAM()
-# INSERT_PLAYER()
+def CREATE_DATABASE():
+    CREATE_USER_TABLE()
+    CREATE_USER_POINT_HISTORY()
+    CREATE_TEAM_TABLE()
+    CREATE_COUNTER_TABLE()
+    CREATE_MATCH_TABLE()
+    CREATE_USER_PREDICT_MATCH_TABLE()
+    CREATE_PLAYER_TABLE()
+    CREATE_PLAYER_STAT_BET_TABLE()
+    CREATE_USER_PREDICT_STAT_TABLE()
+    INSERT_NBA_TEAM()
+    INSERT_PLAYER()
+
+
+CREATE_DATABASE()

@@ -156,9 +156,9 @@ def insert_user_predict_stat(
 
 
 def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dict):
-    # updateRankType = [rankType1, rankType1, ...]
-    # updateStrategy = [strategy1, strategy2, ...] ('a' / 'w')
-    # updateMap[userName] = [value1, value2, ...]
+    # updateRankType = [rankType, nextRankType]
+    # updateStrategy = [strategy, nextStrategy] ('a' / 'w')
+    # updateMap[userName] = [value, nextValue]
     conn = _get_connection()
     with conn.cursor() as cur:
         for userName in updateMap:
@@ -562,6 +562,8 @@ def calculate_daily_point():
         cur.execute(SQL_UPDATE_USER_MATCH_POINT)
         # Deactivate Match
         cur.execute(SQL_DEACTIVE_MATCH)
+        # Write Daily Point to History
+        cur.execute(SQL_INSERT_DAY_HISTORY)
     conn.commit()
 
 
