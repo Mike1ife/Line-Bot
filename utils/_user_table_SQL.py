@@ -144,10 +144,6 @@ SET is_active = FALSE
 WHERE is_active = TRUE
 """
 
-SQL_RESET_DAY_POINT = """
-UPDATE users SET day_points = 0
-"""
-
 SQL_SELECT_SEASON_CORRECT_COUNTER = """
 SELECT team_name, season_correct_count
 FROM counter
@@ -305,7 +301,7 @@ WHERE
 SQL_UPDATE_USER_STAT_POINT = """
 UPDATE users
 SET
-    day_points = users.day_points + result.total_points,
+    day_points = result.total_points,
     week_points = users.week_points + result.total_points
 FROM (
     SELECT

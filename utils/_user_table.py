@@ -171,14 +171,6 @@ def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dic
     conn.commit()
 
 
-def reset_nba_prediction():
-    conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(SQL_DEACTIVE_MATCH)
-        cur.execute(SQL_RESET_DAY_POINT)
-    conn.commit()
-
-
 def _pre_settle_week_points():
     UTCnow = datetime.now(timezone.utc)
     TWnow = UTCnow.astimezone(timezone(timedelta(hours=8)))
@@ -548,8 +540,6 @@ def update_daily_match_score(gameScores: dict):
 def calculate_daily_point():
     conn = _get_connection()
     with conn.cursor() as cur:
-        # Reset Daily Point
-        cur.execute(SQL_RESET_DAY_POINT)
         # Stat Result
         cur.execute(SQL_UPDATE_USER_PREDICT_STAT)
         # Match Result

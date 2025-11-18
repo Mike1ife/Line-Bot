@@ -223,6 +223,19 @@ def CREATE_USER_PREDICT_STAT_TABLE():
             conn.commit()
 
 
+def CREATE_INDEX():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            SQL = """
+            CREATE INDEX IF NOT EXISTS idx_match_active ON match(is_active);
+            CREATE INDEX IF NOT EXISTS idx_upm_match ON user_predict_match(match_id);
+            CREATE INDEX IF NOT EXISTS idx_ups_match ON user_predict_stat(match_id);
+            CREATE INDEX IF NOT EXISTS idx_psb_join ON player_stat_bet(player_name, match_id, stat_type);
+            """
+            cur.execute(SQL)
+            conn.commit()
+
+
 def INSERT_PLAYER():
     output = []
     response = requests.get("https://www.foxsports.com/nba/teams")
@@ -302,6 +315,7 @@ def CREATE_DATABASE():
     CREATE_PLAYER_TABLE()
     CREATE_PLAYER_STAT_BET_TABLE()
     CREATE_USER_PREDICT_STAT_TABLE()
+    CREATE_INDEX()
     INSERT_NBA_TEAM()
     INSERT_PLAYER()
 
