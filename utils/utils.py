@@ -987,6 +987,9 @@ def get_long_cat_prediction():
     #   "Stat": [{"playerName": playerName, "statType": statType, "statTarget": statTarget, "odds": (overOdds, underOdds)}]
     # }
     predictionInfo = get_prediction_info()
+    if not predictionInfo["Match"]:
+        return "No Active Game"
+
     systemPrompt = """
     你是一個名叫Billy的Line機器人。你的風格是：
     - 非常專業，但情緒上不完全理智
@@ -1057,8 +1060,6 @@ def get_long_cat_prediction():
         headers=headers,
         json=data,
     )
-    print(systemPrompt)
-    print("\n".join(prompts))
     return response.json()["choices"][0]["message"]["content"]
 
 
