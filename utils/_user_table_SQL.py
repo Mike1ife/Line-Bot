@@ -138,11 +138,6 @@ SQL_WRITE_TYPE_POINT = {
 
 SQL_UPDATE_TYPE_POINT = {"a": SQL_ADD_TYPE_POINT, "w": SQL_WRITE_TYPE_POINT}
 
-SQL_DEACTIVE_MATCH = """
-UPDATE match
-SET is_active = FALSE
-WHERE is_active = TRUE
-"""
 
 SQL_SELECT_SEASON_CORRECT_COUNTER = """
 SELECT team_name, season_correct_count
@@ -279,134 +274,8 @@ WHERE
     )
 """
 
-SQL_UPDATE_USER_PREDICT_STAT = """
-UPDATE user_predict_stat AS ups
-SET is_correct = (
-    predicted_outcome =
-    CASE
-        WHEN psb.stat_result >= psb.stat_target THEN '大盤'
-        ELSE '小盤'
-    END
-)
-FROM player_stat_bet AS psb
-JOIN match
-  ON psb.match_id = match.match_id
-WHERE
-  ups.player_name = psb.player_name
-  AND ups.match_id = psb.match_id
-  AND ups.stat_type = psb.stat_type
-  AND match.is_active = TRUE
-"""
-
-SQL_UPDATE_USER_STAT_POINT = """
-UPDATE users
-SET
-    day_points = result.total_points,
-    week_points = users.week_points + result.total_points
-FROM (
-    SELECT
-        ups.uid,
-        SUM(
-            CASE
-                WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
-                ELSE psb.under_point
-            END
-        ) AS total_points
-    FROM user_predict_stat AS ups
-    INNER JOIN match
-        ON ups.match_id = match.match_id
-    INNER JOIN player_stat_bet AS psb 
-        ON psb.player_name = ups.player_name
-        AND psb.match_id = ups.match_id
-        AND psb.stat_type = ups.stat_type
-    WHERE
-        ups.is_correct = TRUE
-        AND match.is_active = TRUE
-    GROUP BY ups.uid
-) AS result
-WHERE users.uid = result.uid
-"""
-
-
-SQL_UPDATE_USER_PREDICT_MATCH = """
-UPDATE user_predict_match AS upm
-SET is_correct = (
-    upm.predicted_team = 
-    CASE
-        WHEN match.team1_score > match.team2_score THEN match.team1_name
-        WHEN match.team2_score > match.team1_score THEN match.team2_name
-        ELSE NULL
-    END
-)
-FROM match
-WHERE
-    upm.match_id = match.match_id
-    AND match.is_active = TRUE;
-"""
-
-
-SQL_UPDATE_USER_MATCH_POINT = """
-UPDATE users
-SET
-    day_points = users.day_points + result.total_points,
-    week_points = users.week_points + result.total_points
-FROM (
-    SELECT
-        upm.uid,
-        SUM(
-            CASE
-                WHEN upm.predicted_team = m.team1_name THEN m.team1_point
-                ELSE m.team2_point
-            END
-        ) AS total_points
-    FROM user_predict_match AS upm
-    INNER JOIN match AS m
-        ON upm.match_id = m.match_id
-    WHERE
-        upm.is_correct = TRUE
-        AND m.is_active = TRUE
-    GROUP BY upm.uid
-) AS result
-WHERE users.uid = result.uid
-"""
-
-SQL_INSERT_DAY_HISTORY = """
-INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'day_points', CURRENT_DATE, day_points
-FROM users
-ON CONFLICT (uid, point_type, created_at)
-DO UPDATE SET point_value = EXCLUDED.point_value
-"""
-
-
-SQL_UPDATE_CORRECT_COUNTER = """
-UPDATE counter
-SET
-    season_correct_count = season_correct_count + 1,
-    all_time_correct_count = all_time_correct_count + 1
-FROM user_predict_match AS upm
-INNER JOIN match
-    ON match.match_id = upm.match_id
-WHERE
-    counter.uid = upm.uid
-    AND counter.team_name = upm.predicted_team
-    AND match.is_active = TRUE
-    AND upm.is_correct = TRUE
-"""
-
-SQL_UPDATE_WRONG_COUNTER = """
-UPDATE counter
-SET
-    season_wrong_count = season_wrong_count + 1,
-    all_time_wrong_count = all_time_wrong_count + 1
-FROM user_predict_match AS upm
-INNER JOIN match
-   ON match.match_id = upm.match_id
-WHERE
-    counter.uid = upm.uid
-    AND counter.team_name = upm.predicted_team
-    AND match.is_active = TRUE
-    AND upm.is_correct = FALSE
+SQL_CALL_CALCULATE_DAILY_POINT_PROC = """
+CALL calculate_daily_points_proc()
 """
 
 SQL_SELECT_PLAYER_LINK = """
