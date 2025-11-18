@@ -1058,6 +1058,7 @@ def get_long_cat_prediction():
         json=data,
     )
     print(systemPrompt)
+    print("\n".join(prompts))
     return response.json()["choices"][0]["message"]["content"]
 
 
