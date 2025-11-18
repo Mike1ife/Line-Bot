@@ -506,6 +506,7 @@ def settle_daily_stat_result():
             statResult, gameDate = _get_stat_result(
                 playerName=playerName, statType=statType
             )
+            """TODO: player not play today"""
             # if _has_play_today(gameDate=gameDate):
             cur.execute(
                 SQL_UPDATE_PLAYER_STAT_BET,

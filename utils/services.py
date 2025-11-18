@@ -15,8 +15,9 @@ WRONG_PATTERN = re.compile(r"^傻鳥(?: ([^\s]+))?$")
 FOLLOW_PATTERN = re.compile(r"^跟盤(?: ([^\s]+))?$")
 COMPARE_PATTERN = re.compile(r"^比較(?: ([^\s]+)(?: ([^\s]+))?)?$")
 INJURY_PATTERN = re.compile(r"^傷病(?: ([^\s]+))?$")
-YT_PATTERN = re.compile(r"^yt ([^\s]+)$")
-GG_PATTERN = re.compile(r"^gg ([^\s]+)$")
+YT_PATTERN = re.compile(r"^yt (.+)$")
+GG_PATTERN = re.compile(r"^gg (.+)$")
+AI_PATTERN = re.compile(r"^ai (.+)$")
 
 
 def text_message(event: MessageEvent):
@@ -227,6 +228,11 @@ def text_message(event: MessageEvent):
                 event.reply_token,
                 ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
             )
+
+    aiMatch = AI_PATTERN.match(message.lower())
+    if aiMatch:
+        response = get_long_cat_inference(content=aiMatch.group(1))
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "牢大":
         content = get_textfile("TextFiles/Mamba.txt")

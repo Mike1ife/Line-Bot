@@ -2,7 +2,7 @@ import random
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from config import IMGUR_CLIENT_ID
+from config import IMGUR_CLIENT_ID, LONG_CAT_API_KEY
 from utils._user_table import *
 from utils._team_table import (
     NBA_ABBR_ENG_TO_ABBR_CN,
@@ -979,6 +979,33 @@ def get_google_image(keyword: str):
     soup = BeautifulSoup(data, "html.parser")
     imgSrc = soup.find("img", class_="DS1iW")["src"]
     return requests.get(imgSrc).status_code, imgSrc
+
+
+def get_long_cat_inference(content: str):
+    headers = {
+        "Authorization": f"Bearer {LONG_CAT_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    data = {
+        "model": "LongCat-Flash-Chat",
+        "messages": [
+            {
+                "role": "system",
+                "content": "你是一個名叫Billy(外號李狗)的暴躁Line機器人",
+            },
+            {"role": "user", "content": content},
+        ],
+        "max_tokens": 256,
+        "temperature": 0.7,
+    }
+
+    response = requests.post(
+        "https://api.longcat.chat/openai/v1/chat/completions",
+        headers=headers,
+        json=data,
+    )
+    return response.json()["choices"][0]["message"]["content"]
 
 
 def get_textfile(filePath: str):
