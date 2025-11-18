@@ -229,6 +229,10 @@ def text_message(event: MessageEvent):
                 ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
             )
 
+    if message.lower() == "ai預測":
+        response = get_long_cat_prediction()
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
     aiMatch = AI_PATTERN.match(message.lower())
     if aiMatch:
         response = get_long_cat_inference(content=aiMatch.group(1))

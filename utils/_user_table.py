@@ -155,6 +155,43 @@ def insert_user_predict_stat(
     return returnState
 
 
+def get_prediction_info():
+    # predictionInfo = {
+    #   "Match": [{"teamNames": (team1Name, team2Name), "teamOdds": (team1Odds, team2Odds), "teamStandings": (team1Standing, team2Standing)}],
+    #   "Stat": [{"playerName": playerName, "statType": statType, "statTarget": statTarget, "odds": (overOdds, underOdds)}]
+    # }
+    predictionInfo = {"Match": [], "Stat": []}
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_ACTIVE_MATCH)
+        for (
+            team1Name,
+            team2Name,
+            team1Odds,
+            team2Odds,
+            team1Standing,
+            team2Standing,
+        ) in cur.fetchall():
+            match = {
+                "teamNames": (team1Name, team2Name),
+                "teamOdds": (team1Odds, team2Odds),
+                "teamStandings": (team1Standing, team2Standing),
+            }
+            predictionInfo["Match"].append(match)
+
+        cur.execute(SQL_SELECT_ACTIVE_PLAYER_STAT_BET)
+        for playerName, statType, statTarget, overOdds, underOdds in cur.fetchall():
+            playerStatBet = {
+                "playerName": playerName,
+                "statType": statType,
+                "statTarget": statTarget,
+                "odds": (overOdds, underOdds),
+            }
+            predictionInfo["Stat"].append(playerStatBet)
+
+    return predictionInfo
+
+
 def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dict):
     # updateRankType = [rankType, nextRankType]
     # updateStrategy = [strategy, nextStrategy] ('a' / 'w')

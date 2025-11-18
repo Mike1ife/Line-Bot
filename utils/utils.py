@@ -981,6 +981,86 @@ def get_google_image(keyword: str):
     return requests.get(imgSrc).status_code, imgSrc
 
 
+def get_long_cat_prediction():
+    # predictionInfo = {
+    #   "Match": [{"teamNames": (team1Name, team2Name), "teamOdds": (team1Odds, team2Odds), "teamStandings": (team1Standing, team2Standing)}],
+    #   "Stat": [{"playerName": playerName, "statType": statType, "statTarget": statTarget, "odds": (overOdds, underOdds)}]
+    # }
+    predictionInfo = get_prediction_info()
+    systemPrompt = """
+    你是一個名叫Billy的Line機器人。你的風格是：
+    - 非常專業，但情緒上不完全理智
+    - 喜歡用明確、有趣、略帶誇張的語氣解釋理由
+    - 喜歡「押注式」預測，每一行一定要包含判斷 + 原因
+
+    你的任務：
+    根據使用者提供的比賽（Match）與球員數據（Stat），逐行輸出預測與理由。
+
+    輸出格式要求（非常重要）：
+    1. 每一條預測占一行，不要合併。
+    2. 行格式：
+    - 比賽預測行：
+        【比賽預測】{team1}({standing1}) v.s. {team2}({standing2}) → 我選 {預測結果}，因為 {理由}
+    - 球員數據預測行：
+        【數據預測】{playerName} {statType}>{target} → 我押 {大盤/小盤}，因為 {理由}
+
+    3. 理由要：
+    - 專業：可引用戰績、近期表現、對位優勢
+    - 不完全理智：加入一些誇張、不理性的自信或迷信語句
+    - 不能扯太遠，仍需與比賽/數據相關
+
+    4. 請勿輸出任何前言或後記，只輸出預測行。
+
+    以下是今日比賽與數據：
+    """
+    prompts = []
+
+    prompts.append("今日比賽：")
+    for match in predictionInfo["Match"]:
+        team1Name, team2Name = match["teamNames"]
+        team1Odds, team2Odds = match["teamOdds"]
+        team1Standing, team2Standing = match["teamStandings"]
+        matchString = f"{team1Name}({team1Standing}) v.s. {team2Name}({team2Standing})，賭盤：{team1Odds} - {team2Odds}"
+        prompts.append(matchString)
+
+    prompts.append("球員數據預測：")
+    for playerStatBet in predictionInfo["Stat"]:
+        playerName = playerStatBet["playerName"]
+        statType = playerStatBet["statType"]
+        statTarget = playerStatBet["statTarget"]
+        overOdds, underOdds = playerStatBet["odds"]
+        playerStatBetString = (
+            f"{playerName}的{statType}超過{statTarget}，賭盤：{overOdds} - {underOdds}"
+        )
+        prompts.append(playerStatBetString)
+
+    headers = {
+        "Authorization": f"Bearer {LONG_CAT_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    data = {
+        "model": "LongCat-Flash-Chat",
+        "messages": [
+            {
+                "role": "system",
+                "content": systemPrompt,
+            },
+            {"role": "user", "content": "\n".join(prompts)},
+        ],
+        "max_tokens": 1024,
+        "temperature": 0.0,
+    }
+
+    response = requests.post(
+        "https://api.longcat.chat/openai/v1/chat/completions",
+        headers=headers,
+        json=data,
+    )
+    print(systemPrompt)
+    return response.json()["choices"][0]["message"]["content"]
+
+
 def get_long_cat_inference(content: str):
     headers = {
         "Authorization": f"Bearer {LONG_CAT_API_KEY}",
@@ -996,8 +1076,8 @@ def get_long_cat_inference(content: str):
             },
             {"role": "user", "content": content},
         ],
-        "max_tokens": 256,
-        "temperature": 0.7,
+        "max_tokens": 512,
+        "temperature": 1.0,
     }
 
     response = requests.post(

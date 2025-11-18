@@ -274,6 +274,22 @@ WHERE
     )
 """
 
+SQL_SELECT_ACTIVE_MATCH = """
+SELECT team1_name, team2_name, team1_point, team2_point,
+    (SELECT team_standing FROM team WHERE team_name = team1_name),
+    (SELECT team_standing FROM team WHERE team_name = team2_name)
+FROM match
+WHERE is_active = TRUE
+"""
+
+SQL_SELECT_ACTIVE_PLAYER_STAT_BET = """
+SELECT player_name, stat_type, stat_target, over_point, under_point
+FROM player_stat_bet AS psb
+INNER JOIN match
+    ON match.match_id = psb.match_id
+WHERE match.is_active = TRUE
+"""
+
 SQL_CALL_CALCULATE_DAILY_POINT_PROC = """
 CALL calculate_daily_points_proc()
 """
