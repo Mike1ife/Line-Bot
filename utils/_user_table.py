@@ -521,17 +521,22 @@ def _get_stat_result(playerName: str, statType: str):
 
 
 def _has_play_today(gameDate: str):
+    # gameDate = MM/DD on fox, which is one day BEHIND Neon
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    # MM/DD
-    month, day = gameDate.split("/")
-    gameDateStr = f"{nowTW}-{month}-{day}"
-    gameDateStr = "{}-{:0>2}-{:0>2}".format(nowTW.year, int(month), int(day))
+
+    # Parse FOX MM/DD with this year's year
+    month, day = map(int, gameDate.split("/"))
+    fox_date = datetime(nowTW.year, month, day, tzinfo=nowTW.tzinfo)
+
+    neon_date = fox_date + timedelta(days=1)
+    gameDateStr = neon_date.strftime("%Y-%m-%d")
     conn = _get_connection()
     with conn.cursor() as cur:
         cur.execute("SELECT is_active FROM match WHERE game_date = %s", (gameDateStr,))
-        isActiveList = cur.fetchone()
-    return isActiveList[0] if isActiveList else False
+        result = cur.fetchone()
+
+    return result[0] if result else False
 
 
 def settle_daily_stat_result():
@@ -543,12 +548,12 @@ def settle_daily_stat_result():
             statResult, gameDate = _get_stat_result(
                 playerName=playerName, statType=statType
             )
-            """TODO: player not play today"""
-            # if _has_play_today(gameDate=gameDate):
-            cur.execute(
-                SQL_UPDATE_PLAYER_STAT_BET,
-                (statResult, playerName, matchId, statType),
-            )
+
+            if _has_play_today(gameDate=gameDate):
+                cur.execute(
+                    SQL_UPDATE_PLAYER_STAT_BET,
+                    (statResult, playerName, matchId, statType),
+                )
     conn.commit()
 
 

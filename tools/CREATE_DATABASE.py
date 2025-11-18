@@ -260,8 +260,9 @@ def CREATE_PROCEDURE():
             ups.player_name = psb.player_name
             AND ups.match_id = psb.match_id
             AND ups.stat_type = psb.stat_type
-            AND match.is_active = TRUE;
-
+            AND match.is_active = TRUE
+            AND psb.stat_result IS NOT NULL;
+            
             UPDATE user_predict_match AS upm
             SET is_correct = (
                 upm.predicted_team = 
