@@ -198,6 +198,9 @@ def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dic
     # updateMap[userName] = [value, nextValue]
     conn = _get_connection()
     with conn.cursor() as cur:
+        cur.execute(SQL_INSERT_USER_POINT_HISTORY[updateRankType[0]])
+        if updateRankType == "season_points":
+            cur.execute(SQL_INSERT_USER_POINT_HISTORY["all_time_points"])
         for userName in updateMap:
             cur.execute(SQL_SELECT_UID, (userName,))
             userUID = cur.fetchone()[0]

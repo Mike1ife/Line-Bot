@@ -290,6 +290,45 @@ INNER JOIN match
 WHERE match.is_active = TRUE
 """
 
+SQL_INSERT_USER_WEEK_POINT_HISTORY = """
+INSERT INTO user_point_history (uid, point_type, created_at, point_value)
+SELECT uid, 'week_points', CURRENT_DATE, day_points
+FROM users
+ON CONFLICT (uid, point_type, created_at)
+DO UPDATE SET point_value = EXCLUDED.point_value;
+"""
+
+SQL_INSERT_USER_MONTH_POINT_HISTORY = """
+INSERT INTO user_point_history (uid, point_type, created_at, point_value)
+SELECT uid, 'month_points', CURRENT_DATE, day_points
+FROM users
+ON CONFLICT (uid, point_type, created_at)
+DO UPDATE SET point_value = EXCLUDED.point_value;
+"""
+
+SQL_INSERT_USER_SEASON_POINT_HISTORY = """
+INSERT INTO user_point_history (uid, point_type, created_at, point_value)
+SELECT uid, 'season_points', CURRENT_DATE, day_points
+FROM users
+ON CONFLICT (uid, point_type, created_at)
+DO UPDATE SET point_value = EXCLUDED.point_value;
+"""
+
+SQL_INSERT_USER_ALL_TIME_POINT_HISTORY = """
+INSERT INTO user_point_history (uid, point_type, created_at, point_value)
+SELECT uid, 'all_time_points', CURRENT_DATE, day_points
+FROM users
+ON CONFLICT (uid, point_type, created_at)
+DO UPDATE SET point_value = EXCLUDED.point_value;
+"""
+
+SQL_INSERT_USER_POINT_HISTORY = {
+    "week_points": SQL_INSERT_USER_WEEK_POINT_HISTORY,
+    "month_points": SQL_INSERT_USER_MONTH_POINT_HISTORY,
+    "season_points": SQL_INSERT_USER_SEASON_POINT_HISTORY,
+    "all_time_points": SQL_INSERT_USER_ALL_TIME_POINT_HISTORY,
+}
+
 SQL_CALL_CALCULATE_DAILY_POINT_PROC = """
 CALL calculate_daily_points_proc()
 """

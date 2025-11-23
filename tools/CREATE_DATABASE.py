@@ -301,7 +301,8 @@ def CREATE_PROCEDURE():
                     SUM(
                         CASE
                             WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
-                            ELSE psb.under_point
+                            WHEN ups.predicted_outcome = '小盤' THEN psb.under_point
+                            ELSE 0
                         END
                     ) AS total_points
                 FROM user_predict_stat AS ups
@@ -328,7 +329,8 @@ def CREATE_PROCEDURE():
                     SUM(
                         CASE
                             WHEN upm.predicted_team = m.team1_name THEN m.team1_point
-                            ELSE m.team2_point
+                            WHEN upm.predicted_team = m.team2_name THEN m.team2_point
+                            ELSE 0
                         END
                     ) AS total_points
                 FROM user_predict_match AS upm
