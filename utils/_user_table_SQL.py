@@ -292,7 +292,7 @@ WHERE match.is_active = TRUE
 
 SQL_INSERT_USER_WEEK_POINT_HISTORY = """
 INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'week_points', CURRENT_DATE, day_points
+SELECT uid, 'week_points', CURRENT_DATE, week_points
 FROM users
 ON CONFLICT (uid, point_type, created_at)
 DO UPDATE SET point_value = EXCLUDED.point_value;
@@ -300,7 +300,7 @@ DO UPDATE SET point_value = EXCLUDED.point_value;
 
 SQL_INSERT_USER_MONTH_POINT_HISTORY = """
 INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'month_points', CURRENT_DATE, day_points
+SELECT uid, 'month_points', CURRENT_DATE, month_points
 FROM users
 ON CONFLICT (uid, point_type, created_at)
 DO UPDATE SET point_value = EXCLUDED.point_value;
@@ -308,7 +308,7 @@ DO UPDATE SET point_value = EXCLUDED.point_value;
 
 SQL_INSERT_USER_SEASON_POINT_HISTORY = """
 INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'season_points', CURRENT_DATE, day_points
+SELECT uid, 'season_points', CURRENT_DATE, season_points
 FROM users
 ON CONFLICT (uid, point_type, created_at)
 DO UPDATE SET point_value = EXCLUDED.point_value;
@@ -316,7 +316,7 @@ DO UPDATE SET point_value = EXCLUDED.point_value;
 
 SQL_INSERT_USER_ALL_TIME_POINT_HISTORY = """
 INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'all_time_points', CURRENT_DATE, day_points
+SELECT uid, 'all_time_points', CURRENT_DATE, all_time_points
 FROM users
 ON CONFLICT (uid, point_type, created_at)
 DO UPDATE SET point_value = EXCLUDED.point_value;
