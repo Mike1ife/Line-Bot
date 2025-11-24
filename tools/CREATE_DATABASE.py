@@ -244,6 +244,8 @@ def CREATE_PROCEDURE():
             LANGUAGE plpgsql
             AS $$
             BEGIN
+
+            UPDATE users SET day_points = 0;
             
             UPDATE user_predict_stat AS ups
             SET is_correct = (
