@@ -35,6 +35,10 @@ BET_STAT_TRANSLATION = {
 }
 
 
+def remove_active_match():
+    delete_active_match_tuples()
+
+
 def get_user_type_point(rankType: str):
     userPoints = get_type_points(rankType=rankType)
     userPoints.sort(key=lambda x: x[1], reverse=True)

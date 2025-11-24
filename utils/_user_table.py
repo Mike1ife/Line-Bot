@@ -44,6 +44,13 @@ def user_is_admin(userUID: str):
         return result[0] if result else False
 
 
+def delete_active_match_tuples():
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_DELETE_ACTIVE_MATCH)
+    conn.commit()
+
+
 def get_type_points(rankType: str):
     conn = _get_connection()
     with conn.cursor() as cur:

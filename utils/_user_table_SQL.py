@@ -2,6 +2,10 @@ SQL_USER_IS_ADMIN = """
 SELECT is_admin FROM users WHERE uid = %s
 """
 
+SQL_DELETE_ACTIVE_MATCH = """
+DELETE FROM match WHERE is_active = TRUE
+"""
+
 SQL_SELECT_DAY_POINT = """
 SELECT name, day_points FROM users ORDER BY created_at
 """

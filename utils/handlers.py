@@ -38,7 +38,6 @@ def handle_daily_prediction():
                 gameDate=gameOfTheDayDate,
                 gameTime=gameOfTheDayTime,
             )
-            insert_nba_totay(matchList=matchList, playerStatBetList=playerStatBetList)
             carouselColumns = matchColumns + statColumns
             respondMessages = [TextSendMessage(text=response)]
             for i in range(0, len(carouselColumns), 10):
@@ -48,6 +47,7 @@ def handle_daily_prediction():
                 )
                 respondMessages.append(templateMessage)
 
+            insert_nba_totay(matchList=matchList, playerStatBetList=playerStatBetList)
             LINE_BOT_API.push_message(GID, respondMessages)
     except Exception as err:
         LINE_BOT_API.push_message(GID, TextSendMessage(text=str(err)))
