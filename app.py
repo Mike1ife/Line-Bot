@@ -57,7 +57,7 @@ def get_nba_today():
     return jsonify(response)
 
 
-@app.route("/api/cron", methods=["GET", "POST"])
+@app.route("/api/cron", methods=["GET"])
 def cron_job():
     handle_daily_prediction()
 

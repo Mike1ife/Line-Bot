@@ -19,7 +19,6 @@ from utils.services import text_message, random_message
 
 
 def handle_daily_prediction():
-    GID = "Cbb4733349bd2459a4fbe10a1068025ed"
     try:
         (
             matchList,
@@ -31,7 +30,8 @@ def handle_daily_prediction():
         ) = get_nba_game_prediction(playoffsLayout=False)
 
         if not matchColumns:
-            LINE_BOT_API.push_message(GID, TextSendMessage(text=response))
+            print(response)
+            # LINE_BOT_API.push_message(GID, TextSendMessage(text=response))
         else:
             statColumns, playerStatBetList = get_player_stat_prediction(
                 gamePage=gameOfTheDayPage,
@@ -49,9 +49,10 @@ def handle_daily_prediction():
 
             # insert_nba_totay(matchList=matchList, playerStatBetList=playerStatBetList)
             print(len(respondMessages))
-            LINE_BOT_API.push_message(GID, respondMessages)
+            # LINE_BOT_API.push_message(GID, respondMessages)
     except Exception as err:
-        LINE_BOT_API.push_message(GID, TextSendMessage(text=str(err)))
+        print(str(err))
+        # LINE_BOT_API.push_message(GID, TextSendMessage(text=str(err)))
 
 
 def handle_message(event: MessageEvent):
