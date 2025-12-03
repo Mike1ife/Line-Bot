@@ -175,9 +175,10 @@ def _get_daily_game_results_fox():
     soup = BeautifulSoup(data, "html.parser")
 
     gameResults = {}  # (team1Name, team2Name): (team1Score, team2Score, winner)
+    preGameContainers = soup.find_all("a", class_="score-chip pregame")
     liveGameContainers = soup.find_all("a", class_="score-chip live")
     gameContainers = soup.find_all("a", class_="score-chip final")
-    if liveGameContainers or not gameContainers:
+    if preGameContainers or liveGameContainers or not gameContainers:
         raise ValueError("Games Not Finished")
     for gameContainer in gameContainers:
         teamsInfo = gameContainer.find_all("div", class_="score-team-name abbreviation")
