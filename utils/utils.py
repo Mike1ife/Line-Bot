@@ -805,7 +805,6 @@ def get_nba_guessing():
     def getPlayerList(teamList: list):
         team = random.choice(teamList)
         url = BASEURL[:-1] + team.attrs["href"] + "-roster"
-        print(url)
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
         playerList = soup.find_all("a", class_="table-entity-name ff-h")
@@ -909,6 +908,7 @@ def get_nba_guessing():
     playerName, statsOverview = getPlayerStats(playerList)
 
     playerInfo = {"name": playerName.getText().title(), "stats": []}
+    print(playerInfo)
 
     for stat in statsOverview:
         statType = (
@@ -929,6 +929,7 @@ def get_nba_guessing():
 
     # Format output strings
     historyTeams, historyGame, historyStats = formatHistoryStrings(playerInfo)
+    print(historyTeams, historyGame, historyStats)
 
     usage = "使用提示:\n生涯球隊: 球員生涯球隊\n上場時間: 先發場次/出場場次, 平均上場時間\n賽季平均: 得分/籃板/助攻/命中率"
     buttonsTemplate = ButtonsTemplate(
