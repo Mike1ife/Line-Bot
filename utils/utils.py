@@ -804,10 +804,11 @@ def get_nba_guessing():
 
     def getPlayerList(teamList: list):
         team = random.choice(teamList)
-        url = BASEURL + team.attrs["href"] + "-roster"
+        url = BASEURL[:-1] + team.attrs["href"] + "-roster"
+        print(url)
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
-        playerList = soup.find_all("a", class_="table-entity-name ff-ffc")
+        playerList = soup.find_all("a", class_="table-entity-name ff-h")
 
         if len(playerList) == 0:
             return getPlayerList(teamList)

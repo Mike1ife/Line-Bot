@@ -243,7 +243,17 @@ def CREATE_PROCEDURE():
             CREATE OR REPLACE PROCEDURE calculate_daily_points_proc()
             LANGUAGE plpgsql
             AS $$
+
+            DECLARE
+                game_day DATE;
+
             BEGIN
+
+            SELECT game_date
+            INTO game_day
+            FROM match
+            WHERE is_active = TRUE
+            LIMIT 1;
 
             UPDATE users SET day_points = 0;
             
@@ -350,10 +360,10 @@ def CREATE_PROCEDURE():
             WHERE is_active = TRUE;
 
             INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-            SELECT uid, 'day_points', CURRENT_DATE, day_points
+            SELECT uid, 'day_points', game_day, day_points
             FROM users
             ON CONFLICT (uid, point_type, created_at)
-            DO UPDATE SET point_value = EXCLUDED.point_value;
+            DO NOTHING;
 
             END;
             $$;

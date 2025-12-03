@@ -593,6 +593,9 @@ def update_daily_match_score(gameScores: dict):
 def calculate_daily_point():
     conn = _get_connection()
     with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_ACTIVE_MATCH)
+        if cur.fetchone() is None:
+            return
         cur.execute(SQL_CALL_CALCULATE_DAILY_POINT_PROC)
     conn.commit()
 
