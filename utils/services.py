@@ -47,32 +47,49 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text=str(err))
             )
 
+    if message == "收集每日比賽預測":
+        if not user_is_admin(userUID):
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
+            )
+        try:
+            gather_nba_game_prediction_match(playoffsLayout=False)
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text="收集每日比賽預測完成")
+            )
+        except Exception as err:
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=str(err))
+            )
+
+    if message == "收集每日數據預測":
+        if not user_is_admin(userUID):
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
+            )
+        try:
+            gather_nba_game_prediction_stat()
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text="收集每日數據預測完成")
+            )
+        except Exception as err:
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text=str(err))
+            )
+
     if message == "NBA每日預測":
         if not user_is_admin(userUID):
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
-            (
-                matchList,
-                response,
-                matchColumns,
-                gameOfTheDayPage,
-                gameOfTheDayDate,
-                gameOfTheDayTime,
-            ) = get_nba_game_prediction(playoffsLayout=False)
+            response, carouselColumns = get_nba_game_prediction()
 
-            if not matchColumns:
+            if not carouselColumns:
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
                 )
             else:
-                statColumns, playerStatBetList = get_player_stat_prediction(
-                    gamePage=gameOfTheDayPage,
-                    gameDate=gameOfTheDayDate,
-                    gameTime=gameOfTheDayTime,
-                )
-                carouselColumns = matchColumns + statColumns
                 respondMessages = [TextSendMessage(text=response)]
                 for i in range(0, len(carouselColumns), 10):
                     carouselTemplate = CarouselTemplate(
@@ -82,10 +99,6 @@ def text_message(event: MessageEvent):
                         alt_text="NBA每日預測", template=carouselTemplate
                     )
                     respondMessages.append(templateMessage)
-
-                insert_nba_totay(
-                    matchList=matchList, playerStatBetList=playerStatBetList
-                )
                 LINE_BOT_API.reply_message(event.reply_token, respondMessages)
         except Exception as err:
             LINE_BOT_API.reply_message(

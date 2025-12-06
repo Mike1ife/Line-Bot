@@ -3,54 +3,14 @@ from linebot.models import (
     TextSendMessage,
     MessageEvent,
     PostbackEvent,
-    CarouselTemplate,
-    TemplateSendMessage,
 )
 
 from config import LINE_BOT_API
 from utils.utils import (
-    get_nba_game_prediction,
-    get_player_stat_prediction,
-    insert_nba_totay,
     get_nba_prediction_posback,
     get_player_stat_prediction_postback,
 )
 from utils.services import text_message, random_message
-
-
-def handle_daily_prediction():
-    pass
-    # try:
-    #     (
-    #         matchList,
-    #         response,
-    #         matchColumns,
-    #         gameOfTheDayPage,
-    #         gameOfTheDayDate,
-    #         gameOfTheDayTime,
-    #     ) = get_nba_game_prediction(playoffsLayout=False)
-
-    #     if not matchColumns:
-    #         LINE_BOT_API.push_message(GID, TextSendMessage(text=response))
-    #     else:
-    #         statColumns, playerStatBetList = get_player_stat_prediction(
-    #             gamePage=gameOfTheDayPage,
-    #             gameDate=gameOfTheDayDate,
-    #             gameTime=gameOfTheDayTime,
-    #         )
-    #         carouselColumns = matchColumns + statColumns
-    #         respondMessages = [TextSendMessage(text=response)]
-    #         for i in range(0, len(carouselColumns), 10):
-    #             carouselTemplate = CarouselTemplate(columns=carouselColumns[i : i + 10])
-    #             templateMessage = TemplateSendMessage(
-    #                 alt_text="NBA每日預測", template=carouselTemplate
-    #             )
-    #             respondMessages.append(templateMessage)
-
-    #         insert_nba_totay(matchList=matchList, playerStatBetList=playerStatBetList)
-    #         LINE_BOT_API.push_message(GID, respondMessages)
-    # except Exception as err:
-    #     LINE_BOT_API.push_message(GID, TextSendMessage(text=str(err)))
 
 
 def handle_message(event: MessageEvent):

@@ -9,7 +9,7 @@ from linebot.models import (
 
 from config import HANDLER
 from api.api import *
-from utils.handlers import handle_message, handle_postback, handle_daily_prediction
+from utils.handlers import handle_message, handle_postback
 
 app = Flask(__name__)
 CORS(app)
@@ -59,7 +59,7 @@ def get_nba_today():
 
 @app.route("/api/cron", methods=["GET"])
 def cron_job():
-    handle_daily_prediction()
+    pass
 
 
 @app.route("/webhook", methods=["POST"])
