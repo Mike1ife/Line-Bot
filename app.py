@@ -57,8 +57,8 @@ def get_nba_today():
     return jsonify(response)
 
 
-@app.route("/api/users/<userName>", methods=["GET"])
-def get_user_profile(userName: str):
+@app.route("/api/users/<string:userName>", methods=["GET"])
+def get_user_profile(userName):
     response = fetch_user_profile(userName=userName)
     return jsonify(response)
 
