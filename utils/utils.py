@@ -585,20 +585,16 @@ def gather_nba_game_prediction_match(playoffsLayout: bool = False):
             game=game, playoffsLayout=playoffsLayout, tomorrowStr=tomorrowStr
         )
 
-        # Save carousel column to database
-        insert_carousel_column(
-            thumbnailImageUrl=thumbnailImageUrl,
-            title=title,
-            text=text,
-            action1Label=action1Label,
-            action1Data=action1Data,
-            action2Label=action2Label,
-            action2Data=action2Data,
-        )
-
         # Prepare match data
         matchList.append(
             (
+                thumbnailImageUrl,
+                title,
+                text,
+                action1Label,
+                action1Data,
+                action2Label,
+                action2Data,
                 tomorrowStr,
                 teamNames[0],
                 teamNames[1],
@@ -672,19 +668,16 @@ def gather_nba_game_prediction_stat():
                 gameTime=gameTime,
             )
 
-            insert_carousel_column(
-                thumbnailImageUrl=thumbnailImageUrl,
-                title=title,
-                text=text,
-                action1Label=action1Label,
-                action1Data=action1Data,
-                action2Label=action2Label,
-                action2Data=action2Data,
-            )
-
             team1Name, team2Name = gameTitle.split(" @ ")
             playerStatBetList.append(
                 (
+                    thumbnailImageUrl,
+                    title,
+                    text,
+                    action1Label,
+                    action1Data,
+                    action2Label,
+                    action2Data,
                     playerName,
                     gameDate,
                     team1Name,

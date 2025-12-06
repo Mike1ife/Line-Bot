@@ -58,32 +58,6 @@ def get_type_points(rankType: str):
         return cur.fetchall()
 
 
-def insert_carousel_column(
-    thumbnailImageUrl: str,
-    title: str,
-    text: str,
-    action1Label: str,
-    action1Data: str,
-    action2Label: str,
-    action2Data: str,
-):
-    conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(
-            SQL_INSERT_CAROUSEL_COLUMN,
-            (
-                thumbnailImageUrl,
-                title,
-                text,
-                action1Label,
-                action1Data,
-                action2Label,
-                action2Data,
-            ),
-        )
-    conn.commit()
-
-
 def insert_match_of_the_date(gamePageUrl: str, gameDate: str, gameTime: str):
     conn = _get_connection()
     with conn.cursor() as cur:
@@ -124,6 +98,13 @@ def insert_match(
     conn = _get_connection()
     with conn.cursor() as cur:
         for (
+            thumbnailImageUrl,
+            title,
+            text,
+            action1Label,
+            action1Data,
+            action2Label,
+            action2Data,
             gameDate,
             team1Name,
             team2Name,
@@ -132,6 +113,18 @@ def insert_match(
             team1Point,
             team2Point,
         ) in matchList:
+            cur.execute(
+                SQL_INSERT_CAROUSEL_COLUMN,
+                (
+                    thumbnailImageUrl,
+                    title,
+                    text,
+                    action1Label,
+                    action1Data,
+                    action2Label,
+                    action2Data,
+                ),
+            )
             cur.execute(
                 SQL_INSERT_MATCH,
                 (gameDate, team1Name, team2Name, team1Point, team2Point),
@@ -147,6 +140,13 @@ def insert_player_stat_bet(playerStatBetList: list):
     conn = _get_connection()
     with conn.cursor() as cur:
         for (
+            thumbnailImageUrl,
+            title,
+            text,
+            action1Label,
+            action1Data,
+            action2Label,
+            action2Data,
             playerName,
             gameDate,
             team1Name,
@@ -156,6 +156,18 @@ def insert_player_stat_bet(playerStatBetList: list):
             overPoint,
             underPoint,
         ) in playerStatBetList:
+            cur.execute(
+                SQL_INSERT_CAROUSEL_COLUMN,
+                (
+                    thumbnailImageUrl,
+                    title,
+                    text,
+                    action1Label,
+                    action1Data,
+                    action2Label,
+                    action2Data,
+                ),
+            )
             cur.execute(
                 SQL_SELECT_MATCH_ID,
                 (
