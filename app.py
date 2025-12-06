@@ -57,6 +57,12 @@ def get_nba_today():
     return jsonify(response)
 
 
+@app.route("/api/users/{userName}", methods=["GET"])
+def get_user_profile(userName: str):
+    response = fetch_user_profile(userName=userName)
+    return jsonify(response)
+
+
 @app.route("/api/cron", methods=["GET"])
 def cron_job():
     pass

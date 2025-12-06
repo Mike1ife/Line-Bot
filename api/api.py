@@ -156,3 +156,28 @@ def get_daily_match_info():
             )
 
     return resultDict
+
+
+def fetch_user_profile(userName: str):
+    conn = _get_connection()
+
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_PROFILE, (userName,))
+        (
+            pictureUrl,
+            dayPoints,
+            weekPoints,
+            monthPoints,
+            seasonPoints,
+            allTimePoints,
+        ) = cur.fetchone()
+        resultDict = {
+            "name": userName,
+            "picture_url": pictureUrl,
+            "day_points": dayPoints,
+            "week_points": weekPoints,
+            "month_points": monthPoints,
+            "season_points": seasonPoints,
+            "all_time_points": allTimePoints,
+        }
+        return resultDict

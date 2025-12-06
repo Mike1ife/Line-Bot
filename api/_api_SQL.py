@@ -48,3 +48,9 @@ SQL_SELECT_TEAM_LOGO_AND_STANDING = """
     FROM team
     WHERE team_name = %s
 """
+
+SQL_SELECT_USER_PROFILE = """
+    SELECT picture_url, day_points, week_points, month_points, season_points, all_time_points
+    FROM users
+    WHERE name = %s
+"""
