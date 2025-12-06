@@ -605,7 +605,7 @@ def gather_nba_game_prediction_match(playoffsLayout: bool = False):
             )
         )
 
-    insert_match(mattchList=matchList)
+    insert_match(matchList=matchList)
 
 
 def gather_nba_game_prediction_stat():
