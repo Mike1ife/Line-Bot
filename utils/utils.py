@@ -552,6 +552,9 @@ def gather_nba_game_prediction_match(playoffsLayout: bool = False):
         playoffsLayout=playoffsLayout
     )
 
+    if not gameList:
+        return
+
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     tomorrowTW = nowTW + timedelta(days=1)
