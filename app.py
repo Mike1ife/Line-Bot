@@ -6,6 +6,7 @@ from linebot.models import (
     TextMessage,
     PostbackEvent,
 )
+from urllib.parse import unquote
 
 from config import HANDLER
 from api.api import *
@@ -59,7 +60,7 @@ def get_nba_today():
 
 @app.route("/api/users/<userName>", methods=["GET"])
 def get_user_profile(userName: str):
-    print(userName)
+    userName = unquote(userName)
     response = fetch_user_profile(userName=userName)
     return jsonify(response)
 
