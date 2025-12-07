@@ -320,7 +320,7 @@ WHERE match.is_active = TRUE
 SQL_INSERT_USER_WEEK_POINT_HISTORY = """
 INSERT INTO user_point_history (uid, point_type, point_value, period)
 SELECT 
-    uid, 'week_points', week_points, TO_CHAR(CURRENT_DATE, 'IYYY-"W"IW');
+    uid, 'week_points', week_points, TO_CHAR(CURRENT_DATE, 'IYYY-"W"IW')
 FROM users
 ON CONFLICT (uid, point_type, period)
 DO UPDATE SET 
