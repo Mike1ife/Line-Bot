@@ -294,43 +294,39 @@ INNER JOIN match
 WHERE match.is_active = TRUE
 """
 
+
 SQL_INSERT_USER_WEEK_POINT_HISTORY = """
-INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'week_points', CURRENT_DATE, week_points
+INSERT INTO user_point_history (uid, point_type, point_value, period)
+SELECT 
+    uid, 'week_points', week_points, TO_CHAR(CURRENT_DATE, 'IYYY-"W"IW');
 FROM users
-ON CONFLICT (uid, point_type, created_at)
-DO UPDATE SET point_value = EXCLUDED.point_value;
+ON CONFLICT (uid, point_type, period)
+DO UPDATE SET 
+    point_value = user_point_history.point_value + EXCLUDED.point_value;
 """
 
 SQL_INSERT_USER_MONTH_POINT_HISTORY = """
-INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'month_points', CURRENT_DATE, month_points
+INSERT INTO user_point_history (uid, point_type, point_value, period)
+SELECT 
+    uid, 'month_points', month_points, TRIM(TO_CHAR(CURRENT_DATE, 'Month'))
 FROM users
-ON CONFLICT (uid, point_type, created_at)
-DO UPDATE SET point_value = EXCLUDED.point_value;
+ON CONFLICT (uid, point_type, period)
+DO NOTHING;
 """
 
 SQL_INSERT_USER_SEASON_POINT_HISTORY = """
-INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'season_points', CURRENT_DATE, season_points
+INSERT INTO user_point_history (uid, point_type, point_value, period)
+SELECT uid, 'season_points', season_points, 
+    (EXTRACT(YEAR FROM CURRENT_DATE) - 1)::text || '-' || RIGHT(EXTRACT(YEAR FROM CURRENT_DATE)::text, 2)
 FROM users
-ON CONFLICT (uid, point_type, created_at)
-DO UPDATE SET point_value = EXCLUDED.point_value;
-"""
-
-SQL_INSERT_USER_ALL_TIME_POINT_HISTORY = """
-INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-SELECT uid, 'all_time_points', CURRENT_DATE, all_time_points
-FROM users
-ON CONFLICT (uid, point_type, created_at)
-DO UPDATE SET point_value = EXCLUDED.point_value;
+ON CONFLICT (uid, point_type, period)
+DO NOTHING;
 """
 
 SQL_INSERT_USER_POINT_HISTORY = {
     "week_points": SQL_INSERT_USER_WEEK_POINT_HISTORY,
     "month_points": SQL_INSERT_USER_MONTH_POINT_HISTORY,
     "season_points": SQL_INSERT_USER_SEASON_POINT_HISTORY,
-    "all_time_points": SQL_INSERT_USER_ALL_TIME_POINT_HISTORY,
 }
 
 SQL_CALL_CALCULATE_DAILY_POINT_PROC = """

@@ -34,11 +34,11 @@ def CREATE_USER_POINT_HISTORY():
             CREATE TABLE IF NOT EXISTS user_point_history (
                 uid TEXT NOT NULL,
                 point_type TEXT NOT NULL CHECK (
-                    point_type IN ('day_points', 'week_points', 'month_points', 'season_points', 'all_time_points')
+                    point_type IN ('day_points', 'week_points', 'month_points', 'season_points')
                 ),
-                created_at DATE NOT NULL DEFAULT NOW(),
                 point_value INTEGER NOT NULL,
-                CONSTRAINT user_point_history_pk PRIMARY KEY (uid, point_type, created_at),
+                period TEXT NOT NULL,
+                CONSTRAINT user_point_history_pk PRIMARY KEY (uid, point_type, period),
                 CONSTRAINT user_point_history_user_fk FOREIGN KEY (uid)
                     REFERENCES users(uid)
                     ON UPDATE CASCADE ON DELETE CASCADE
@@ -236,7 +236,7 @@ def CREATE_INDEX():
             conn.commit()
 
 
-def CREATE_PROCEDURE():
+def CREATE_CALCULATE_DAILY_POINTS_PROCEDURE():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             SQL = """
@@ -359,8 +359,8 @@ def CREATE_PROCEDURE():
             SET is_active = FALSE
             WHERE is_active = TRUE;
 
-            INSERT INTO user_point_history (uid, point_type, created_at, point_value)
-            SELECT uid, 'day_points', game_day, day_points
+            INSERT INTO user_point_history (uid, point_type, point_value, period)
+            SELECT uid, 'day_points', day_points, TO_CHAR(game_day, 'YYYY-MM-DD')
             FROM users
             ON CONFLICT (uid, point_type, created_at)
             DO NOTHING;
@@ -488,7 +488,7 @@ def CREATE_DATABASE():
     CREATE_PLAYER_STAT_BET_TABLE()
     CREATE_USER_PREDICT_STAT_TABLE()
     CREATE_INDEX()
-    CREATE_PROCEDURE()
+    CREATE_CALCULATE_DAILY_POINTS_PROCEDURE()
     CREATE_CAROUSEL_COLUMN_TABLE()
     CREATE_MATCH_OF_THE_DATE_TABLE()
     INSERT_NBA_TEAM()
