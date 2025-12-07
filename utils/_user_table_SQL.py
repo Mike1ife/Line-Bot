@@ -1,6 +1,28 @@
-SQL_USER_IS_ADMIN = """
+SQL_SELECT_USER_IS_ADMIN = """
 SELECT is_admin FROM users WHERE uid = %s
 """
+
+SQL_UPDATE_USER_WEEK_GOAT_COUNT = """
+UPDATE users
+SET week_goat_count = week_goat_count + 1
+WHERE week_points = (
+    SELECT MAX(week_points) FROM users
+);
+"""
+
+SQL_UPDATE_USER_MONTH_GOAT_COUNT = """
+UPDATE users
+SET month_goat_count = month_goat_count + 1
+WHERE month_points = (
+    SELECT MAX(month_points) FROM users
+);
+"""
+
+SQL_UPDATE_USER_GOAT_COUNT = {
+    "week_points": SQL_UPDATE_USER_WEEK_GOAT_COUNT,
+    "month_points": SQL_UPDATE_USER_MONTH_GOAT_COUNT,
+}
+
 
 SQL_DELETE_ACTIVE_MATCH = """
 DELETE FROM match WHERE is_active = TRUE

@@ -20,6 +20,8 @@ def CREATE_USER_TABLE():
                 month_points INTEGER DEFAULT 0,
                 season_points INTEGER DEFAULT 0,
                 all_time_points INTEGER DEFAULT 0,
+                week_goat_count INTEGER DEFAULT 0,
+                month_goat_count INTEGER DEFAULT 0,
                 is_admin BOOLEAN DEFAULT FALSE
             );
             """

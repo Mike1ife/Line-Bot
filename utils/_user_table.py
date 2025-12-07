@@ -39,7 +39,7 @@ def _get_connection():
 def user_is_admin(userUID: str):
     conn = _get_connection()
     with conn.cursor() as cur:
-        cur.execute(SQL_USER_IS_ADMIN, (userUID,))
+        cur.execute(SQL_SELECT_USER_IS_ADMIN, (userUID,))
         result = cur.fetchone()
         return result[0] if result else False
 
@@ -269,13 +269,17 @@ def get_prediction_info():
     return predictionInfo
 
 
-def update_type_point(updateRankType: list, updateStrategy: list, updateMap: dict):
+def update_type_point(
+    updateRankType: list, updateStrategy: list, updateMap: dict, isGoat: bool
+):
     # updateRankType = [rankType, nextRankType]
     # updateStrategy = [strategy, nextStrategy] ('a' / 'w')
     # updateMap[userName] = [value, nextValue]
     conn = _get_connection()
     with conn.cursor() as cur:
         cur.execute(SQL_INSERT_USER_POINT_HISTORY[updateRankType[0]])
+        if isGoat and updateRankType[0] in ("week_points", "month_points"):
+            cur.execute(SQL_UPDATE_USER_GOAT_COUNT[updateRankType[0]])
         for userName in updateMap:
             cur.execute(SQL_SELECT_UID, (userName,))
             userUID = cur.fetchone()[0]
@@ -324,6 +328,7 @@ def _pre_settle_week_points():
         updateRankType=["week_points", "month_points"],
         updateStrategy=["w", "a"],
         updateMap=updateMap,
+        isGoat=False,
     )
 
 
@@ -361,6 +366,7 @@ def get_type_best(rankType: str, nextRankType: str):
         updateRankType=[rankType, nextRankType],
         updateStrategy=["w", "a"],
         updateMap=updateMap,
+        isGoat=True,
     )
     return rankBest
 
