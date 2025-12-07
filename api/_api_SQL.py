@@ -54,3 +54,13 @@ SQL_SELECT_USER_PROFILE = """
     FROM users
     WHERE name = %s
 """
+
+SQL_SELECT_USER_POINT_HISTORY = """
+    SELECT point_value, period
+    FROM user_point_history AS uph
+    INNER JOIN users
+        ON users.uid = uph.uid
+    WHERE users.name = %s
+        AND uph.point_type = %s
+    ORDER BY period
+"""

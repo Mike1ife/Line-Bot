@@ -23,7 +23,7 @@ def get_user_info_and_type_point(rankType: str):
         cur.execute(SQL_SELECT_USER_TYPE_POINT[rankType])
         # [(name1, url1, point1), (name2, url2, point2), ...]
         resultDict = [
-            {"name": userName, "picture_url": pictureUrl, "point": point}
+            {"userName": userName, "pictureUrl": pictureUrl, "point": point}
             for userName, pictureUrl, point in cur.fetchall()
         ]
         return resultDict
@@ -135,15 +135,15 @@ def get_daily_match_info():
             team2LogoUrl, team2Standing = cur.fetchone()
             resultDict.append(
                 {
-                    "team1_logo_url": team1LogoUrl,
-                    "team2_logo_url": team2LogoUrl,
-                    "team1_standing": team1Standing,
-                    "team2_standing": team2Standing,
-                    "team1_score": team1Score,
-                    "team2_score": team2Score,
-                    "team1_point": team1Point,
-                    "team2_point": team2Point,
-                    "game_time": (
+                    "team1LogoUrl": team1LogoUrl,
+                    "team2LogoUrl": team2LogoUrl,
+                    "team1Standing": team1Standing,
+                    "team2Standing": team2Standing,
+                    "team1Score": team1Score,
+                    "team2Score": team2Score,
+                    "team1Point": team1Point,
+                    "team2Point": team2Point,
+                    "gameTime": (
                         gameTimes[(team1Name, team2Name)]
                         if (team1Name, team2Name) in gameTimes
                         else (
@@ -172,12 +172,23 @@ def fetch_user_profile(userName: str):
             allTimePoints,
         ) = cur.fetchone()
         resultDict = {
-            "name": userName,
-            "picture_url": pictureUrl,
-            "day_points": dayPoints,
-            "week_points": weekPoints,
-            "month_points": monthPoints,
-            "season_points": seasonPoints,
-            "all_time_points": allTimePoints,
+            "userName": userName,
+            "pictureUrl": pictureUrl,
+            "dayPoints": dayPoints,
+            "weekPoints": weekPoints,
+            "monthPoints": monthPoints,
+            "seasonPoints": seasonPoints,
+            "allTimePoints": allTimePoints,
         }
         return resultDict
+
+
+def fetch_user_point_history(userName: str, rankType: str):
+    conn = _get_connection()
+    resultDict = []
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_POINT_HISTORY, (userName, rankType))
+        for pointValue, period in cur.fetchall():
+            resultDict.append({"pointValue": pointValue, "period": period})
+
+    return resultDict

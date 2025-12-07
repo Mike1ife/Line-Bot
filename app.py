@@ -22,33 +22,9 @@ def home():
     return "Hello, World!"
 
 
-@app.route("/api/home/leaderboard/user_day_point", methods=["GET"])
-def get_user_day_point():
-    response = get_user_info_and_type_point("day_points")
-    return jsonify(response)
-
-
-@app.route("/api/home/leaderboard/user_week_point", methods=["GET"])
-def get_user_week_point():
-    response = get_user_info_and_type_point("week_points")
-    return jsonify(response)
-
-
-@app.route("/api/home/leaderboard/user_month_point", methods=["GET"])
-def get_user_month_point():
-    response = get_user_info_and_type_point("month_points")
-    return jsonify(response)
-
-
-@app.route("/api/home/leaderboard/user_season_point", methods=["GET"])
-def get_user_season_point():
-    response = get_user_info_and_type_point("season_points")
-    return jsonify(response)
-
-
-@app.route("/api/home/leaderboard/user_all_time_point", methods=["GET"])
-def get_user_all_time_point():
-    response = get_user_info_and_type_point("all_time_points")
+@app.route("/api/home/leaderboard/<rankType>", methods=["GET"])
+def get_user_day_point(rankType: str):
+    response = get_user_info_and_type_point(rankType)
     return jsonify(response)
 
 
@@ -61,8 +37,14 @@ def get_nba_today():
 @app.route("/api/users/<userName>", methods=["GET"])
 def get_user_profile(userName: str):
     userName = unquote(userName)
-    print(userName)
     response = fetch_user_profile(userName=userName)
+    return jsonify(response)
+
+
+@app.route("/api/users/<userName>/points/<rankType>", methods=["GET"])
+def get_user_point_history(userName: str, rankType: str):
+    userName = unquote(userName)
+    response = fetch_user_point_history(userName=userName, rankType=rankType)
     return jsonify(response)
 
 

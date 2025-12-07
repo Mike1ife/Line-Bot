@@ -330,7 +330,7 @@ DO UPDATE SET
 SQL_INSERT_USER_MONTH_POINT_HISTORY = """
 INSERT INTO user_point_history (uid, point_type, point_value, period)
 SELECT 
-    uid, 'month_points', month_points, TRIM(TO_CHAR(CURRENT_DATE, 'Month'))
+    uid, 'month_points', month_points, TO_CHAR(CURRENT_DATE, 'YYYY-Mon')
 FROM users
 ON CONFLICT (uid, point_type, period)
 DO NOTHING;
