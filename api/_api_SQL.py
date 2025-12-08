@@ -71,6 +71,7 @@ SQL_SELECT_USER_COUNTER_CORRECT_SEASON = """
     INNER JOIN users
         counter.uid = users.uid
     WHERE name = %s
+    ORDER BY season_correct_count DESC
 """
 
 SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME = """
@@ -79,6 +80,7 @@ SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME = """
     INNER JOIN users
         counter.uid = users.uid
     WHERE name = %s
+    ORDER BY all_time_correct_count DESC
 """
 
 SQL_SELECT_USER_COUNTER_WRONG_SEASON = """
@@ -87,6 +89,7 @@ SQL_SELECT_USER_COUNTER_WRONG_SEASON = """
     INNER JOIN users
         counter.uid = users.uid
     WHERE name = %s
+    ORDER BY season_wrong_count DESC
 """
 
 SQL_SELECT_USER_COUNTER_WRONG_ALLTIME = """
@@ -95,6 +98,7 @@ SQL_SELECT_USER_COUNTER_WRONG_ALLTIME = """
     INNER JOIN users
         counter.uid = users.uid
     WHERE name = %s
+    ORDER BY all_time_wrong_count DESC
 """
 
 SQL_SELECT_USER_COUNTER = {
