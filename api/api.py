@@ -199,6 +199,8 @@ def fetch_user_counter(userName: str, countType: str, countRange: str):
     resultDict = []
     with conn.cursor() as cur:
         cur.execute(SQL_SELECT_USER_COUNTER[countType][countRange], (userName,))
-        for teamName, count in cur.fetchall():
-            resultDict.append({"teamName": teamName, "count": count})
+        for teamName, count, teamLogoUrl in cur.fetchall():
+            resultDict.append(
+                {"teamName": teamName, "count": count, "teamLogoUrl": teamLogoUrl}
+            )
     return resultDict

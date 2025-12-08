@@ -66,37 +66,46 @@ SQL_SELECT_USER_POINT_HISTORY = """
 """
 
 SQL_SELECT_USER_COUNTER_CORRECT_SEASON = """
-    SELECT team_name, season_correct_count
+    SELECT counter.team_name, season_correct_count, team_logo
     FROM counter
     INNER JOIN users
         ON counter.uid = users.uid
-    WHERE name = %s
+    INNER JOIN team
+        ON counter.team_name = team.team_name
+    WHERE name = '戴廣逸'
     ORDER BY season_correct_count DESC
+    LIMIT 10
 """
 
 SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME = """
-    SELECT team_name, all_time_correct_count
+    SELECT counter.team_name, all_time_correct_count, team_logo
     FROM counter
     INNER JOIN users
         ON counter.uid = users.uid
+    INNER JOIN team
+        ON counter.team_name = team.team_name
     WHERE name = %s
     ORDER BY all_time_correct_count DESC
 """
 
 SQL_SELECT_USER_COUNTER_WRONG_SEASON = """
-    SELECT team_name, season_wrong_count
+    SELECT counter.team_name, season_wrong_count, team_logo
     FROM counter
     INNER JOIN users
         ON counter.uid = users.uid
+    INNER JOIN team
+        ON counter.team_name = team.team_name
     WHERE name = %s
     ORDER BY season_wrong_count DESC
 """
 
 SQL_SELECT_USER_COUNTER_WRONG_ALLTIME = """
-    SELECT team_name, all_time_wrong_count
+    SELECT counter.team_name, all_time_wrong_count, team_logo
     FROM counter
     INNER JOIN users
         ON counter.uid = users.uid
+    INNER JOIN team
+        ON counter.team_name = team.team_name
     WHERE name = %s
     ORDER BY all_time_wrong_count DESC
 """
