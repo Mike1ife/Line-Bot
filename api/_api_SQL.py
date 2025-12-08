@@ -69,7 +69,7 @@ SQL_SELECT_USER_COUNTER_CORRECT_SEASON = """
     SELECT team_name, season_correct_count
     FROM counter
     INNER JOIN users
-        counter.uid = users.uid
+        ON counter.uid = users.uid
     WHERE name = %s
     ORDER BY season_correct_count DESC
 """
@@ -78,7 +78,7 @@ SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME = """
     SELECT team_name, all_time_correct_count
     FROM counter
     INNER JOIN users
-        counter.uid = users.uid
+        ON counter.uid = users.uid
     WHERE name = %s
     ORDER BY all_time_correct_count DESC
 """
@@ -87,7 +87,7 @@ SQL_SELECT_USER_COUNTER_WRONG_SEASON = """
     SELECT team_name, season_wrong_count
     FROM counter
     INNER JOIN users
-        counter.uid = users.uid
+        ON counter.uid = users.uid
     WHERE name = %s
     ORDER BY season_wrong_count DESC
 """
@@ -96,7 +96,7 @@ SQL_SELECT_USER_COUNTER_WRONG_ALLTIME = """
     SELECT team_name, all_time_wrong_count
     FROM counter
     INNER JOIN users
-        counter.uid = users.uid
+        ON counter.uid = users.uid
     WHERE name = %s
     ORDER BY all_time_wrong_count DESC
 """
