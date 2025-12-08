@@ -72,7 +72,7 @@ SQL_SELECT_USER_COUNTER_CORRECT_SEASON = """
         ON counter.uid = users.uid
     INNER JOIN team
         ON counter.team_name = team.team_name
-    WHERE name = '戴廣逸'
+    WHERE name = %s
     ORDER BY season_correct_count DESC
     LIMIT 10
 """
