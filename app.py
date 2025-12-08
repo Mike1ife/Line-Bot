@@ -48,6 +48,17 @@ def get_user_point_history(userName: str, rankType: str):
     return jsonify(response)
 
 
+@app.route("/api/users/<userName>/count/<countType>/<countRange>", methods=["GET"])
+def get_user_counter(userName: str, countType: str, countRange: str):
+    # countType: correct / wrong
+    # countRange: season / all_time
+    userName = unquote(userName)
+    response = fetch_user_counter(
+        userName=userName, countType=countType, countRange=countRange
+    )
+    return jsonify(response)
+
+
 @app.route("/api/cron", methods=["GET"])
 def cron_job():
     pass

@@ -192,3 +192,15 @@ def fetch_user_point_history(userName: str, rankType: str):
             resultDict.append({"pointValue": pointValue, "period": period})
 
     return resultDict
+
+
+def fetch_user_counter(userName: str, countType: str, countRange: str):
+    conn = _get_connection()
+    resultDict = {}
+    with conn.cursor() as cur:
+        cur.execute(
+            SQL_SELECT_USER_COUNTER[countType][countRange],
+            (userName),
+        )
+        resultDict["teamCount"] = cur.fetchall()
+    return resultDict

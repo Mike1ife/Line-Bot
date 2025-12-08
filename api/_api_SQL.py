@@ -64,3 +64,46 @@ SQL_SELECT_USER_POINT_HISTORY = """
         AND uph.point_type = %s
     ORDER BY period
 """
+
+SQL_SELECT_USER_COUNTER_CORRECT_SEASON = """
+    SELECT team_name, season_correct_count
+    FROM counter
+    INNER JOIN users
+        counter.uid = users.uid
+    WHERE name = %s
+"""
+
+SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME = """
+    SELECT team_name, all_time_correct_count
+    FROM counter
+    INNER JOIN users
+        counter.uid = users.uid
+    WHERE name = %s
+"""
+
+SQL_SELECT_USER_COUNTER_WRONG_SEASON = """
+    SELECT team_name, season_wrong_count
+    FROM counter
+    INNER JOIN users
+        counter.uid = users.uid
+    WHERE name = %s
+"""
+
+SQL_SELECT_USER_COUNTER_WRONG_ALLTIME = """
+    SELECT team_name, all_time_wrong_count
+    FROM counter
+    INNER JOIN users
+        counter.uid = users.uid
+    WHERE name = %s
+"""
+
+SQL_SELECT_USER_COUNTER = {
+    "correct": {
+        "season": SQL_SELECT_USER_COUNTER_CORRECT_SEASON,
+        "all_time": SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME,
+    },
+    "wrong": {
+        "season": SQL_SELECT_USER_COUNTER_WRONG_SEASON,
+        "all_time": SQL_SELECT_USER_COUNTER_WRONG_ALLTIME,
+    },
+}

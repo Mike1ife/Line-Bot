@@ -364,7 +364,7 @@ def CREATE_CALCULATE_DAILY_POINTS_PROCEDURE():
             INSERT INTO user_point_history (uid, point_type, point_value, period)
             SELECT uid, 'day_points', day_points, TO_CHAR(game_day, 'YYYY-MM-DD')
             FROM users
-            ON CONFLICT (uid, point_type, created_at)
+            ON CONFLICT (uid, point_type, period)
             DO NOTHING;
 
             END;
