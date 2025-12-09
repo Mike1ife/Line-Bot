@@ -74,7 +74,6 @@ SQL_SELECT_USER_COUNTER_CORRECT_SEASON = """
         ON counter.team_name = team.team_name
     WHERE name = %s
     ORDER BY season_correct_count DESC
-    LIMIT 10
 """
 
 SQL_SELECT_USER_COUNTER_CORRECT_ALLTIME = """
