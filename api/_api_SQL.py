@@ -121,7 +121,7 @@ SQL_SELECT_USER_COUNTER = {
 }
 
 SQL_SELECT_USER = """
-SELECT name, piture_url, week_goat_count, month_goat_count
+SELECT name, picture_url, week_goat_count, month_goat_count
 FROM users
 ORDER BY created_at
 """
