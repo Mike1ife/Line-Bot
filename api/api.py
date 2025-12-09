@@ -204,3 +204,20 @@ def fetch_user_counter(userName: str, countType: str, countRange: str):
                 {"count": count, "teamName": teamName, "teamLogoUrl": teamLogoUrl}
             )
     return resultDict
+
+
+def fetch_users():
+    conn = _get_connection()
+    resultDict = []
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER)
+        for userName, pictureUrl, weekGoatCount, monthGoatCount in cur.fetchall():
+            resultDict.append(
+                {
+                    "userName": userName,
+                    "pictureUrl": pictureUrl,
+                    "weekGoatCount": weekGoatCount,
+                    "monthGoatCount": monthGoatCount,
+                }
+            )
+    return resultDict

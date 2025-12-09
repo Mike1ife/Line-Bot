@@ -59,6 +59,12 @@ def get_user_counter(userName: str, countType: str, countRange: str):
     return jsonify(response)
 
 
+@app.route("api/users", methods=["GET"])
+def get_users():
+    response = fetch_users()
+    return jsonify(response)
+
+
 @app.route("/api/cron", methods=["GET"])
 def cron_job():
     pass

@@ -119,3 +119,9 @@ SQL_SELECT_USER_COUNTER = {
         "all_time": SQL_SELECT_USER_COUNTER_WRONG_ALLTIME,
     },
 }
+
+SQL_SELECT_USER = """
+SELECT name, piture_url, week_goat_count, month_goat_count
+FROM users
+ORDER BY created_at
+"""
