@@ -200,7 +200,7 @@ def _get_daily_game_results_fox():
 
 def settle_daily_prediction():
     """TODO playoffs layout"""
-    gameResults = _get_daily_game_results_hupu()
+    gameResults = _get_daily_game_results_fox()
     update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 
