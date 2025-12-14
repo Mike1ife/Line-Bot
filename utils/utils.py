@@ -523,7 +523,7 @@ def _get_nba_games(playoffsLayout: bool):
         )
 
         # Find closest odds (most even match)
-        oddDiff = abs(float(game["points"][0] - game["points"][1])
+        oddDiff = abs(game["points"][0] - game["points"][1])
         if oddDiff < gameOfTheDay["diff"]:
             gameOfTheDay.update(
                 {
