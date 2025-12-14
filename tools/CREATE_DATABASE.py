@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from utils._team_table import NBA_ABBR_ENG_TO_ABBR_CN
 
-DATABASE_URL = "your db url"
+DATABASE_URL = "your-db-url"
 
 
 def CREATE_USER_TABLE():
@@ -495,6 +495,3 @@ def CREATE_DATABASE():
     CREATE_MATCH_OF_THE_DATE_TABLE()
     INSERT_NBA_TEAM()
     INSERT_PLAYER()
-
-
-CREATE_DATABASE()
