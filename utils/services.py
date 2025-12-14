@@ -53,7 +53,7 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
-            gather_nba_game_prediction_match_parallel(playoffsLayout=False)
+            gather_nba_game_prediction_match(playoffsLayout=False)
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="收集每日比賽預測完成")
             )
@@ -68,7 +68,7 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
-            gather_nba_game_prediction_stat_optimized()
+            gather_nba_game_prediction_stat()
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="收集每日數據預測完成")
             )
