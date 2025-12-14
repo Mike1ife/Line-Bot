@@ -501,8 +501,7 @@ def _get_nba_games(playoffsLayout: bool):
         gameOdds = oddContainer.find_all(
             "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
         )
-        if len(gameOdds) < 2:
-            continue
+        
 
         # Parse game info
         if playoffsLayout:
@@ -512,11 +511,14 @@ def _get_nba_games(playoffsLayout: bool):
         if not game:
             continue
 
+        if len(gameOdds) < 2:
+            game["points"] = [30, 30]
         # Add points and time
-        game["points"] = [
-            int(round(30 + float(gameOdds[0].text.strip()))),
-            int(round(30 + float(gameOdds[1].text.strip()))),
-        ]
+        else:
+            game["points"] = [
+                int(round(30 + float(gameOdds[0].text.strip()))),
+                int(round(30 + float(gameOdds[1].text.strip()))),
+            ]
 
         team1Name, team2Name = game["names"]
         game["gametime"] = (
