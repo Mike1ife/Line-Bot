@@ -493,16 +493,7 @@ def _get_nba_games(playoffsLayout: bool):
         # Simple request for each page
         gamePageData = requests.get(gamePageUrl).text
         gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
-
-        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
-        if not oddContainer:
-            continue
-
-        gameOdds = oddContainer.find_all(
-            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
-        )
         
-
         # Parse game info
         if playoffsLayout:
             game = _get_playoffs_game(gameInfo)
@@ -511,10 +502,14 @@ def _get_nba_games(playoffsLayout: bool):
         if not game:
             continue
 
-        if len(gameOdds) < 2:
+        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
+        if not oddContainer:
             game["points"] = [30, 30]
         # Add points and time
         else:
+            gameOdds = oddContainer.find_all(
+                "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+            )
             game["points"] = [
                 int(round(30 + float(gameOdds[0].text.strip()))),
                 int(round(30 + float(gameOdds[1].text.strip()))),
