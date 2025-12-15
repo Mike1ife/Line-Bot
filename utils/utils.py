@@ -493,7 +493,7 @@ def _get_nba_games(playoffsLayout: bool):
         # Simple request for each page
         gamePageData = requests.get(gamePageUrl).text
         gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
-        
+
         # Parse game info
         if playoffsLayout:
             game = _get_playoffs_game(gameInfo)
@@ -753,8 +753,8 @@ def get_nba_prediction_posback(
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
     gameTimeStr = f"{gameDate}-{gameTime}"
-    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
-        return f"{team1Name}-{team2Name} 的比賽已經開始了"
+    # if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+    #     return f"{team1Name}-{team2Name} 的比賽已經開始了"
 
     returnState = insert_user_predict_match(
         userUID=userUID,
@@ -793,8 +793,8 @@ def get_player_stat_prediction_postback(
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
     gameTimeStr = f"{gameDate}-{gameTime}"
-    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
-        return f"{playerName} 的比賽已經開始了"
+    # if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+    #     return f"{playerName} 的比賽已經開始了"
 
     returnState = insert_user_predict_stat(
         userUID=userUID,
@@ -1398,25 +1398,22 @@ def _process_single_game(gameInfo, gamePageUrl, playoffsLayout, gameTimeMap, ind
         gamePageData = requests.get(gamePageUrl).text
         gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
 
-        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
-        if not oddContainer:
-            return None
-
         # Parse game info
         if playoffsLayout:
             game = _get_playoffs_game(gameInfo)
         else:
             game = _get_regular_game(gameInfo)
+
         if not game:
             return None
 
-        gameOdds = oddContainer.find_all(
-            "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
-        )
-
-        if len(gameOdds) < 2:
+        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
+        if not oddContainer:
             game["points"] = [30, 30]
         else:
+            gameOdds = oddContainer.find_all(
+                "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
+            )
             # Add points and time
             game["points"] = [
                 int(round(30 + float(gameOdds[0].text.strip()))),
@@ -1430,7 +1427,7 @@ def _process_single_game(gameInfo, gamePageUrl, playoffsLayout, gameTimeMap, ind
             else gameTimeMap[(team2Name, team1Name)]
         )
 
-        oddDiff = abs(float(gameOdds[0].text.strip()))
+        oddDiff = abs(game["points"][0] - game["points"][1])
         return game, oddDiff, gamePageUrl, index
     except Exception:
         return None

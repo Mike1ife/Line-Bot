@@ -1,3 +1,4 @@
+import time
 from linebot.models import (
     TextSendMessage,
     ImageSendMessage,
@@ -48,14 +49,16 @@ def text_message(event: MessageEvent):
             )
 
     if message == "收集每日比賽預測":
+        start = time.time()
         if not user_is_admin(userUID):
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
-            gather_nba_game_prediction_match(playoffsLayout=False)
+            end = time.time()
+            gather_nba_game_prediction_match_parallel(playoffsLayout=False)
             LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text="收集每日比賽預測完成")
+                event.reply_token, TextSendMessage(text=f"收集每日比賽預測完成 ({end - start}s)")
             )
         except Exception as err:
             LINE_BOT_API.reply_message(
@@ -63,14 +66,17 @@ def text_message(event: MessageEvent):
             )
 
     if message == "收集每日數據預測":
+        start = time.time()
         if not user_is_admin(userUID):
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
             )
         try:
-            gather_nba_game_prediction_stat()
+            gather_nba_game_prediction_stat_optimized()
+            end = time.time()
             LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text="收集每日數據預測完成")
+                event.reply_token,
+                TextSendMessage(text=f"收集每日數據預測完成 ({end - start}s)"),
             )
         except Exception as err:
             LINE_BOT_API.reply_message(
