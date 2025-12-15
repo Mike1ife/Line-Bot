@@ -753,8 +753,8 @@ def get_nba_prediction_posback(
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
     gameTimeStr = f"{gameDate}-{gameTime}"
-    # if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
-    #     return f"{team1Name}-{team2Name} 的比賽已經開始了"
+    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+        return f"{team1Name}-{team2Name} 的比賽已經開始了"
 
     returnState = insert_user_predict_match(
         userUID=userUID,
@@ -793,8 +793,8 @@ def get_player_stat_prediction_postback(
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
     gameTimeStr = f"{gameDate}-{gameTime}"
-    # if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
-    #     return f"{playerName} 的比賽已經開始了"
+    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+        return f"{playerName} 的比賽已經開始了"
 
     returnState = insert_user_predict_stat(
         userUID=userUID,
