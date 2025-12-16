@@ -466,7 +466,7 @@ def _get_nba_games(playoffsLayout: bool):
     todayStr = nowTW.strftime("%Y-%m-%d")
 
     # get today's score page
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date=2025-12-16").text
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
     soup = BeautifulSoup(data, "html.parser")
 
     finalScores = soup.find_all("div", class_="score-team-score")
@@ -516,12 +516,11 @@ def _get_nba_games(playoffsLayout: bool):
             ]
 
         team1Name, team2Name = game["names"]
-        # game["gametime"] = (
-        #     gameTimeMap[(team1Name, team2Name)]
-        #     if (team1Name, team2Name) in gameTimeMap
-        #     else gameTimeMap[(team2Name, team1Name)]
-        # )
-        game["gametime"] = "09:30"
+        game["gametime"] = (
+            gameTimeMap[(team1Name, team2Name)]
+            if (team1Name, team2Name) in gameTimeMap
+            else gameTimeMap[(team2Name, team1Name)]
+        )
 
         # Find closest odds (most even match)
         oddDiff = abs(game["points"][0] - game["points"][1])

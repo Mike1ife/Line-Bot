@@ -56,7 +56,7 @@ def text_message(event: MessageEvent):
             )
         try:
             end = time.time()
-            gather_nba_game_prediction_match(playoffsLayout=False)
+            gather_nba_game_prediction_match_parallel(playoffsLayout=False)
             LINE_BOT_API.reply_message(
                 event.reply_token,
                 TextSendMessage(text=f"收集每日比賽預測完成 ({end - start}s)"),
