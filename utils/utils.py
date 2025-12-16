@@ -516,11 +516,12 @@ def _get_nba_games(playoffsLayout: bool):
             ]
 
         team1Name, team2Name = game["names"]
-        game["gametime"] = (
-            gameTimeMap[(team1Name, team2Name)]
-            if (team1Name, team2Name) in gameTimeMap
-            else gameTimeMap[(team2Name, team1Name)]
-        )
+        # game["gametime"] = (
+        #     gameTimeMap[(team1Name, team2Name)]
+        #     if (team1Name, team2Name) in gameTimeMap
+        #     else gameTimeMap[(team2Name, team1Name)]
+        # )
+        game["gametime"] = "09:30"
 
         # Find closest odds (most even match)
         oddDiff = abs(game["points"][0] - game["points"][1])
