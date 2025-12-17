@@ -121,6 +121,10 @@ def text_message(event: MessageEvent):
     if settleMatch == "結算":
         try:
             source = settleMatch.group(1) if correctMatch.group(1) else "hupu"
+            if source not in ("hupu", "fox"):
+                LINE_BOT_API.reply_message(
+                    event.reply_token, TextSendMessage(text=response)
+                )
             response = settle_daily_prediction(source=source)
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text=response)
