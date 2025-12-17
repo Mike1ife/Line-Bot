@@ -120,7 +120,7 @@ def text_message(event: MessageEvent):
     settleMatch = SETTLE_PATTERN.match(message)
     if settleMatch:
         try:
-            source = settleMatch.group(1) if correctMatch.group(1) else "hupu"
+            source = settleMatch.group(1) if settleMatch.group(1) else "hupu"
             if source not in ("hupu", "fox"):
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text=response)
