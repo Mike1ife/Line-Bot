@@ -199,9 +199,13 @@ def _get_daily_game_results_fox():
     return gameResults
 
 
-def settle_daily_prediction():
+def settle_daily_prediction(source: str):
     """TODO playoffs layout"""
-    gameResults = _get_daily_game_results_hupu()
+    gameResults = (
+        _get_daily_game_results_hupu()
+        if source == "hupu"
+        else _get_daily_game_results_fox()
+    )
     update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 

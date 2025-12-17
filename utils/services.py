@@ -11,6 +11,7 @@ from linebot.exceptions import LineBotApiError
 from config import LINE_BOT_API
 from utils.utils import *
 
+SETTLE_PATTERN = re.compile(r"^結算(?: ([^\s]+))?$")
 CORRECT_PATTERN = re.compile(r"^信仰(?: ([^\s]+))?$")
 WRONG_PATTERN = re.compile(r"^傻鳥(?: ([^\s]+))?$")
 FOLLOW_PATTERN = re.compile(r"^跟盤(?: ([^\s]+))?$")
@@ -116,9 +117,11 @@ def text_message(event: MessageEvent):
         response = get_user_prediction_check(userName=userName)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
-    if message == "結算":
+    settleMatch = SETTLE_PATTERN.match(message)
+    if settleMatch == "結算":
         try:
-            response = settle_daily_prediction()
+            source = settleMatch.group(1) if correctMatch.group(1) else "hupu"
+            response = settle_daily_prediction(source=source)
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text=response)
             )
