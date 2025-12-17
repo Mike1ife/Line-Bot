@@ -123,7 +123,7 @@ def text_message(event: MessageEvent):
             source = settleMatch.group(1) if settleMatch.group(1) else "hupu"
             if source not in ("hupu", "fox"):
                 LINE_BOT_API.reply_message(
-                    event.reply_token, TextSendMessage(text=response)
+                    event.reply_token, TextSendMessage(text="Invalid Source")
                 )
             response = settle_daily_prediction(source=source)
             LINE_BOT_API.reply_message(
