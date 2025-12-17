@@ -118,7 +118,7 @@ def text_message(event: MessageEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     settleMatch = SETTLE_PATTERN.match(message)
-    if settleMatch == "結算":
+    if settleMatch:
         try:
             source = settleMatch.group(1) if correctMatch.group(1) else "hupu"
             if source not in ("hupu", "fox"):
