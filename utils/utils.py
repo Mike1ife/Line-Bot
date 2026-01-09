@@ -715,44 +715,6 @@ def get_nba_stat_prediction(gamePage: str, gameDate: str, gameTime: str):
     return carouselColumns, playerStatBetList
 
 
-def get_nba_game_prediction():
-    """Part 3: Retrieve all carousel data and pack as LINE message"""
-    # Get all active carousel columns
-    carouselData = get_active_carousel_columns()
-
-    if not carouselData:
-        return "明天沒有比賽", None
-
-    # Convert database rows back to CarouselColumn objects
-    carouselColumns = []
-    for (
-        thumbnailImageUrl,
-        title,
-        text,
-        action1Label,
-        action1Data,
-        action2Label,
-        action2Data,
-    ) in carouselData:
-        carouselColumn = CarouselColumn(
-            thumbnail_image_url=thumbnailImageUrl,
-            title=title,
-            text=text,
-            actions=[
-                PostbackAction(label=action1Label, data=action1Data),
-                PostbackAction(label=action2Label, data=action2Data),
-            ],
-        )
-        carouselColumns.append(carouselColumn)
-
-    # Deactivate all carousel columns after retrieval
-    deactivate_gathered_data()
-
-    # Get current week ranking
-    response = get_user_type_point(rankType="week_points")
-    return response, carouselColumns
-
-
 def _compare_timestring(timeStr1: str, timeStr2: str):
     format = "%Y-%m-%d-%H:%M"
 

@@ -443,42 +443,6 @@ def INSERT_NBA_TEAM():
         conn.commit()
 
 
-def CREATE_CAROUSEL_COLUMN_TABLE():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            SQL = """
-            CREATE TABLE IF NOT EXISTS carousel_column (
-                carousel_id SERIAL PRIMARY KEY,
-                thumbnail_image_url TEXT NOT NULL,
-                title TEXT NOT NULL,
-                text TEXT NOT NULL,
-                action1_label TEXT NOT NULL,
-                action1_data TEXT NOT NULL,
-                action2_label TEXT NOT NULL,
-                action2_data TEXT NOT NULL,
-                is_active BOOLEAN DEFAULT TRUE
-            );
-            """
-            cur.execute(SQL)
-            conn.commit()
-
-
-def CREATE_MATCH_OF_THE_DATE_TABLE():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            SQL = """
-            CREATE TABLE IF NOT EXISTS match_of_the_date (
-                id SERIAL PRIMARY KEY,
-                game_page_url TEXT NOT NULL,
-                game_date TEXT NOT NULL,
-                game_time TEXT NOT NULL,
-                is_active BOOLEAN DEFAULT TRUE
-            );
-            """
-            cur.execute(SQL)
-            conn.commit()
-
-
 def CREATE_DATABASE():
     CREATE_USER_TABLE()
     CREATE_USER_POINT_HISTORY()
@@ -491,7 +455,5 @@ def CREATE_DATABASE():
     CREATE_USER_PREDICT_STAT_TABLE()
     CREATE_INDEX()
     CREATE_CALCULATE_DAILY_POINTS_PROCEDURE()
-    CREATE_CAROUSEL_COLUMN_TABLE()
-    CREATE_MATCH_OF_THE_DATE_TABLE()
     INSERT_NBA_TEAM()
     INSERT_PLAYER()
