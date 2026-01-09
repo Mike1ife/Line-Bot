@@ -58,53 +58,17 @@ def get_type_points(rankType: str):
         return cur.fetchall()
 
 
-def insert_match_of_the_date(gamePageUrl: str, gameDate: str, gameTime: str):
+def insert_prediction(mattchList: list, playerStatBetList: list):
     conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(
-            SQL_INSERT_MATCH_OF_THE_DAY,
-            (gamePageUrl, gameDate, gameTime),
-        )
+    _insert_match(matchList=mattchList, conn=conn)
+    _insert_player_stat_bet(playerStatBetList=playerStatBetList, conn=conn)
     conn.commit()
 
 
-def get_active_match_of_the_date():
-    conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_ACTIVE_MATCH_OF_THE_DAY)
-        result = cur.fetchone()
-        return result if result else (None, None, None)
-
-
-def get_active_carousel_columns():
-    conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_ACTIVE_CAROUSEL_COLUMN)
-        return cur.fetchall()
-
-
-def deactivate_gathered_data():
-    conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(SQL_DEACTIVATE_CAROUSEL_COLUMN)
-        cur.execute(SQL_DEACTIVATE_MATCH_OF_THE_DAY)
-    conn.commit()
-
-
-def insert_match(
-    matchList: list,
-):
+def _insert_match(matchList: list, conn: psycopg.Connection):
     # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Standing: str, team2Standing: str, team1Point: int, team2Point: int)]
-    conn = _get_connection()
     with conn.cursor() as cur:
         for (
-            thumbnailImageUrl,
-            title,
-            text,
-            action1Label,
-            action1Data,
-            action2Label,
-            action2Data,
             gameDate,
             team1Name,
             team2Name,
@@ -114,39 +78,18 @@ def insert_match(
             team2Point,
         ) in matchList:
             cur.execute(
-                SQL_INSERT_CAROUSEL_COLUMN,
-                (
-                    thumbnailImageUrl,
-                    title,
-                    text,
-                    action1Label,
-                    action1Data,
-                    action2Label,
-                    action2Data,
-                ),
-            )
-            cur.execute(
                 SQL_INSERT_MATCH,
                 (gameDate, team1Name, team2Name, team1Point, team2Point),
             )
             cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Standing, team1Name))
             cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Standing, team2Name))
-    conn.commit()
 
 
-def insert_player_stat_bet(playerStatBetList: list):
+def _insert_player_stat_bet(playerStatBetList: list, conn: psycopg.Connection):
     # playerStatBetList =
     # [(playerName: str, gameDate: str, team1Name: str, team2Name: str statType: str, statTarget: float, overPoint: int, underPoint: int)]
-    conn = _get_connection()
     with conn.cursor() as cur:
         for (
-            thumbnailImageUrl,
-            title,
-            text,
-            action1Label,
-            action1Data,
-            action2Label,
-            action2Data,
             playerName,
             gameDate,
             team1Name,
@@ -156,18 +99,6 @@ def insert_player_stat_bet(playerStatBetList: list):
             overPoint,
             underPoint,
         ) in playerStatBetList:
-            cur.execute(
-                SQL_INSERT_CAROUSEL_COLUMN,
-                (
-                    thumbnailImageUrl,
-                    title,
-                    text,
-                    action1Label,
-                    action1Data,
-                    action2Label,
-                    action2Data,
-                ),
-            )
             cur.execute(
                 SQL_SELECT_MATCH_ID,
                 (
@@ -183,7 +114,6 @@ def insert_player_stat_bet(playerStatBetList: list):
                 SQL_INSERT_PLAYER_STAT_BET,
                 (playerName, matchID, statType, statTarget, overPoint, underPoint),
             )
-    conn.commit()
 
 
 def insert_user_predict_match(
