@@ -362,3 +362,36 @@ SELECT player_page_url FROM player WHERE player_name = %s
 SQL_SELECT_IMAGE_LINK = """
 SELECT link FROM ImageLink WHERE category = %s
 """
+
+SQL_INSERT_CAROUSEL_COLUMN = """
+INSERT INTO carousel_column 
+    (thumbnail_image_url, title, text, action1_label, action1_data, action2_label, action2_data) 
+VALUES (%s, %s, %s, %s, %s, %s, %s)
+"""
+
+SQL_INSERT_MATCH_OF_THE_DAY = """
+INSERT INTO match_of_the_date 
+    (game_page_url, game_date, game_time)
+VALUES (%s, %s, %s)
+"""
+
+SQL_SELECT_ACTIVE_MATCH_OF_THE_DAY = """
+SELECT game_page_url, game_date, game_time 
+FROM match_of_the_date 
+WHERE is_active = TRUE
+"""
+
+SQL_SELECT_ACTIVE_CAROUSEL_COLUMN = """
+SELECT thumbnail_image_url, title, text, action1_label, action1_data, action2_label, action2_data
+FROM carousel_column
+WHERE is_active = TRUE
+ORDER BY carousel_id
+"""
+
+SQL_DEACTIVATE_CAROUSEL_COLUMN = """
+UPDATE carousel_column SET is_active = FALSE WHERE is_active = TRUE
+"""
+
+SQL_DEACTIVATE_MATCH_OF_THE_DAY = """
+UPDATE match_of_the_date SET is_active = FALSE WHERE is_active = TRUE
+"""
