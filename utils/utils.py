@@ -149,6 +149,8 @@ def _get_daily_game_results_hupu():
         team1Score = team2Score = ""
 
         gameStatus = gameContainer.find("div", class_="team_vs").text
+        if "延期" in gameStatus:
+            continue
         if "进行中" in gameStatus or "未开始" in gameStatus:
             raise ValueError(f"{team1Name} - {team2Name} Not Finished")
 
