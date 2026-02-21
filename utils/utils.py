@@ -149,8 +149,6 @@ def _get_daily_game_results_hupu():
         team1Score = team2Score = ""
 
         gameStatus = gameContainer.find("div", class_="team_vs").text
-        if "延期" in gameStatus:
-            continue
         if "进行中" in gameStatus or "未开始" in gameStatus:
             raise ValueError(f"{team1Name} - {team2Name} Not Finished")
 
@@ -799,8 +797,8 @@ def get_player_stat_prediction_postback(
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     nowTWStr = nowTW.strftime("%Y-%m-%d-%H:%M")
     gameTimeStr = f"{gameDate}-{gameTime}"
-    # if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
-    #     return f"{playerName} 的比賽已經開始了"
+    if _compare_timestring(timeStr1=nowTWStr, timeStr2=gameTimeStr):
+        return f"{playerName} 的比賽已經開始了"
 
     returnState = insert_user_predict_stat(
         userUID=userUID,
