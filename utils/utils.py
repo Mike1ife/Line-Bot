@@ -274,7 +274,7 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: st
             ),
         ],
     )
-    return carouselColumn, teamNames, teamPoints
+    return carouselColumn, teamNames, teamStandings, teamPoints
 
 
 def _get_game_translation(gameDescription: str):
@@ -471,9 +471,6 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     )
 
     if not gameList:
-        return
-
-    if not gameList:
         return None, "明天沒有比賽", None, None, None, None
 
     nowUTC = datetime.now(timezone.utc)
@@ -484,8 +481,10 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
 
     # Process each game
     for game in gameList:
-        carouselColumn, teamNames, teamPoints = _pack_game_carousel_column(
-            game=game, playoffsLayout=playoffsLayout, tomorrowStr=tomorrowStr
+        carouselColumn, teamNames, teamStandings, teamPoints = (
+            _pack_game_carousel_column(
+                game=game, playoffsLayout=playoffsLayout, tomorrowStr=tomorrowStr
+            )
         )
         carouselColumns.append(carouselColumn)
 
@@ -494,6 +493,8 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
                 tomorrowStr,
                 teamNames[0],
                 teamNames[1],
+                teamStandings[0],
+                teamStandings[1],
                 teamPoints[0],
                 teamPoints[1],
             )
