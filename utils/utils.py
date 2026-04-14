@@ -404,13 +404,13 @@ def _get_playoffs_game(gameInfo: BeautifulSoup):
     # GM 4 TIED 2-2
     # GM 5 LAL LEADS 3-1
     # CONF SEMIS GAME 1
-    if standingInfo[2] == "TIED":
+    if standingInfo[-1] == "PLAY-IN":
+        gameNumber = standingInfo
+        teamStandings = ["0", "0"]
+    elif standingInfo[2] == "TIED":
         gameNumber = standingInfo[1]
         tie = standingInfo[-1].split("-")[0]
         teamStandings = [tie, tie]
-    elif standingInfo[-1] == "PLAY-IN":
-        gameNumber = standingInfo
-        teamStandings = ["0", "0"]
     else:
         if standingInfo[0] == "GM":
             gameNumber = standingInfo[1]
