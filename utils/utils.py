@@ -249,7 +249,7 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: st
         (
             ("Game " + game["number"] + "\n")
             if game["number"].isdigit()
-            else game["number"]
+            else game["number"] + "\n"
         )
         if playoffsLayout
         else ""
