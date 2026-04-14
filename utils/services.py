@@ -69,7 +69,7 @@ def text_message(event: MessageEvent):
                 gameOfTheDayPage,
                 gameOfTheDayDate,
                 gameOfTheDayTime,
-            ) = get_nba_game_prediction(playoffsLayout=False)
+            ) = get_nba_game_prediction(playoffsLayout=True)
 
             if not matchColumns:
                 LINE_BOT_API.reply_message(

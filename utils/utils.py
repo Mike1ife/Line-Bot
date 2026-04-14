@@ -245,7 +245,15 @@ def _pack_game_carousel_column(game: dict, playoffsLayout: bool, tomorrowStr: st
     gameTime = game["gametime"]
     awayHome = ["客", "主"]
 
-    gameNumber = "Game " + game["number"] + "\n" if playoffsLayout else ""
+    gameNumber = (
+        (
+            ("Game " + game["number"] + "\n")
+            if game["number"].isdigit()
+            else game["number"]
+        )
+        if playoffsLayout
+        else ""
+    )
 
     encodedTeam1 = quote(teamNames[0])
     encodedTeam2 = quote(teamNames[1])
@@ -391,7 +399,8 @@ def _get_playoffs_game(gameInfo: BeautifulSoup):
     ).text.strip()
 
     standingInfo = standingText.split()
-    # 3 Cases:
+    # 4 Cases:
+    # EAST PLAY-IN
     # GM 4 TIED 2-2
     # GM 5 LAL LEADS 3-1
     # CONF SEMIS GAME 1
@@ -399,6 +408,9 @@ def _get_playoffs_game(gameInfo: BeautifulSoup):
         gameNumber = standingInfo[1]
         tie = standingInfo[-1].split("-")[0]
         teamStandings = [tie, tie]
+    elif standingInfo[-1] == "PLAY-IN":
+        gameNumber = standingInfo
+        teamStandings = ["0", "0"]
     else:
         if standingInfo[0] == "GM":
             gameNumber = standingInfo[1]
