@@ -524,11 +524,11 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
 
 def _get_nba_games(playoffsLayout: bool):
     nowUTC = datetime.now(timezone.utc)
-    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=-8)))
     todayStr = nowTW.strftime("%Y-%m-%d")
 
     # Get today's score page
-    data = requests.get("https://www.foxsports.com/nba/scores?date=2026-04-22").text
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
     soup = BeautifulSoup(data, "html.parser")
 
     finalScores = soup.find_all("div", class_="score-team-score")
