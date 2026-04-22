@@ -524,7 +524,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
 
 def _get_nba_games(playoffsLayout: bool):
     nowUTC = datetime.now(timezone.utc)
-    nowTW = nowUTC.astimezone(timezone(timedelta(hours=-8)))
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     todayStr = nowTW.strftime("%Y-%m-%d")
 
     # Get today's score page
