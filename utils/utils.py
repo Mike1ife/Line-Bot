@@ -528,7 +528,7 @@ def _get_nba_games(playoffsLayout: bool):
     todayStr = nowTW.strftime("%Y-%m-%d")
 
     # Get today's score page
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
+    data = requests.get("https://www.foxsports.com/nba/scores?date=2026-04-22").text
     soup = BeautifulSoup(data, "html.parser")
 
     finalScores = soup.find_all("div", class_="score-team-score")
