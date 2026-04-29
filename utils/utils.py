@@ -459,12 +459,16 @@ def _get_nba_games_time_list(timeStr: str):
         team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
         team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
 
-        gameTime = (
-            gameContainer.find("div", class_="team_vs_b")
-            .find("span", class_="b")
-            .find("p")
-            .text
-        )
+        try:
+            gameTime = (
+                gameContainer.find("div", class_="team_vs_b")
+                .find("span", class_="b")
+                .find("p")
+                .text
+            )
+        except:
+            continue
+
         gameTimeMap[(team1Name, team2Name)] = (
             gameTime if gameTime != "00:00" else "12:00"
         )
