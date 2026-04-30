@@ -151,6 +151,8 @@ def _get_daily_game_results_hupu():
         gameStatus = gameContainer.find("div", class_="team_vs").text
         if "进行中" in gameStatus or "未开始" in gameStatus:
             raise ValueError(f"{team1Name} - {team2Name} Not Finished")
+        if "已取消" in gameStatus:
+            continue
 
         team1Win = team1.find("div", class_="txt").find("span", class_="num red")
         if team1Win:
