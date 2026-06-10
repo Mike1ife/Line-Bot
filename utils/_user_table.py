@@ -683,7 +683,7 @@ def get_player_boxscore() -> str:
             )
 
     if not player_stats_dict:
-        return
+        return ""
 
     result = []
     with conn.cursor() as cur:
