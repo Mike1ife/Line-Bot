@@ -438,6 +438,7 @@ def _get_playoffs_game(gameInfo: BeautifulSoup):
 
 
 def _get_nba_games_time_list(timeStr: str):
+    # print(f"https://nba.hupu.com/games/{timeStr}")
     data = requests.get(f"https://nba.hupu.com/games/{timeStr}").text
     soup = BeautifulSoup(data, "html.parser")
 
@@ -446,6 +447,7 @@ def _get_nba_games_time_list(timeStr: str):
 
     gameTimeMap = {}
     for gameContainer in gameContainers:
+        boxScoreUrl = gameContainer.find("div", class_="table_choose clearfix").find("a").get("href")
         teams = gameContainer.find("div", class_="team_vs_a")
         team1 = teams.find("div", class_="team_vs_a_1 clearfix")
         team2 = teams.find("div", class_="team_vs_a_2 clearfix")
@@ -471,11 +473,14 @@ def _get_nba_games_time_list(timeStr: str):
         except:
             continue
 
-        gameTimeMap[(team1Name, team2Name)] = (
+        gameTimeMap[(team1Name, team2Name)] = ((
             gameTime if gameTime != "00:00" else "12:00"
-        )
+        ), boxScoreUrl)
 
     return gameTimeMap
+
+
+
 
 
 def get_nba_game_prediction(playoffsLayout: bool = False):
@@ -484,12 +489,14 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     matchList = []
     carouselColumns = []
 
-    gameList, gameOfTheDayPage, gameOfTheDayTime = _get_nba_games(
+    gameList, gameOfTheDayPage, gameOfTheDayBoxScoreUrl, gameOfTheDayTime = _get_nba_games(
         playoffsLayout=playoffsLayout
     )
 
     if not gameList:
         return None, "明天沒有比賽", None, None, None, None
+
+    insert_match_of_the_day_boxscore_url(gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl)
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
@@ -527,23 +534,22 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
         gameOfTheDayTime,
     )
 
-
 def _get_nba_games(playoffsLayout: bool):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     todayStr = nowTW.strftime("%Y-%m-%d")
 
-    # Get today's score page
+    # get today's score page
     data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
     soup = BeautifulSoup(data, "html.parser")
 
     finalScores = soup.find_all("div", class_="score-team-score")
     if len(finalScores) > 0:
-        return [], None, None
+        return [], None, None  # Games already finished
 
     urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if todayStr not in re.findall(urlPattern, data):
-        return [], None, None
+        return [], None, None  # No game page for this date
 
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
@@ -552,46 +558,64 @@ def _get_nba_games(playoffsLayout: bool):
     gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"
     gamesInfo = soup.find_all("a", class_=gameClass)
 
-    # Parallel processing of game pages
     gameList = []
     gameOfTheDay = {"diff": 30, "page": "", "index": -1, "gameTime": ""}
 
-    # Use ThreadPoolExecutor for parallel requests
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = []
-        for i, gameInfo in enumerate(gamesInfo):
-            gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
-            future = executor.submit(
-                _process_single_game,
-                gameInfo,
-                gamePageUrl,
-                playoffsLayout,
-                gameTimeMap,
-                i,
+    for i, gameInfo in enumerate(gamesInfo):
+        gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
+
+        # Simple request for each page
+        gamePageData = requests.get(gamePageUrl).text
+        gamePageSoup = BeautifulSoup(gamePageData, "html.parser")
+
+        # Parse game info
+        if playoffsLayout:
+            game = _get_playoffs_game(gameInfo)
+        else:
+            game = _get_regular_game(gameInfo)
+        if not game:
+            continue
+
+        oddContainer = gamePageSoup.find("div", class_="odds-row-container")
+        if not oddContainer:
+            game["points"] = [30, 30]
+        # Add points and time
+        else:
+            gameOdds = oddContainer.find_all(
+                "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
             )
-            futures.append(future)
+            game["points"] = [
+                int(round(30 + float(gameOdds[0].text.strip()))),
+                int(round(30 + float(gameOdds[1].text.strip()))),
+            ]
 
-        # Collect results
-        for future in futures:
-            result = future.result()
-            if result:
-                game, oddDiff, gamePageUrl, index = result
-                gameList.append(game)
+        # print(gameTimeMap)
+        team1Name, team2Name = game["names"]
+        game["gametime"], gameBoxScore = (
+            gameTimeMap[(team1Name, team2Name)]
+            if (team1Name, team2Name) in gameTimeMap
+            else gameTimeMap[(team2Name, team1Name)]
+        )
 
-                # Update game of the day if this has closer odds
-                if oddDiff < gameOfTheDay["diff"]:
-                    gameOfTheDay.update(
-                        {
-                            "diff": oddDiff,
-                            "page": gamePageUrl,
-                            "index": index,
-                            "gameTime": game["gametime"],
-                        }
-                    )
+        # Find closest odds (most even match)
+        oddDiff = abs(game["points"][0] - game["points"][1])
+        if oddDiff < gameOfTheDay["diff"]:
+            gameOfTheDay.update(
+                {
+                    "diff": oddDiff,
+                    "page": gamePageUrl,
+                    "boxScore": gameBoxScore,
+                    "index": i,
+                    "gameTime": game["gametime"],
+                }
+            )
+
+        gameList.append(game)
 
     return (
         gameList,
         (gameOfTheDay["page"] + "?tab=odds" if gameOfTheDay["page"] else None),
+        gameOfTheDay["boxScore"],
         gameOfTheDay["gameTime"],
     )
 

@@ -463,16 +463,13 @@ def CREATE_CAROUSEL_COLUMN_TABLE():
             conn.commit()
 
 
-def CREATE_MATCH_OF_THE_DATE_TABLE():
+def CREATE_MATCH_OF_THE_DAY_TABLE():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             SQL = """
-            CREATE TABLE IF NOT EXISTS match_of_the_date (
+            CREATE TABLE IF NOT EXISTS match_of_the_day (
                 id SERIAL PRIMARY KEY,
-                game_page_url TEXT NOT NULL,
-                game_date TEXT NOT NULL,
-                game_time TEXT NOT NULL,
-                is_active BOOLEAN DEFAULT TRUE
+                boxscore_url TEXT
             );
             """
             cur.execute(SQL)

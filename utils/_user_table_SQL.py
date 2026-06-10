@@ -362,3 +362,10 @@ SELECT player_page_url FROM player WHERE player_name = %s
 SQL_SELECT_IMAGE_LINK = """
 SELECT link FROM ImageLink WHERE category = %s
 """
+
+SQL_INSERT_BOXSCORE = """
+INSERT INTO match_of_the_day (boxscore_url)
+VALUES (%s)
+ON CONFLICT (boxscore_url)
+DO NOTHING;
+"""

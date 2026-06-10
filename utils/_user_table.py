@@ -592,6 +592,11 @@ def update_daily_match_score(gameScores: dict):
             )
     conn.commit()
 
+def insert_match_of_the_day_boxscore_url(gameOfTheDayBoxScoreUrl: str):
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_INSERT_BOXSCORE, (gameOfTheDayBoxScoreUrl,))
+    conn.commit()
 
 def calculate_daily_point():
     conn = _get_connection()
