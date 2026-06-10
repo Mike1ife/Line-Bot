@@ -1232,6 +1232,8 @@ def get_nba_scoreboard():
         )
 
     update_daily_match_score(gameScores=gameScores)
+
+    gameStrList.append(get_player_boxscore())
     return "\n".join(gameStrList)
 
 

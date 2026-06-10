@@ -146,6 +146,7 @@ def CREATE_PLAYER_TABLE():
             SQL = """
             CREATE TABLE IF NOT EXISTS player (
                 player_name TEXT PRIMARY KEY,
+                chinese_name TEXT TEXT,
                 player_page_url TEXT,
                 player_image TEXT
             );
@@ -411,6 +412,33 @@ def INSERT_PLAYER():
                     player_image = EXCLUDED.player_image;
                 """
                 cur.execute(SQL, (playerName, playerPageUrl, playerImage))
+        conn.commit()
+
+
+    data = requests.get("https://nba.hupu.com/players").text
+    soup = BeautifulSoup(data, "html.parser")
+    team_list = soup.find_all("span", class_="team_name")
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        for row in team_list:
+            team_url = row.find("a").get("href")
+            data = requests.get(team_url).text
+            soup = BeautifulSoup(data, "html.parser")
+
+            player_table = soup.find("table", class_="players_table")
+            player_rows = player_table.find_all("tr")
+            for player_row in player_rows:
+                player_info = player_row.find("td", class_="left")
+                if not player_info:
+                    continue
+            
+                player_names = player_info.find_all("b")
+                chinese_name = player_names[0].text
+                english_name = player_names[1].text
+                print(english_name, chinese_name)
+                with conn.cursor() as cur:
+                    cur.execute("UPDATE player SET chinese_name = %s WHERE player_name = %s", (chinese_name, english_name))
+        
         conn.commit()
 
 

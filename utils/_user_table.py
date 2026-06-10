@@ -620,3 +620,38 @@ def get_image_url(imgKey: str):
     with conn.cursor() as cur:
         cur.execute(SQL_SELECT_IMAGE_LINK, (imgKey,))
         return cur.fetchall()
+
+def get_player_boxscore() -> str:
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT boxscore_url FROM match_of_the_day ORDER BY id DESC LIMIT 1")
+        boxScoreUrl = cur.fetchone()[0]
+
+    data = requests.get("https://nba.hupu.com/games/boxscore/168857").text
+    soup = BeautifulSoup(data, "html.parser")
+    table_list = soup.find_all("div", class_="table_list_live")
+    
+    player_stats_dict = {}
+    for team_table in table_list:
+        player_list = team_table.find("tbody").find_all("tr")
+        for row in player_list:
+            player_name = row.find("td", class_="tdw-1 left")
+            if not player_name:
+                continue
+                
+            player_name = player_name.text
+            player_stats = row.find_all("td")
+            score = player_stats[-2].text.strip()
+            board = player_stats[8].text.strip()
+            steal = player_stats[11].text.strip()
+
+            player_stats_dict.setdefault(player_name, {"得分": score, "籃板": board, "抄截": steal})
+
+    result = []
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_PLAYER_STAT_BET)
+        playerStatBetList = cur.fetchall()
+        for matchId, playerName, playerChineseName, statType in playerStatBetList:
+            result.append(f"{playerName} {statType} {player_stats_dict[playerChineseName][statType]}")
+
+    return "\n".join(result)
