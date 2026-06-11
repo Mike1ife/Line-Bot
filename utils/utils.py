@@ -545,11 +545,11 @@ def _get_nba_games(playoffsLayout: bool):
 
     finalScores = soup.find_all("div", class_="score-team-score")
     if len(finalScores) > 0:
-        return [], None, None  # Games already finished
+        return [], None, None, None  # Games already finished
 
     urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if todayStr not in re.findall(urlPattern, data):
-        return [], None, None  # No game page for this date
+        return [], None, None, None  # No game page for this date
 
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
