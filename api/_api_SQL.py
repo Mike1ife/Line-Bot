@@ -1,5 +1,5 @@
 SQL_SELECT_USER_DAY_POINT = """
-SELECT name, picture_url, day_points 
+SELECT name, picture_url, day_points, day_match_points, day_stat_points 
 FROM users
 ORDER BY day_points DESC
 """

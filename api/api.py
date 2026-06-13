@@ -29,6 +29,23 @@ def get_user_info_and_type_point(rankType: str):
         return resultDict
 
 
+def get_user_info_and_day_point():
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_DAY_POINT)
+        resultDict = [
+            {
+                "userName": userName,
+                "pictureUrl": pictureUrl,
+                "point": point,
+                "dayMatchPoints": dayMatchPoints,
+                "dayStatPoints": dayStatPoints,
+            }
+            for userName, pictureUrl, point, dayMatchPoints, dayStatPoints in cur.fetchall()
+        ]
+        return resultDict
+    
+    
 def _get_nba_live_score():
     data = requests.get("https://nba.hupu.com/games").text
     soup = BeautifulSoup(data, "html.parser")
