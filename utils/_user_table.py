@@ -451,36 +451,32 @@ def _format_compare_result(
     if match_diffs:
         lines.append("\n🏀 【球隊勝負】")
         for team1, team2, v1, v2, t1_pt, t2_pt in match_diffs:
-            lines.append(f"• {team1} vs {team2}")
+            # 隱藏都未預測的
             if not v1 and not v2:
-                lines.append(f"  兩人尚未預測")
-            elif v1 and not v2:
-                lines.append(f"  {user2Name} 尚未預測")
-            elif v2 and not v1:
-                lines.append(f"  {user1Name} 尚未預測")
-            elif v1 == v2:
-                lines.append(f"  ✅ 預測相同：{v1} → +{t1_pt if v1 == team1 else t2_pt}")
+                continue
+            s1 = f"{v1}+{t1_pt if v1 == team1 else t2_pt}" if v1 else "未預測"
+            s2 = f"{v2}+{t1_pt if v2 == team1 else t2_pt}" if v2 else "未預測"
+            if v1 == v2:
+                lines.append(f"• {team1} vs {team2}\n  └ ✅皆預測{s1}")
             else:
-                lines.append(f"  ├ {user1Name}：{v1} → +{t1_pt if v1 == team1 else t2_pt}")
-                lines.append(f"  └ {user2Name}：{v2} → +{t1_pt if v2 == team1 else t2_pt}")
+                lines.append(f"• {team1} vs {team2}\n  └ {s1} / {s2}")
 
     if stat_diffs:
         emoji = {"大盤": "🔼大盤", "小盤": "🔽小盤"}
         lines.append("\n⛹️ 【球員數據】")
         for player, stat_type, v1, v2, target, over_pt, under_pt in stat_diffs:
-            lines.append(f"• {player} {stat_type} {target}")
+            # 隱藏都未預測的
             if not v1 and not v2:
-                lines.append(f"  兩人尚未預測")
-            elif v1 and not v2:
-                lines.append(f"  {user2Name} 尚未預測")
-            elif v2 and not v1:
-                lines.append(f"  {user1Name} 尚未預測")
-            elif v1 == v2:
-                lines.append(f"  ✅ 預測相同：{emoji.get(v1, v1)} → +{over_pt if v1 == '大盤' else under_pt}")
+                continue
+            # 只取球員「姓氏」
+            short_player = player.split()[-1] if " " in player else player
+            s1 = f"{emoji.get(v1, v1)}+{over_pt if v1 == '大盤' else under_pt}" if v1 else "未預測"
+            s2 = f"{emoji.get(v2, v2)}+{over_pt if v2 == '大盤' else under_pt}" if v2 else "未預測"
+            player_info = f"{short_player} {stat_type}{target}"
+            if v1 == v2:
+                lines.append(f"• {player_info}\n  └ ✅皆預測{s1}")
             else:
-                lines.append(f"  ├ {user1Name}：{emoji.get(v1, v1)} → +{over_pt if v1 == '大盤' else under_pt}")
-                lines.append(f"  └ {user2Name}：{emoji.get(v2, v2)} → +{over_pt if v2 == '大盤' else under_pt}")
-
+                lines.append(f"• {player_info}\n  └ {s1} / {s2}")
     return "\n".join(lines)
 
 def compare_user_prediction(user1Id: int, user2Id: int):
