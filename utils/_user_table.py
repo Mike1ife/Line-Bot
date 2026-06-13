@@ -440,6 +440,49 @@ def _remove_common_prefix(s1: str, s2: str):
     return f"{s1} ({s2[index:]})"
 
 
+def _format_compare_result(
+    user1Name: str,
+    user2Name: str,
+    match_diffs: list[tuple],
+    stat_diffs: list[tuple],
+) -> str:
+    lines = [f"{user1Name} 🆚 {user2Name} 預測差異"]
+
+    if match_diffs:
+        lines.append("\n🏀 【球隊勝負】")
+        for team1, team2, v1, v2, t1_pt, t2_pt in match_diffs:
+            lines.append(f"• {team1} vs {team2}")
+            if not v1 and not v2:
+                lines.append(f"  兩人尚未預測")
+            elif v1 and not v2:
+                lines.append(f"  {user2Name} 尚未預測")
+            elif v2 and not v1:
+                lines.append(f"  {user1Name} 尚未預測")
+            elif v1 == v2:
+                lines.append(f"  ✅ 預測相同：{v1} → +{t1_pt if v1 == team1 else t2_pt}")
+            else:
+                lines.append(f"  ├ {user1Name}：{v1} → +{t1_pt if v1 == team1 else t2_pt}")
+                lines.append(f"  └ {user2Name}：{v2} → +{t1_pt if v2 == team1 else t2_pt}")
+
+    if stat_diffs:
+        emoji = {"大盤": "🔼大盤", "小盤": "🔽小盤"}
+        lines.append("\n⛹️ 【球員數據】")
+        for player, stat_type, v1, v2, target, over_pt, under_pt in stat_diffs:
+            lines.append(f"• {player} {stat_type} {target}")
+            if not v1 and not v2:
+                lines.append(f"  兩人尚未預測")
+            elif v1 and not v2:
+                lines.append(f"  {user2Name} 尚未預測")
+            elif v2 and not v1:
+                lines.append(f"  {user1Name} 尚未預測")
+            elif v1 == v2:
+                lines.append(f"  ✅ 預測相同：{emoji.get(v1, v1)} → +{over_pt if v1 == '大盤' else under_pt}")
+            else:
+                lines.append(f"  ├ {user1Name}：{emoji.get(v1, v1)} → +{over_pt if v1 == '大盤' else under_pt}")
+                lines.append(f"  └ {user2Name}：{emoji.get(v2, v2)} → +{over_pt if v2 == '大盤' else under_pt}")
+
+    return "\n".join(lines)
+
 def compare_user_prediction(user1Id: int, user2Id: int):
     conn = _get_connection()
     with conn.cursor() as cur:
@@ -456,65 +499,54 @@ def compare_user_prediction(user1Id: int, user2Id: int):
                 + [f"{id}. {userName}" for id, userName in userIdToName.items()]
             )
 
-        user1Name = userNameList[user1Id - 1]
-        user2Name = userNameList[user2Id - 1]
+        user1Name = userIdToName[user1Id]
+        user2Name = userIdToName[user2Id]
 
-        cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user1Name,))
-        user1PredictMatchList = cur.fetchall()
-        cur.execute(SQL_SELECT_USER_PREDICT_MATCH1, (user2Name,))
-        user2PredictMatchList = cur.fetchall()
+        # (team1, team2) → (predicted_team, team1_point, team2_point)
+        cur.execute(SQL_SELECT_USER_PREDICT_MATCH_COMPARE, (user1Name,))
+        u1_matches = {
+            (row[0], row[1]): (row[2], row[3], row[4]) for row in cur.fetchall()
+        }
+        cur.execute(SQL_SELECT_USER_PREDICT_MATCH_COMPARE, (user2Name,))
+        u2_matches = {
+            (row[0], row[1]): (row[2], row[3], row[4]) for row in cur.fetchall()
+        }
 
-        isTheSame = True
-        hasPredict = False
-        compareResult = []
-        for i in range(len(user1PredictMatchList)):
-            user1PredictMatch = user1PredictMatchList[i][2]
-            user2PredictMatch = user2PredictMatchList[i][2]
-            if not user1PredictMatch and not user2PredictMatch:
-                continue
-            hasPredict = True
-            if user1PredictMatch == user2PredictMatch:
-                compareResult.append(user2PredictMatch)
-            else:
-                isTheSame = False
-                compareResult.append(
-                    _remove_common_prefix(user1PredictMatch, user2PredictMatch)
-                )
+        # (player, stat_type) → (predicted_outcome, stat_target, over_point, under_point)
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT_COMPARE, (user1Name,))
+        u1_stats = {
+            (row[0], row[1]): (row[2], row[3], row[4], row[5]) for row in cur.fetchall()
+        }
+        cur.execute(SQL_SELECT_USER_PREDICT_STAT_COMPARE, (user2Name,))
+        u2_stats = {
+            (row[0], row[1]): (row[2], row[3], row[4], row[5]) for row in cur.fetchall()
+        }
 
-        cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user1Name,))
-        user1PredictStatList = cur.fetchall()
-        cur.execute(SQL_SELECT_USER_PREDICT_STAT1, (user2Name,))
-        user2PredictStatList = cur.fetchall()
+        # 比較比賽勝負
+        match_diffs = []
+        for key in sorted(set(u1_matches) | set(u2_matches)):
+            v1, t1_pt, t2_pt = u1_matches.get(key, (None, None, None))
+            v2, _, _ = u2_matches.get(key, (None, None, None))
+            team1, team2 = key
+            match_diffs.append((team1, team2, v1, v2, t1_pt, t2_pt))
 
-        for i in range(len(user1PredictStatList)):
-            user1PredictStat = (
-                " ".join(user1PredictStatList[i]) if user1PredictStatList[i][2] else ""
-            )
-            user2PredictStat = (
-                " ".join(user2PredictStatList[i]) if user2PredictStatList[i][2] else ""
-            )
-            if not user1PredictStat and not user2PredictStat:
-                continue
-            hasPredict = True
-            if user1PredictStat == user2PredictStat:
-                compareResult.append(user1PredictStat)
-            else:
-                isTheSame = False
-                compareResult.append(
-                    _remove_common_prefix(user1PredictStat, user2PredictStat)
-                )
+        # 比較球員數據
+        stat_diffs = []
+        for key in sorted(set(u1_stats) | set(u2_stats)):
+            v1, target, over_pt, under_pt = u1_stats.get(key, (None, None, None, None))
+            v2, _, _, _ = u2_stats.get(key, (None, None, None, None))
+            player, stat_type = key
+            stat_diffs.append((player, stat_type, v1, v2, target, over_pt, under_pt))
 
+        hasPredict = any(v1 or v2 for _, _, v1, v2, *_ in match_diffs + stat_diffs)
         if not hasPredict:
-            return (
-                f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 都還沒預測任何比賽"
-            )
-        if isTheSame:
-            return f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的預測相同"
-        return "\n".join(
-            [f"{userIdToName[user1Id]} 和 {userIdToName[user2Id]} 的不同預測:"]
-            + compareResult
-        )
+            return f"{user1Name} 和 {user2Name} 都還沒預測任何比賽"
 
+        isAllSame = all(v1 == v2 for _, _, v1, v2, *_ in match_diffs + stat_diffs)
+        if isAllSame:
+            return f"{user1Name} 🆚 {user2Name} 預測相同✅"
+
+        return _format_compare_result(user1Name, user2Name, match_diffs, stat_diffs)
 
 def _get_stat_result(playerName: str, statType: str):
     playerUrl = get_player_url(playerName=playerName)

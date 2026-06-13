@@ -264,6 +264,32 @@ WHERE
 ORDER BY stat_type, player_name
 """
 
+SQL_SELECT_USER_PREDICT_MATCH_COMPARE = """
+SELECT team1_name, team2_name, predicted_team, team1_point, team2_point
+FROM match
+LEFT OUTER JOIN user_predict_match as upm
+    ON 
+        upm.uid = (SELECT uid FROM users WHERE name = %s)
+        AND upm.match_id = match.match_id
+WHERE match.is_active = TRUE
+ORDER BY match.match_id 
+"""
+
+SQL_SELECT_USER_PREDICT_STAT_COMPARE = """
+SELECT psb.player_name, psb.stat_type, predicted_outcome, psb.stat_target, psb.over_point, psb.under_point
+FROM player_stat_bet AS psb
+INNER JOIN match
+    ON psb.match_id = match.match_id 
+LEFT OUTER JOIN user_predict_stat AS ups
+    ON 
+        ups.uid = (SELECT uid FROM users WHERE name = %s) 
+        AND ups.match_id = match.match_id
+        AND ups.player_name = psb.player_name 
+        AND ups.stat_type = psb.stat_type
+WHERE match.is_active = TRUE
+ORDER BY stat_type, player_name
+"""
+
 SQL_SELECT_PLAYER_STAT_BET = """
 SELECT psb.match_id, psb.player_name, chinese_name, stat_type
 FROM player_stat_bet AS psb
