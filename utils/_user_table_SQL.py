@@ -369,3 +369,22 @@ SQL_INSERT_BOXSCORE = """
 INSERT INTO match_of_the_day (boxscore_url)
 VALUES (%s)
 """
+
+SQL_SELECT_USER_SETTLE_POINTS = """
+SELECT name, week_points, day_points, day_match_points, day_stat_points 
+FROM users 
+ORDER BY week_points DESC
+"""
+
+SQL_SELECT_ACTIVE_MATCHES = """
+SELECT team1_name, team1_score, team2_score, team2_name, team1_point, team2_point, match_id
+FROM match
+WHERE is_active = TRUE
+"""
+
+SQL_SELECT_ACTIVE_STATS = """
+SELECT player_name, stat_type, stat_result, stat_target, over_point, under_point
+FROM player_stat_bet
+WHERE match_id IN (SELECT match_id FROM match WHERE is_active = TRUE)
+  AND stat_result IS NOT NULL
+"""

@@ -695,3 +695,39 @@ def get_player_boxscore() -> str:
             )
 
     return "\n".join(result)
+
+
+def get_daily_active_matches():
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_ACTIVE_MATCHES)
+        data = cur.fetchall()
+    conn.commit()
+    return data
+
+
+def get_daily_active_stats():
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_ACTIVE_STATS)
+        data = cur.fetchall()
+    conn.commit()
+    return data
+
+
+def get_user_settle_points():
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_SETTLE_POINTS)
+        data = [
+            {
+                "userName": name,
+                "weekPoints": week_points,
+                "dayPoints": day_points,
+                "dayMatchPoints": day_match_points,
+                "dayStatPoints": day_stat_points,
+            }
+            for name, week_points, day_points, day_match_points, day_stat_points in cur.fetchall()
+        ]
+    conn.commit()
+    return data

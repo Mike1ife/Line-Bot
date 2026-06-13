@@ -3,7 +3,6 @@ from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor
 
 from config import IMGUR_CLIENT_ID, LONG_CAT_API_KEY
-from api import get_user_info_and_day_point
 from utils._user_table import *
 from utils._team_table import (
     NBA_ABBR_ENG_TO_ABBR_CN,
@@ -211,30 +210,8 @@ def to_emoji_digits(number):
 
 def generate_daily_results_message():
     # Fetch today's game results and player statistics, then assemble them into the first message.
-    from config import DATABASE_URL
-    import psycopg
-
-    matches = []
-    stats = []
-
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            # game results
-            cur.execute("""
-                SELECT team1_name, team1_score, team2_score, team2_name, team1_point, team2_point, match_id
-                FROM match
-                WHERE is_active = TRUE
-            """)
-            matches = cur.fetchall()
-
-            # player statistics
-            cur.execute("""
-                SELECT player_name, stat_type, stat_result, stat_target, over_point, under_point
-                FROM player_stat_bet
-                WHERE match_id IN (SELECT match_id FROM match WHERE is_active = TRUE)
-                  AND stat_result IS NOT NULL
-            """)
-            stats = cur.fetchall()
+    matches = get_daily_active_matches()
+    stats = get_daily_active_stats()
 
     lines = ["🏀 今日賽果"]
     for team1_name, team1_score, team2_score, team2_name, team1_point, team2_point, _ in matches:
@@ -280,24 +257,16 @@ def settle_daily_prediction(source: str):
 
     calculate_daily_point()
 
-    dayPoints  = get_user_info_and_day_point()
-    weekPoints = get_type_points(rankType="week_points")
-    
-    # Create a map for day points to align with weekly ranking order
-    dayPointsMap = {row["userName"]: row for row in dayPoints}
-
+    settle_data = get_user_settle_points()
     rank_lines = ["🏆 本週排行榜 (今日結算) 🏆\n\n"]
 
     # Iterate through weekPoints to maintain week_points DESC order
-    for i, week_row in enumerate(weekPoints, 1):
-        userName       = week_row["userName"]
-        userWeekPoints = week_row["point"]
-        
-        # Fetch daily info from map (default to 0 if no data found)
-        day_info           = dayPointsMap.get(userName, {})
-        userDayPoints      = day_info.get("point", 0)
-        userDayMatchPoints = day_info.get("dayMatchPoints", 0)
-        userDayStatPoints  = day_info.get("dayStatPoints", 0)
+    for i, row in enumerate(settle_data, 1):
+        userName           = row["userName"]
+        userWeekPoints     = row["weekPoints"]
+        userDayPoints      = row["dayPoints"]
+        userDayMatchPoints = row["dayMatchPoints"]
+        userDayStatPoints  = row["dayStatPoints"]
 
         # Format to emoji digits
         emoji_week_points = to_emoji_digits(userWeekPoints)
