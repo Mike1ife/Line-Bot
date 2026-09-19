@@ -201,6 +201,47 @@ def _get_daily_game_results_fox():
     return gameResults
 
 
+def to_emoji_digits(number):
+    emoji_map = {
+        '0': '0️⃣', '1': '1️⃣', '2': '2️⃣', '3': '3️⃣', '4': '4️⃣',
+        '5': '5️⃣', '6': '6️⃣', '7': '7️⃣', '8': '8️⃣', '9': '9️⃣'
+    }
+    return ''.join(emoji_map.get(char, char) for char in str(number))
+
+def generate_daily_results_message():
+    # Fetch today's game results and player statistics, then assemble them into the first message.
+    matches = get_daily_active_matches()
+    stats = get_daily_active_stats()
+
+    lines = ["🏀 今日賽果"]
+    for team1_name, team1_score, team2_score, team2_name, team1_point, team2_point, _ in matches:
+        t1_score = team1_score or 0
+        t2_score = team2_score or 0
+        
+        # Winning team on the left side
+        if t1_score > t2_score:
+            lines.append(f"{team1_name} {t1_score} : {t2_score} {team2_name} ➕{team1_point}")
+        else:
+            lines.append(f"{team2_name} {t2_score} : {t1_score} {team1_name} ➕{team2_point}")
+
+    lines.append("") # Insert a blank line
+    lines.append("⛹️ 球員數據")
+    
+    for player_name, stat_type, stat_result, stat_target, over_point, under_point in stats:
+        if stat_result >= stat_target:
+            lines.append(
+                f"{player_name} {stat_type} {stat_result}\n"
+                f"🔼大 (盤{stat_target}) ➕{over_point}"
+            )
+        else:
+            lines.append(
+                f"{player_name} {stat_type} {stat_result}\n"
+                f"🔽小 (盤{stat_target}) ➕{under_point}"
+            )
+
+    return "\n".join(lines)
+
+
 def settle_daily_prediction(source: str):
     """TODO playoffs layout"""
     gameResults = (
@@ -211,25 +252,37 @@ def settle_daily_prediction(source: str):
     update_daily_match_score(gameScores=gameResults)
     settle_daily_stat_result()
 
+    # Generate results message BEFORE calculate_daily_point (which sets is_active = FALSE)
+    results_message = generate_daily_results_message()
+
     calculate_daily_point()
 
-    dayPoints = get_type_points(rankType="day_points")
-    weekPoints = get_type_points(rankType="week_points")
-    userPoints = []
-    for i in range(len(dayPoints)):
-        userName, userDayPoints = dayPoints[i]
-        userWeekPoints = weekPoints[i][1]
-        userPoints.append((userName, userWeekPoints, userDayPoints))
-    userPoints.sort(key=lambda x: x[1], reverse=True)
+    settle_data = get_user_settle_points()
+    rank_lines = ["🏆 本週排行榜 (今日結算) 🏆\n\n"]
 
-    response = "\n".join(
-        [f"{RANK_TYPE_TRANSLATION['week_points']}排行榜:"]
-        + [
-            f"{i}. {userName}: {userWeekPoints}分 (+{userDayPoints})"
-            for i, (userName, userWeekPoints, userDayPoints) in enumerate(userPoints, 1)
-        ]
-    )
-    return response
+    # Iterate through weekPoints to maintain week_points DESC order
+    for i, row in enumerate(settle_data, 1):
+        userName           = row["userName"]
+        userWeekPoints     = row["weekPoints"]
+        userDayPoints      = row["dayPoints"]
+        userDayMatchPoints = row["dayMatchPoints"]
+        userDayStatPoints  = row["dayStatPoints"]
+
+        # Format to emoji digits
+        emoji_week_points = to_emoji_digits(userWeekPoints)
+
+        if userDayPoints == 0:
+            rank_lines.append(f"{i}. {userName}: {emoji_week_points}分\n")
+        else:
+            # Full-width space ( ) is used for alignment in LINE
+            rank_lines.append(
+                f"{i}. {userName}: {emoji_week_points}分\n"
+                f"└ +{userDayPoints} : 🏀{userDayMatchPoints} | ⛹️{userDayStatPoints}\n"
+            )
+
+    ranking_message = "".join(rank_lines).strip()
+    
+    return results_message, ranking_message
 
 
 def _check_url_exist(url: str):

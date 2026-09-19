@@ -113,10 +113,17 @@ def text_message(event: MessageEvent):
                 LINE_BOT_API.reply_message(
                     event.reply_token, TextSendMessage(text="Invalid Source")
                 )
-            response = settle_daily_prediction(source=source)
+                return
+            
+            results_message, ranking_message = settle_daily_prediction(source=source)
             LINE_BOT_API.reply_message(
-                event.reply_token, TextSendMessage(text=response)
+                event.reply_token, 
+                [
+                    TextSendMessage(text=results_message),
+                    TextSendMessage(text=ranking_message)
+                ]
             )
+            
         except Exception as err:
             errorMessage = TextSendMessage(text=str(err))
             respondMessage = TextSendMessage(

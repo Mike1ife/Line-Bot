@@ -16,6 +16,8 @@ def CREATE_USER_TABLE():
                 picture_url TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT NOW(),
                 day_points INTEGER DEFAULT 0,
+                day_match_points INTEGER DEFAULT 0,
+                day_stat_points  INTEGER DEFAULT 0,
                 week_points INTEGER DEFAULT 0,
                 month_points INTEGER DEFAULT 0,
                 season_points INTEGER DEFAULT 0,
@@ -258,7 +260,7 @@ def CREATE_CALCULATE_DAILY_POINTS_PROCEDURE():
             WHERE is_active = TRUE
             LIMIT 1;
 
-            UPDATE users SET day_points = 0;
+            UPDATE users SET day_points = 0, day_match_points = 0, day_stat_points = 0;
             
             UPDATE user_predict_stat AS ups
             SET is_correct = (
@@ -309,7 +311,8 @@ def CREATE_CALCULATE_DAILY_POINTS_PROCEDURE():
             UPDATE users
             SET
                 day_points = result.total_points,
-                week_points = users.week_points + result.total_points
+                week_points = users.week_points + result.total_points,
+                day_stat_points = result.total_points
             FROM (
                 SELECT
                     ups.uid,
@@ -337,7 +340,8 @@ def CREATE_CALCULATE_DAILY_POINTS_PROCEDURE():
             UPDATE users
             SET
                 day_points = users.day_points + result.total_points,
-                week_points = users.week_points + result.total_points
+                week_points = users.week_points + result.total_points,
+                day_match_points = result.total_points
             FROM (
                 SELECT
                     upm.uid,

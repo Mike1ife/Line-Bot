@@ -24,7 +24,10 @@ def home():
 
 @app.route("/api/home/leaderboard/<rankType>", methods=["GET"])
 def get_user_day_point(rankType: str):
-    response = get_user_info_and_type_point(rankType)
+    if rankType == "day_points":
+        response = get_user_info_and_day_point()
+    else:
+        response = get_user_info_and_type_point(rankType)
     return jsonify(response)
 
 
