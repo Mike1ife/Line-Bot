@@ -1,6 +1,9 @@
 import time
 from linebot.models import (
     TextSendMessage,
+    QuickReply,
+    QuickReplyButton,
+    MessageAction,
     ImageSendMessage,
     TemplateSendMessage,
     CarouselTemplate,
@@ -20,6 +23,22 @@ INJURY_PATTERN = re.compile(r"^傷病(?: ([^\s]+))?$")
 YT_PATTERN = re.compile(r"^yt (.+)$")
 GG_PATTERN = re.compile(r"^gg (.+)$")
 AI_PATTERN = re.compile(r"^ai (.+)$")
+BOXSCORE_PATTERN = re.compile(r"^隨機戰報(?: ([^\s]+))?$")
+REPORT_PATTERN = re.compile(r"^戰報(?: ([^\s]+))?$")
+ACHIEVEMENT_PATTERN = re.compile(r"^成就(?: ([^\s]+))?$")
+
+
+def _quick_reply(*labels):
+    """Quick replies render in group chats (unlike rich menus), and a tap
+    posts the message to the group as that member."""
+    return QuickReply(
+        items=[
+            QuickReplyButton(action=MessageAction(label=label, text=label))
+            for label in labels
+        ]
+    )
+
+RANK_COMMANDS = ("週排行", "月排行", "季排行", "總排行")
 
 
 def text_message(event: MessageEvent):
@@ -103,7 +122,10 @@ def text_message(event: MessageEvent):
 
     if message == "檢查":
         response = get_user_prediction_check(userName=userName)
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "戰報")),
+        )
 
     settleMatch = SETTLE_PATTERN.match(message)
     if settleMatch:
@@ -116,13 +138,19 @@ def text_message(event: MessageEvent):
                 return
             
             results_message, ranking_message = settle_daily_prediction(source=source)
-            LINE_BOT_API.reply_message(
-                event.reply_token, 
-                [
-                    TextSendMessage(text=results_message),
-                    TextSendMessage(text=ranking_message)
-                ]
-            )
+            respondMessages = [
+                TextSendMessage(text=results_message),
+                TextSendMessage(text=ranking_message),
+            ]
+            # 戰報 is a bonus message; never let it break the settlement reply.
+            try:
+                report = get_battle_report()
+                if report:
+                    respondMessages.append(TextSendMessage(text=report))
+            except Exception:
+                pass
+            respondMessages[-1].quick_reply = _quick_reply("戰報", "成就", "週排行")
+            LINE_BOT_API.reply_message(event.reply_token, respondMessages)
             
         except Exception as err:
             errorMessage = TextSendMessage(text=str(err))
@@ -151,19 +179,31 @@ def text_message(event: MessageEvent):
 
     if message == "週排行":
         response = get_user_type_point("week_points")
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("月排行", "季排行", "總排行")),
+        )
 
     if message == "月排行":
         response = get_user_type_point("month_points")
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "季排行", "總排行")),
+        )
 
     if message == "季排行":
         response = get_user_type_point("season_points")
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "月排行", "總排行")),
+        )
 
     if message == "總排行":
         response = get_user_type_point("all_time_points")
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "月排行", "季排行")),
+        )
 
     followMatch = FOLLOW_PATTERN.match(message)
     if followMatch:
@@ -280,13 +320,52 @@ def text_message(event: MessageEvent):
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=content))
 
     if message == "規則":
-        pass
+        content = get_textfile("TextFiles/NBA_Rule.txt")
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=content, quick_reply=_quick_reply("help", "註冊")),
+        )
 
     if message.lower() == "help":
-        pass
+        content = get_textfile("TextFiles/Help.txt")
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=content, quick_reply=_quick_reply("規則", "週排行", "戰報")),
+        )
 
     if message.lower() == "nba":
         response = get_nba_scoreboard()
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
+    achievementMatch = ACHIEVEMENT_PATTERN.match(message)
+    if achievementMatch:
+        target = achievementMatch.group(1)
+        userId = int(target) if target and target.isdigit() else -1
+        try:
+            response = get_achievement_message(userName=userName, userId=userId)
+        except Exception as err:
+            response = f"成就查詢失敗\n{type(err).__name__}: {err}"
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("戰報", "週排行")),
+        )
+
+    reportMatch = REPORT_PATTERN.match(message)
+    if reportMatch:
+        gameDate = reportMatch.group(1) if reportMatch.group(1) else ""
+        try:
+            response = get_battle_report(gameDate=gameDate)
+        except Exception as err:
+            response = f"戰報產生失敗\n{type(err).__name__}: {err}"
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("成就", "週排行")),
+        )
+
+    boxscoreMatch = BOXSCORE_PATTERN.match(message)
+    if boxscoreMatch:
+        gameDate = boxscoreMatch.group(1) if boxscoreMatch.group(1) else ""
+        response = get_random_boxscore(gameDate=gameDate)
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     injuryMatch = INJURY_PATTERN.match(message)

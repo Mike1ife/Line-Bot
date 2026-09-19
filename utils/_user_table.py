@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from config import DATABASE_URL
 from utils._user_table_SQL import *
+from utils._espn import get_boxscore, find_event_id
 
 STAT_INDEX = {"得分": 3, "籃板": 5, "抄截": 7}
 PREDICTION_INDEX = 38
@@ -62,7 +63,8 @@ def get_type_points(rankType: str):
 def insert_match(
     matchList: list,
 ):
-    # matchList = [(gameDate: str, team1Name: str, team2Name: str, team1Standing: str, team2Standing: str, team1Point: int, team2Point: int)]
+    # matchList = [(gameDate, team1Name, team2Name, team1Standing, team2Standing,
+    #               team1Point, team2Point, espnEventId, tipoffUTC)]
     conn = _get_connection()
     with conn.cursor() as cur:
         for (
@@ -73,10 +75,20 @@ def insert_match(
             team2Standing,
             team1Point,
             team2Point,
+            espnEventId,
+            tipoffUTC,
         ) in matchList:
             cur.execute(
                 SQL_INSERT_MATCH,
-                (gameDate, team1Name, team2Name, team1Point, team2Point),
+                (
+                    gameDate,
+                    team1Name,
+                    team2Name,
+                    team1Point,
+                    team2Point,
+                    espnEventId,
+                    tipoffUTC,
+                ),
             )
             cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Standing, team1Name))
             cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Standing, team2Name))
@@ -581,7 +593,7 @@ def _has_play_today(gameDate: str):
     return result[0] if result else False
 
 
-def settle_daily_stat_result():
+def _settle_daily_stat_result_hupu():
     conn = _get_connection()
     with conn.cursor() as cur:
         cur.execute(
@@ -625,6 +637,63 @@ def settle_daily_stat_result():
             )
 
     conn.commit()
+
+
+
+def _settle_daily_stat_result_espn():
+    """Fill player_stat_bet.stat_result from the ESPN boxscore.
+
+    Returns rows updated, or None if ESPN could not supply the data (so the
+    caller can fall back to the Hupu scraper).
+    """
+    conn = _get_connection()
+    updated = 0
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_ACTIVE_STAT_MATCHES)
+        matches = cur.fetchall()
+        if not matches:
+            return 0
+
+        for matchId, gameDate, team1Name, team2Name, eventId in matches:
+            if not eventId:
+                eventId = find_event_id(
+                    gameDate.strftime("%Y-%m-%d"), team1Name, team2Name
+                )
+                if not eventId:
+                    return None
+                cur.execute(SQL_UPDATE_MATCH_ESPN_EVENT_ID, (eventId, matchId))
+
+            boxscore = get_boxscore(eventId)
+            if not boxscore:
+                return None
+
+            cur.execute(SQL_SELECT_STAT_BETS_FOR_MATCH, (matchId,))
+            for playerName, statType in cur.fetchall():
+                stat = boxscore.get(playerName)
+                # A player who did not appear leaves stat_result NULL, which
+                # makes the stored procedure void the pick instead of crashing.
+                if not stat or statType not in stat:
+                    continue
+                cur.execute(
+                    SQL_UPDATE_PLAYER_STAT_BET,
+                    (stat[statType], playerName, matchId, statType),
+                )
+                updated += 1
+
+    conn.commit()
+    return updated
+
+
+def settle_daily_stat_result():
+    """Prefer the ESPN JSON feed; fall back to the Hupu scraper if it fails."""
+    try:
+        updated = _settle_daily_stat_result_espn()
+        if updated is not None:
+            return
+    except Exception:
+        _get_connection().rollback()
+
+    _settle_daily_stat_result_hupu()
 
 
 def update_daily_match_score(gameScores: dict):
@@ -760,3 +829,229 @@ def get_user_settle_points():
         ]
     conn.commit()
     return data
+
+def get_daily_report(gameDate: str = ""):
+    """Collect everything 戰報 needs for one settled day.
+
+    Defaults to the most recently settled date so it can be run straight after
+    結算 with no argument.
+    """
+    conn = _get_connection()
+    try:
+        return _daily_report(conn, gameDate)
+    except Exception:
+        conn.rollback()
+        raise
+
+
+def _daily_report(conn, gameDate: str):
+    with conn.cursor() as cur:
+        if not gameDate:
+            cur.execute(SQL_SELECT_LAST_SETTLED_DATE)
+            result = cur.fetchone()
+            if not result or not result[0]:
+                return None
+            gameDate = result[0].strftime("%Y-%m-%d")
+
+        cur.execute(SQL_SELECT_DAILY_SCORES, (gameDate, gameDate))
+        scores = cur.fetchall()
+        if not scores:
+            return {"gameDate": gameDate, "scores": []}
+
+        cur.execute(SQL_SELECT_HEARTBREAK_GAME, (gameDate,))
+        heartbreak = cur.fetchone()
+
+        cur.execute(SQL_SELECT_WIPEOUT_GAMES, (gameDate,))
+        wipeouts = cur.fetchall()
+
+        cur.execute(SQL_SELECT_LONE_CORRECT, (gameDate,))
+        loneCorrect = cur.fetchall()
+
+    return {
+        "gameDate": gameDate,
+        "scores": scores,
+        "heartbreak": heartbreak,
+        "wipeouts": wipeouts,
+        "loneCorrect": loneCorrect,
+    }
+
+
+def get_user_achievements(userUID: str):
+    """Compute 成就 badges live from pick history."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_PERFECT_DAYS, (userUID,))
+            perfectDays, zeroDays = cur.fetchone()
+
+            cur.execute(SQL_SELECT_AGAINST_THE_WORLD, (userUID,))
+            againstTheWorld = cur.fetchone()[0]
+
+            cur.execute(SQL_SELECT_UNDERDOG_HITS, (userUID,))
+            underdogHits, biggestPayout = cur.fetchone()
+
+            cur.execute(SQL_SELECT_LONGEST_STREAK, (userUID,))
+            longestStreak = cur.fetchone()[0]
+
+            cur.execute(SQL_SELECT_LOYAL_TEAM, (userUID,))
+            loyal = cur.fetchone()
+    except Exception:
+        conn.rollback()
+        raise
+
+    return {
+        "perfectDays": perfectDays,
+        "zeroDays": zeroDays,
+        "againstTheWorld": againstTheWorld,
+        "underdogHits": underdogHits,
+        "biggestPayout": biggestPayout,
+        "longestStreak": longestStreak,
+        "loyalTeam": loyal[0] if loyal else None,
+        "loyalCount": loyal[1] if loyal else 0,
+    }
+
+
+def get_user_uid_by_id(userId: int):
+    """Map the numeric id used by 跟盤/比較 to (uid, name)."""
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER)
+        users = cur.fetchall()
+    if userId < 1 or userId > len(users):
+        return None, [name for _, name in users]
+    return users[userId - 1], None
+
+
+def get_uid_by_name(userName: str):
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_UID, (userName,))
+        result = cur.fetchone()
+        return result[0] if result else None
+
+
+STREAK_MILESTONES = (5, 10, 15, 20)
+
+
+def collect_day_achievements(gameDate: str):
+    """Detect badges earned on one date, persist them, and return them.
+
+    Persisting is idempotent (ON CONFLICT DO NOTHING), so re-running 戰報 for the
+    same day re-announces the same badges without creating duplicate rows.
+    """
+    conn = _get_connection()
+    earned = []  # (userName, key, detail)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_DAY_PERFECT, (gameDate,))
+            for userUID, allRight, allWrong, picks in cur.fetchall():
+                if allRight:
+                    earned.append((userUID, "全對", f"{picks}/{picks}"))
+                elif allWrong:
+                    earned.append((userUID, "全錯", f"0/{picks}"))
+
+            cur.execute(SQL_SELECT_DAY_AGAINST_THE_WORLD, (gameDate,))
+            for userUID, team1Name, team2Name, picked in cur.fetchall():
+                earned.append((userUID, "逆天改命", picked))
+
+            cur.execute(SQL_SELECT_DAY_UNDERDOG, (gameDate,))
+            for userUID, picked, point in cur.fetchall():
+                earned.append((userUID, "冷門王", f"{picked} {point}分"))
+
+            cur.execute(SQL_SELECT_DAY_STREAKS, (gameDate, gameDate, gameDate))
+            for userUID, runLength, lengthBefore in cur.fetchall():
+                crossed = [
+                    m for m in STREAK_MILESTONES if lengthBefore < m <= runLength
+                ]
+                if crossed:
+                    earned.append((userUID, f"{max(crossed)}連勝", f"{runLength}連勝"))
+
+            if not earned:
+                return []
+
+            cur.execute(SQL_SELECT_USER)
+            nameByUID = dict(cur.fetchall())
+
+            for userUID, key, detail in earned:
+                cur.execute(SQL_INSERT_ACHIEVEMENT, (userUID, key, gameDate, detail))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+
+    return [
+        (nameByUID.get(userUID, "?"), key, detail) for userUID, key, detail in earned
+    ]
+
+
+def insert_daily_slate(matchList: list, playerStatBetList: list):
+    """Write the whole slate in ONE transaction.
+
+    Matches and player props previously committed separately, so a failure
+    partway could leave a committed slate whose props were missing - users would
+    bet on an incomplete board and settlement would score it wrongly. Here
+    either everything lands or nothing does.
+
+    Returns the props that were dropped because their game is not in the slate.
+    """
+    conn = _get_connection()
+    orphans = []
+    try:
+        with conn.cursor() as cur:
+            for (
+                gameDate,
+                team1Name,
+                team2Name,
+                team1Standing,
+                team2Standing,
+                team1Point,
+                team2Point,
+                espnEventId,
+                tipoffUTC,
+            ) in matchList:
+                cur.execute(
+                    SQL_INSERT_MATCH,
+                    (
+                        gameDate,
+                        team1Name,
+                        team2Name,
+                        team1Point,
+                        team2Point,
+                        espnEventId,
+                        tipoffUTC,
+                    ),
+                )
+                cur.execute(SQL_UPDATE_TEAM_STANDING, (team1Standing, team1Name))
+                cur.execute(SQL_UPDATE_TEAM_STANDING, (team2Standing, team2Name))
+
+            for (
+                playerName,
+                gameDate,
+                team1Name,
+                team2Name,
+                statType,
+                statTarget,
+                overPoint,
+                underPoint,
+            ) in playerStatBetList or []:
+                cur.execute(
+                    SQL_SELECT_MATCH_ID,
+                    (gameDate, team1Name, team2Name, team1Name, team2Name),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    # Prop for a game that is not in the slate (e.g. one skipped
+                    # for a missing tip-off). Drop the prop, keep the slate,
+                    # rather than crashing on cur.fetchone()[0].
+                    orphans.append(f"{playerName} {statType}")
+                    continue
+                cur.execute(
+                    SQL_INSERT_PLAYER_STAT_BET,
+                    (playerName, row[0], statType, statTarget, overPoint, underPoint),
+                )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+
+    return orphans
