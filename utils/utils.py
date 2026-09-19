@@ -1,9 +1,17 @@
+import os
 import random
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor
 
 from config import IMGUR_CLIENT_ID, LONG_CAT_API_KEY
 from utils._user_table import *
+from utils._espn import (
+    get_scoreboard,
+    get_boxscore,
+    random_past_game_date,
+    espn_date_for_tw_date,
+    get_event_map,
+)
 from utils._team_table import (
     NBA_ABBR_ENG_TO_ABBR_CN,
     NBA_SIMP_CN_TO_TRAD_CN,
@@ -544,9 +552,22 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     matchList = []
     carouselColumns = []
 
-    gameList, gameOfTheDayPage, gameOfTheDayBoxScoreUrl, gameOfTheDayTime = (
-        _get_nba_games(playoffsLayout=playoffsLayout)
-    )
+    nowUTC = datetime.now(timezone.utc)
+    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
+    tomorrowStr = (nowTW + timedelta(days=1)).strftime("%Y-%m-%d")
+    gameOfTheDayDate = tomorrowStr
+
+    # One ESPN request for the whole slate: real tip-off times and event ids.
+    # Fetched up front so it can also stand in for a missing Hupu time.
+    eventMap = get_event_map(tomorrowStr)
+
+    (
+        gameList,
+        gameOfTheDayPage,
+        gameOfTheDayBoxScoreUrl,
+        gameOfTheDayTime,
+        skipped,
+    ) = _get_nba_games(playoffsLayout=playoffsLayout, eventMap=eventMap)
 
     if not gameList:
         return None, "明天沒有比賽", None, None, None, None
@@ -555,11 +576,6 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
         gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl
     )
 
-    nowUTC = datetime.now(timezone.utc)
-    nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    tomorrowTW = nowTW + timedelta(days=1)
-    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
-    gameOfTheDayDate = tomorrowStr
 
     # Process each game
     for game in gameList:
@@ -570,6 +586,10 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
         )
         carouselColumns.append(carouselColumn)
 
+        espnEventId, tipoffUTC = eventMap.get(
+            frozenset((teamNames[0], teamNames[1])), (None, None)
+        )
+
         matchList.append(
             (
                 tomorrowStr,
@@ -579,7 +599,17 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
                 teamStandings[1],
                 teamPoints[0],
                 teamPoints[1],
+                espnEventId,
+                tipoffUTC,
             )
+        )
+
+    if skipped:
+        response = (
+            "⚠️ 以下比賽找不到開賽時間，已略過:\n"
+            + "\n".join(skipped)
+            + "\n\n"
+            + response
         )
 
     return (
@@ -592,7 +622,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     )
 
 
-def _get_nba_games(playoffsLayout: bool):
+def _get_nba_games(playoffsLayout: bool, eventMap: dict = None):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
     todayStr = nowTW.strftime("%Y-%m-%d")
@@ -603,11 +633,11 @@ def _get_nba_games(playoffsLayout: bool):
 
     finalScores = soup.find_all("div", class_="score-team-score")
     if len(finalScores) > 0:
-        return [], None, None, None  # Games already finished
+        return [], None, None, None, []  # Games already finished
 
     urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if todayStr not in re.findall(urlPattern, data):
-        return [], None, None, None  # No game page for this date
+        return [], None, None, None, []  # No game page for this date
 
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
@@ -617,7 +647,15 @@ def _get_nba_games(playoffsLayout: bool):
     gamesInfo = soup.find_all("a", class_=gameClass)
 
     gameList = []
-    gameOfTheDay = {"diff": 30, "page": "", "index": -1, "gameTime": ""}
+    eventMap = eventMap or {}
+    skipped = []
+    gameOfTheDay = {
+        "diff": 30,
+        "page": "",
+        "boxScore": None,  # must exist: read unconditionally after the loop
+        "index": -1,
+        "gameTime": "",
+    }
 
     for i, gameInfo in enumerate(gamesInfo):
         gamePageUrl = "https://www.foxsports.com" + gameInfo.attrs["href"]
@@ -649,11 +687,26 @@ def _get_nba_games(playoffsLayout: bool):
 
         # print(gameTimeMap)
         team1Name, team2Name = game["names"]
-        game["gametime"], gameBoxScore = (
-            gameTimeMap[(team1Name, team2Name)]
-            if (team1Name, team2Name) in gameTimeMap
-            else gameTimeMap[(team2Name, team1Name)]
+        gameTime, gameBoxScore = gameTimeMap.get(
+            (team1Name, team2Name),
+            gameTimeMap.get((team2Name, team1Name), (None, None)),
         )
+        if not gameTime:
+            # Hupu can silently omit a game; ESPN already gave us the real
+            # tip-off, so use it rather than losing the whole slate.
+            _eventId, tipoffUTC = eventMap.get(
+                frozenset((team1Name, team2Name)), (None, None)
+            )
+            if tipoffUTC:
+                gameTime = tipoffUTC.astimezone(
+                    timezone(timedelta(hours=8))
+                ).strftime("%H:%M")
+        if not gameTime:
+            # No tip-off from either source: skipping is safer than storing a
+            # bad time, which would make the lock reject every prediction.
+            skipped.append(f"{team1Name}-{team2Name}")
+            continue
+        game["gametime"] = gameTime
 
         # Find closest odds (most even match)
         oddDiff = abs(game["points"][0] - game["points"][1])
@@ -675,6 +728,7 @@ def _get_nba_games(playoffsLayout: bool):
         (gameOfTheDay["page"] + "?tab=odds" if gameOfTheDay["page"] else None),
         gameOfTheDay["boxScore"],
         gameOfTheDay["gameTime"],
+        skipped,
     )
 
 
@@ -807,9 +861,10 @@ def _process_player_stat(playerSoup, statType, tomorrowStr, gameTime, gameDate):
 
 
 def insert_nba_totay(matchList: list, playerStatBetList: list):
-    insert_match(matchList=matchList)
-    if playerStatBetList:
-        insert_player_stat_bet(playerStatBetList=playerStatBetList)
+    # Single transaction: never leave a half-written slate in the database.
+    return insert_daily_slate(
+        matchList=matchList, playerStatBetList=playerStatBetList
+    )
 
 
 def _compare_timestring(timeStr1: str, timeStr2: str):
@@ -1202,14 +1257,22 @@ def get_long_cat_inference(content: str):
     return response.json()["choices"][0]["message"]["content"]
 
 
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _textfile_path(filePath: str):
+    """Resolve against the repo root so it works regardless of process CWD."""
+    return os.path.join(_PROJECT_ROOT, filePath)
+
+
 def get_textfile(filePath: str):
-    with open(filePath, encoding="utf-8") as f:
+    with open(_textfile_path(filePath), encoding="utf-8") as f:
         content = f.read()
     return content
 
 
 def get_textfile_random(filePath: str):
-    with open(filePath, encoding="utf-8") as f:
+    with open(_textfile_path(filePath), encoding="utf-8") as f:
         fileLines = f.readlines()
     return random.choice(fileLines).replace("\n", "")
 
@@ -1338,3 +1401,155 @@ def get_imgur_url(albumHash: str):
             randomImage = random.choice(images)
             imageUrl = randomImage["link"]
             return imageUrl
+
+
+def get_random_boxscore(gameDate: str = ""):
+    """Connectivity probe for the ESPN feed, runnable from LINE.
+
+    Running it from the bot (rather than a laptop) is the point: it proves the
+    host the bot is deployed on can reach ESPN, which cdn.nba.com blocks.
+    """
+    if gameDate:
+        try:
+            datetime.strptime(gameDate, "%Y-%m-%d")
+        except ValueError:
+            return "使用方式: 隨機戰報 (YYYY-MM-DD)"
+
+    try:
+        if gameDate:
+            # Users type the Taiwan date the bot stores; ESPN indexes Eastern.
+            games = [
+                g
+                for g in get_scoreboard(espn_date_for_tw_date(gameDate))
+                if g["completed"]
+            ]
+        else:
+            gameDate, games = random_past_game_date()
+    except Exception as err:
+        return f"❌ ESPN 連線失敗\n{type(err).__name__}: {err}"
+
+    if not games:
+        return f"❌ {gameDate or '隨機日期'} 找不到已結束的比賽"
+
+    lines = [f"🏀 隨機戰報 {gameDate}"]
+    for game in games:
+        lines.append(
+            f"{game['awayName']} {game['awayScore']} - "
+            f"{game['homeName']} {game['homeScore']}"
+        )
+
+    target = games[0]
+    try:
+        boxscore = get_boxscore(target["eventId"])
+    except Exception as err:
+        return "\n".join(lines) + f"\n\n❌ 讀取boxscore失敗\n{type(err).__name__}: {err}"
+
+    if not boxscore:
+        return "\n".join(lines) + "\n\n❌ boxscore 是空的"
+
+    lines.append("\n" + "-" * 20)
+    lines.append(f"{target['awayName']} @ {target['homeName']}")
+    top = sorted(boxscore.items(), key=lambda kv: kv[1]["得分"], reverse=True)[:8]
+    for name, stat in top:
+        lines.append(f"{name} {stat['得分']}分 {stat['籃板']}板 {stat['抄截']}抄")
+
+    lines.append(f"\n✅ {len(games)}場比賽 / {len(boxscore)}名球員")
+    return "\n".join(lines)
+
+
+def get_battle_report(gameDate: str = ""):
+    """戰報 - narrative recap of one settled day."""
+    if gameDate:
+        try:
+            datetime.strptime(gameDate, "%Y-%m-%d")
+        except ValueError:
+            return "使用方式: 戰報 (YYYY-MM-DD)"
+
+    report = get_daily_report(gameDate=gameDate)
+    if not report:
+        return "還沒有任何已結算的比賽"
+
+    scores = report["scores"]
+    if not scores:
+        return f"{report['gameDate']} 沒有人預測"
+
+    lines = [f"📋 戰報 {report['gameDate']}", ""]
+
+    bestName, bestPoint, bestHit, bestTotal = scores[0]
+    lines.append(f"🐐 {bestName} {bestPoint}分 ({bestHit}/{bestTotal})")
+    if len(scores) > 1:
+        worstName, worstPoint, worstHit, worstTotal = scores[-1]
+        lines.append(f"💩 {worstName} {worstPoint}分 ({worstHit}/{worstTotal})")
+
+    try:
+        achievements = collect_day_achievements(gameDate=report["gameDate"])
+    except Exception:
+        achievements = []
+    if achievements:
+        lines += ["", "🏅 今日成就"]
+        for name, key, detail in achievements:
+            lines.append(f"{name} {key} ({detail})")
+
+    heartbreak = report["heartbreak"]
+    if heartbreak:
+        team1, team2, score1, score2, wrong, total = heartbreak
+        lines += [
+            "",
+            "💔 傷心場",
+            f"{team1} {score1}-{score2} {team2}",
+            f"{total}人中{wrong}人看錯",
+        ]
+
+    loneCorrect = report["loneCorrect"]
+    if loneCorrect:
+        lines += ["", "🎯 獨行俠"]
+        for name, team1, team2, picked, point in loneCorrect:
+            lines.append(f"{name} 獨壓{picked} +{point}分")
+
+    wipeouts = report["wipeouts"]
+    if wipeouts:
+        lines += ["", "☠️ 團滅"]
+        for team1, team2, score1, score2, picked, count in wipeouts:
+            lines.append(f"{team1} {score1}-{score2} {team2} ({count}人全押{picked})")
+
+    lines += ["", "-" * 20]
+    for i, (name, point, hit, total) in enumerate(scores, 1):
+        lines.append(f"{i}. {name} {point}分 {hit}/{total}")
+
+    return "\n".join(lines)
+
+
+def get_achievement_message(userName: str, userId: int = -1):
+    """成就 - badge sheet for yourself, or for another member by id."""
+    if userId > 0:
+        user, allNames = get_user_uid_by_id(userId=userId)
+        if not user:
+            return "\n".join(
+                ["使用方式:", "成就 id"]
+                + [f"{i}. {name}" for i, name in enumerate(allNames, 1)]
+            )
+        userUID, userName = user
+    else:
+        userUID = get_uid_by_name(userName=userName)
+        if not userUID:
+            return f"{userName} 請先註冊"
+
+    badges = get_user_achievements(userUID=userUID)
+
+    lines = [f"🏅 {userName} 的成就", ""]
+    lines.append(f"🔥 最長連勝 {badges['longestStreak']}")
+    lines.append(f"💯 全對 ×{badges['perfectDays']}")
+    lines.append(f"💀 全錯 ×{badges['zeroDays']}")
+    lines.append(f"🎯 逆天改命 ×{badges['againstTheWorld']}")
+
+    if badges["underdogHits"]:
+        lines.append(
+            f"🐴 冷門王 ×{badges['underdogHits']} (最高 {badges['biggestPayout']}分)"
+        )
+    else:
+        lines.append("🐴 冷門王 ×0")
+
+    if badges["loyalTeam"]:
+        lines.append(f"🐶 忠犬 {badges['loyalTeam']} ×{badges['loyalCount']}")
+
+    return "\n".join(lines)

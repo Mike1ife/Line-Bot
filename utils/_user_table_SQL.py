@@ -57,9 +57,10 @@ SQL_SELECT_TYPE_POINT = {
 }
 
 SQL_INSERT_MATCH = """
-INSERT INTO match 
-    (game_date, team1_name, team2_name, team1_point, team2_point)
-VALUES (%s, %s, %s, %s, %s)
+INSERT INTO match
+    (game_date, team1_name, team2_name, team1_point, team2_point,
+     espn_event_id, tipoff_utc)
+VALUES (%s, %s, %s, %s, %s, %s, %s)
 """
 
 SQL_UPDATE_TEAM_STANDING = """
@@ -413,4 +414,248 @@ SELECT player_name, stat_type, stat_result, stat_target, over_point, under_point
 FROM player_stat_bet
 WHERE match_id IN (SELECT match_id FROM match WHERE is_active = TRUE)
   AND stat_result IS NOT NULL
+"""
+
+# ---------------------------------------------------------------- 戰報 / 成就
+
+SQL_SELECT_LAST_SETTLED_DATE = """
+SELECT MAX(game_date) FROM match WHERE is_active = FALSE
+"""
+
+# Points are recomputed from source rather than read from user_point_history,
+# because that history only goes back to 2025-12-08 while match data starts in
+# October. This mirrors what calculate_daily_points_proc() does.
+SQL_SELECT_DAILY_SCORES = """
+WITH match_pts AS (
+    SELECT upm.uid,
+           CASE WHEN upm.is_correct THEN
+                CASE WHEN upm.predicted_team = m.team1_name THEN m.team1_point
+                     ELSE m.team2_point END
+                ELSE 0 END AS pts,
+           upm.is_correct
+    FROM user_predict_match AS upm
+    JOIN match AS m ON m.match_id = upm.match_id
+    WHERE m.game_date = %s AND upm.is_correct IS NOT NULL
+),
+stat_pts AS (
+    SELECT ups.uid,
+           CASE WHEN ups.is_correct THEN
+                CASE WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
+                     ELSE psb.under_point END
+                ELSE 0 END AS pts,
+           ups.is_correct
+    FROM user_predict_stat AS ups
+    JOIN match AS m ON m.match_id = ups.match_id
+    JOIN player_stat_bet AS psb
+        ON  psb.player_name = ups.player_name
+        AND psb.match_id    = ups.match_id
+        AND psb.stat_type   = ups.stat_type
+    WHERE m.game_date = %s AND ups.is_correct IS NOT NULL
+),
+combined AS (SELECT * FROM match_pts UNION ALL SELECT * FROM stat_pts)
+SELECT u.name,
+       SUM(c.pts)                             AS points,
+       COUNT(*) FILTER (WHERE c.is_correct)   AS hit,
+       COUNT(*)                               AS total
+FROM combined AS c
+JOIN users AS u ON u.uid = c.uid
+GROUP BY u.name
+ORDER BY points DESC, hit DESC
+"""
+
+SQL_SELECT_HEARTBREAK_GAME = """
+SELECT m.team1_name, m.team2_name, m.team1_score, m.team2_score,
+       COUNT(*) FILTER (WHERE NOT upm.is_correct) AS wrong,
+       COUNT(*)                                   AS total
+FROM match AS m
+JOIN user_predict_match AS upm ON upm.match_id = m.match_id
+WHERE m.game_date = %s AND upm.is_correct IS NOT NULL
+GROUP BY m.match_id, m.team1_name, m.team2_name, m.team1_score, m.team2_score
+HAVING COUNT(*) FILTER (WHERE NOT upm.is_correct) > 0
+ORDER BY wrong DESC, total DESC
+LIMIT 1
+"""
+
+SQL_SELECT_WIPEOUT_GAMES = """
+SELECT m.team1_name, m.team2_name, m.team1_score, m.team2_score,
+       MIN(upm.predicted_team) AS picked, COUNT(*) AS n
+FROM match AS m
+JOIN user_predict_match AS upm ON upm.match_id = m.match_id
+WHERE m.game_date = %s AND upm.is_correct IS NOT NULL
+GROUP BY m.match_id, m.team1_name, m.team2_name, m.team1_score, m.team2_score
+HAVING COUNT(DISTINCT upm.predicted_team) = 1
+   AND COUNT(*) FILTER (WHERE upm.is_correct) = 0
+   AND COUNT(*) > 1
+ORDER BY n DESC
+"""
+
+SQL_SELECT_LONE_CORRECT = """
+SELECT u.name, m.team1_name, m.team2_name, upm.predicted_team,
+       CASE WHEN upm.predicted_team = m.team1_name THEN m.team1_point
+            ELSE m.team2_point END AS pts
+FROM match AS m
+JOIN user_predict_match AS upm ON upm.match_id = m.match_id
+JOIN users AS u ON u.uid = upm.uid
+WHERE m.game_date = %s
+  AND upm.is_correct
+  AND (SELECT COUNT(*) FROM user_predict_match AS x
+       WHERE x.match_id = m.match_id AND x.is_correct) = 1
+  AND (SELECT COUNT(*) FROM user_predict_match AS x
+       WHERE x.match_id = m.match_id AND x.is_correct IS NOT NULL) > 2
+ORDER BY pts DESC
+LIMIT 3
+"""
+
+
+SQL_SELECT_PERFECT_DAYS = """
+SELECT COUNT(*) FILTER (WHERE allRight), COUNT(*) FILTER (WHERE allWrong)
+FROM (
+    SELECT bool_and(upm.is_correct)     AS allRight,
+           bool_and(NOT upm.is_correct) AS allWrong
+    FROM user_predict_match AS upm
+    JOIN match AS m ON m.match_id = upm.match_id
+    WHERE upm.uid = %s AND upm.is_correct IS NOT NULL
+    GROUP BY m.game_date
+    HAVING COUNT(*) >= 5
+) AS days
+"""
+
+# Lone correct pick on a game at least 8 people graded - the contrarian badge.
+SQL_SELECT_AGAINST_THE_WORLD = """
+SELECT COUNT(*)
+FROM match AS m
+JOIN user_predict_match AS upm ON upm.match_id = m.match_id
+WHERE upm.uid = %s
+  AND upm.is_correct
+  AND (SELECT COUNT(*) FROM user_predict_match AS x
+       WHERE x.match_id = m.match_id AND x.is_correct) = 1
+  AND (SELECT COUNT(*) FROM user_predict_match AS x
+       WHERE x.match_id = m.match_id AND x.is_correct IS NOT NULL) >= 8
+"""
+
+SQL_SELECT_UNDERDOG_HITS = """
+SELECT COUNT(*),
+       COALESCE(MAX(CASE WHEN upm.predicted_team = m.team1_name
+                         THEN m.team1_point ELSE m.team2_point END), 0)
+FROM user_predict_match AS upm
+JOIN match AS m ON m.match_id = upm.match_id
+WHERE upm.uid = %s
+  AND upm.is_correct
+  AND CASE WHEN upm.predicted_team = m.team1_name
+           THEN m.team1_point ELSE m.team2_point END >= 40
+"""
+
+SQL_SELECT_LONGEST_STREAK = """
+WITH graded AS (
+    SELECT upm.is_correct,
+           ROW_NUMBER() OVER (ORDER BY m.game_date, upm.match_id) AS seq
+    FROM user_predict_match AS upm
+    JOIN match AS m ON m.match_id = upm.match_id
+    WHERE upm.uid = %s AND upm.is_correct IS NOT NULL
+),
+islands AS (
+    SELECT is_correct,
+           seq - ROW_NUMBER() OVER (PARTITION BY is_correct ORDER BY seq) AS grp
+    FROM graded
+)
+SELECT COALESCE(MAX(runLength), 0) FROM (
+    SELECT COUNT(*) AS runLength FROM islands WHERE is_correct GROUP BY grp
+) AS runs
+"""
+
+SQL_SELECT_LOYAL_TEAM = """
+SELECT team_name, all_time_correct_count + all_time_wrong_count AS picked
+FROM counter
+WHERE uid = %s
+ORDER BY picked DESC
+LIMIT 1
+"""
+
+
+SQL_SELECT_ACTIVE_STAT_MATCHES = """
+SELECT DISTINCT m.match_id, m.game_date, m.team1_name, m.team2_name, m.espn_event_id
+FROM match AS m
+JOIN player_stat_bet AS psb ON psb.match_id = m.match_id
+WHERE m.is_active = TRUE
+"""
+
+SQL_UPDATE_MATCH_ESPN_EVENT_ID = """
+UPDATE match SET espn_event_id = %s WHERE match_id = %s
+"""
+
+SQL_SELECT_STAT_BETS_FOR_MATCH = """
+SELECT player_name, stat_type FROM player_stat_bet WHERE match_id = %s
+"""
+
+
+# ---- date-scoped badge detection, used to announce 成就 inside 戰報 ----
+
+SQL_SELECT_DAY_PERFECT = """
+SELECT upm.uid,
+       bool_and(upm.is_correct)     AS allRight,
+       bool_and(NOT upm.is_correct) AS allWrong,
+       COUNT(*)                     AS picks
+FROM user_predict_match AS upm
+JOIN match AS m ON m.match_id = upm.match_id
+WHERE m.game_date = %s AND upm.is_correct IS NOT NULL
+GROUP BY upm.uid
+HAVING COUNT(*) >= 5
+"""
+
+SQL_SELECT_DAY_AGAINST_THE_WORLD = """
+SELECT upm.uid, m.team1_name, m.team2_name, upm.predicted_team
+FROM match AS m
+JOIN user_predict_match AS upm ON upm.match_id = m.match_id
+WHERE m.game_date = %s
+  AND upm.is_correct
+  AND (SELECT COUNT(*) FROM user_predict_match AS x
+       WHERE x.match_id = m.match_id AND x.is_correct) = 1
+  AND (SELECT COUNT(*) FROM user_predict_match AS x
+       WHERE x.match_id = m.match_id AND x.is_correct IS NOT NULL) >= 8
+"""
+
+SQL_SELECT_DAY_UNDERDOG = """
+SELECT upm.uid, upm.predicted_team,
+       CASE WHEN upm.predicted_team = m.team1_name THEN m.team1_point
+            ELSE m.team2_point END AS pts
+FROM user_predict_match AS upm
+JOIN match AS m ON m.match_id = upm.match_id
+WHERE m.game_date = %s
+  AND upm.is_correct
+  AND CASE WHEN upm.predicted_team = m.team1_name THEN m.team1_point
+           ELSE m.team2_point END >= 40
+"""
+
+# Win runs that are still alive at the end of the given date, with the length
+# they had before that date, so the caller can see which milestones were crossed.
+SQL_SELECT_DAY_STREAKS = """
+WITH graded AS (
+    SELECT upm.uid, upm.is_correct, m.game_date,
+           ROW_NUMBER() OVER (PARTITION BY upm.uid
+                              ORDER BY m.game_date, upm.match_id) AS seq
+    FROM user_predict_match AS upm
+    JOIN match AS m ON m.match_id = upm.match_id
+    WHERE upm.is_correct IS NOT NULL AND m.game_date <= %s
+),
+islands AS (
+    SELECT uid, is_correct, game_date, seq,
+           seq - ROW_NUMBER() OVER (PARTITION BY uid, is_correct ORDER BY seq) AS grp
+    FROM graded
+),
+runs AS (
+    SELECT uid, COUNT(*) AS runLength, MAX(game_date) AS endedOn,
+           COUNT(*) FILTER (WHERE game_date = %s) AS earnedToday
+    FROM islands
+    WHERE is_correct
+    GROUP BY uid, grp
+)
+SELECT uid, runLength, runLength - earnedToday AS lengthBefore
+FROM runs
+WHERE endedOn = %s AND earnedToday > 0
+"""
+
+SQL_INSERT_ACHIEVEMENT = """
+INSERT INTO user_achievement (uid, achievement_key, earned_date, detail)
+VALUES (%s, %s, %s, %s)
+ON CONFLICT (uid, achievement_key, earned_date) DO NOTHING
 """
