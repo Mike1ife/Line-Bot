@@ -42,6 +42,7 @@ def user_is_admin(userUID: str):
         cur.execute(SQL_SELECT_USER_IS_ADMIN, (userUID,))
         result = cur.fetchone()
         return result[0] if result else False
+    return False
 
 
 def delete_active_match_tuples():

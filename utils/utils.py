@@ -447,7 +447,11 @@ def _get_nba_games_time_list(timeStr: str):
 
     gameTimeMap = {}
     for gameContainer in gameContainers:
-        boxScoreUrl = gameContainer.find("div", class_="table_choose clearfix").find("a").get("href")
+        boxScoreUrl = (
+            gameContainer.find("div", class_="table_choose clearfix")
+            .find("a")
+            .get("href")
+        )
         teams = gameContainer.find("div", class_="team_vs_a")
         team1 = teams.find("div", class_="team_vs_a_1 clearfix")
         team2 = teams.find("div", class_="team_vs_a_2 clearfix")
@@ -473,14 +477,12 @@ def _get_nba_games_time_list(timeStr: str):
         except:
             continue
 
-        gameTimeMap[(team1Name, team2Name)] = ((
-            gameTime if gameTime != "00:00" else "12:00"
-        ), boxScoreUrl)
+        gameTimeMap[(team1Name, team2Name)] = (
+            (gameTime if gameTime != "00:00" else "12:00"),
+            boxScoreUrl,
+        )
 
     return gameTimeMap
-
-
-
 
 
 def get_nba_game_prediction(playoffsLayout: bool = False):
@@ -489,14 +491,16 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     matchList = []
     carouselColumns = []
 
-    gameList, gameOfTheDayPage, gameOfTheDayBoxScoreUrl, gameOfTheDayTime = _get_nba_games(
-        playoffsLayout=playoffsLayout
+    gameList, gameOfTheDayPage, gameOfTheDayBoxScoreUrl, gameOfTheDayTime = (
+        _get_nba_games(playoffsLayout=playoffsLayout)
     )
 
     if not gameList:
         return None, "明天沒有比賽", None, None, None, None
 
-    insert_match_of_the_day_boxscore_url(gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl)
+    insert_match_of_the_day_boxscore_url(
+        gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl
+    )
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
@@ -534,6 +538,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
         gameOfTheDayTime,
     )
 
+
 def _get_nba_games(playoffsLayout: bool):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
@@ -545,11 +550,11 @@ def _get_nba_games(playoffsLayout: bool):
 
     finalScores = soup.find_all("div", class_="score-team-score")
     if len(finalScores) > 0:
-        return [], None, None  # Games already finished
+        return [], None, None, None  # Games already finished
 
     urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
     if todayStr not in re.findall(urlPattern, data):
-        return [], None, None  # No game page for this date
+        return [], None, None, None  # No game page for this date
 
     tomorrowTW = nowTW + timedelta(days=1)
     tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")

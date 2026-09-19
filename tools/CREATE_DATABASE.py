@@ -414,7 +414,6 @@ def INSERT_PLAYER():
                 cur.execute(SQL, (playerName, playerPageUrl, playerImage))
         conn.commit()
 
-
     data = requests.get("https://nba.hupu.com/players").text
     soup = BeautifulSoup(data, "html.parser")
     team_list = soup.find_all("span", class_="team_name")
@@ -431,14 +430,17 @@ def INSERT_PLAYER():
                 player_info = player_row.find("td", class_="left")
                 if not player_info:
                     continue
-            
+
                 player_names = player_info.find_all("b")
                 chinese_name = player_names[0].text
                 english_name = player_names[1].text
                 print(english_name, chinese_name)
                 with conn.cursor() as cur:
-                    cur.execute("UPDATE player SET chinese_name = %s WHERE player_name = %s", (chinese_name, english_name))
-        
+                    cur.execute(
+                        "UPDATE player SET chinese_name = %s WHERE player_name = %s",
+                        (chinese_name, english_name),
+                    )
+
         conn.commit()
 
 
@@ -517,6 +519,6 @@ def CREATE_DATABASE():
     CREATE_INDEX()
     CREATE_CALCULATE_DAILY_POINTS_PROCEDURE()
     CREATE_CAROUSEL_COLUMN_TABLE()
-    CREATE_MATCH_OF_THE_DATE_TABLE()
+    CREATE_MATCH_OF_THE_DAY_TABLE()
     INSERT_NBA_TEAM()
     INSERT_PLAYER()
