@@ -1,0 +1,8658 @@
+{
+"0050": {
+"name": "元大台灣50",
+"suffix": "TW"
+},
+"0051": {
+"name": "元大中型100",
+"suffix": "TW"
+},
+"0052": {
+"name": "富邦科技",
+"suffix": "TW"
+},
+"0053": {
+"name": "元大電子",
+"suffix": "TW"
+},
+"0055": {
+"name": "元大MSCI金融",
+"suffix": "TW"
+},
+"0056": {
+"name": "元大高股息",
+"suffix": "TW"
+},
+"0057": {
+"name": "富邦摩台",
+"suffix": "TW"
+},
+"0061": {
+"name": "元大寶滬深",
+"suffix": "TW"
+},
+"006201": {
+"name": "元大富櫃50",
+"suffix": "TWO"
+},
+"006203": {
+"name": "元大MSCI台灣",
+"suffix": "TW"
+},
+"006204": {
+"name": "永豐臺灣加權",
+"suffix": "TW"
+},
+"006205": {
+"name": "富邦上証",
+"suffix": "TW"
+},
+"006206": {
+"name": "元大上證50",
+"suffix": "TW"
+},
+"006207": {
+"name": "復華滬深",
+"suffix": "TW"
+},
+"006208": {
+"name": "富邦台50",
+"suffix": "TW"
+},
+"00636": {
+"name": "國泰中國A50",
+"suffix": "TW"
+},
+"00639": {
+"name": "富邦深100",
+"suffix": "TW"
+},
+"00643": {
+"name": "群益深証中小",
+"suffix": "TW"
+},
+"00645": {
+"name": "富邦日本",
+"suffix": "TW"
+},
+"00646": {
+"name": "元大S&P500",
+"suffix": "TW"
+},
+"00652": {
+"name": "富邦印度",
+"suffix": "TW"
+},
+"00657": {
+"name": "國泰日經225",
+"suffix": "TW"
+},
+"00660": {
+"name": "元大歐洲50",
+"suffix": "TW"
+},
+"00661": {
+"name": "元大日經225",
+"suffix": "TW"
+},
+"00662": {
+"name": "富邦NASDAQ",
+"suffix": "TW"
+},
+"00668": {
+"name": "國泰美國道瓊",
+"suffix": "TW"
+},
+"00678": {
+"name": "群益那斯達克生技",
+"suffix": "TW"
+},
+"00690": {
+"name": "兆豐藍籌30",
+"suffix": "TW"
+},
+"00692": {
+"name": "富邦公司治理",
+"suffix": "TW"
+},
+"00700": {
+"name": "富邦恒生國企",
+"suffix": "TW"
+},
+"00701": {
+"name": "國泰股利精選30",
+"suffix": "TW"
+},
+"00702": {
+"name": "國泰標普低波高息",
+"suffix": "TW"
+},
+"00703": {
+"name": "台新MSCI中國",
+"suffix": "TW"
+},
+"00709": {
+"name": "富邦歐洲",
+"suffix": "TW"
+},
+"00712": {
+"name": "復華富時不動產",
+"suffix": "TW"
+},
+"00713": {
+"name": "元大台灣高息低波",
+"suffix": "TW"
+},
+"00714": {
+"name": "群益道瓊美國地產",
+"suffix": "TW"
+},
+"00717": {
+"name": "富邦美國特別股",
+"suffix": "TW"
+},
+"00728": {
+"name": "第一金工業30",
+"suffix": "TW"
+},
+"00730": {
+"name": "富邦臺灣優質高息",
+"suffix": "TW"
+},
+"00731": {
+"name": "復華富時高息低波",
+"suffix": "TW"
+},
+"00733": {
+"name": "富邦臺灣中小",
+"suffix": "TW"
+},
+"00735": {
+"name": "國泰臺韓科技",
+"suffix": "TW"
+},
+"00736": {
+"name": "國泰新興市場",
+"suffix": "TW"
+},
+"00737": {
+"name": "國泰AI機器人",
+"suffix": "TW"
+},
+"00739": {
+"name": "元大MSCI A股",
+"suffix": "TW"
+},
+"00752": {
+"name": "中信中國50",
+"suffix": "TW"
+},
+"00757": {
+"name": "統一FANG+",
+"suffix": "TW"
+},
+"00762": {
+"name": "元大全球AI",
+"suffix": "TW"
+},
+"00770": {
+"name": "國泰北美科技",
+"suffix": "TW"
+},
+"00771": {
+"name": "元大US高息特別股",
+"suffix": "TW"
+},
+"00783": {
+"name": "富邦中証500",
+"suffix": "TW"
+},
+"00830": {
+"name": "國泰費城半導體",
+"suffix": "TW"
+},
+"00850": {
+"name": "元大臺灣ESG永續",
+"suffix": "TW"
+},
+"00851": {
+"name": "台新全球AI",
+"suffix": "TW"
+},
+"00858": {
+"name": "永豐美國500大",
+"suffix": "TWO"
+},
+"00861": {
+"name": "元大全球未來通訊",
+"suffix": "TW"
+},
+"00875": {
+"name": "國泰網路資安",
+"suffix": "TW"
+},
+"00876": {
+"name": "元大全球5G",
+"suffix": "TW"
+},
+"00877": {
+"name": "復華中國5G",
+"suffix": "TWO"
+},
+"00878": {
+"name": "國泰永續高股息",
+"suffix": "TW"
+},
+"00881": {
+"name": "國泰台灣科技龍頭",
+"suffix": "TW"
+},
+"00882": {
+"name": "中信中國高股息",
+"suffix": "TW"
+},
+"00885": {
+"name": "富邦越南",
+"suffix": "TW"
+},
+"00886": {
+"name": "永豐美國科技",
+"suffix": "TWO"
+},
+"00887": {
+"name": "永豐中國科技50大",
+"suffix": "TWO"
+},
+"00888": {
+"name": "永豐台灣ESG",
+"suffix": "TWO"
+},
+"00891": {
+"name": "中信關鍵半導體",
+"suffix": "TW"
+},
+"00892": {
+"name": "富邦台灣半導體",
+"suffix": "TW"
+},
+"00893": {
+"name": "國泰智能電動車",
+"suffix": "TW"
+},
+"00894": {
+"name": "中信小資高價30",
+"suffix": "TW"
+},
+"00895": {
+"name": "富邦未來車",
+"suffix": "TW"
+},
+"00896": {
+"name": "中信綠能及電動車",
+"suffix": "TW"
+},
+"00897": {
+"name": "富邦基因免疫生技",
+"suffix": "TW"
+},
+"00898": {
+"name": "國泰基因免疫革命",
+"suffix": "TW"
+},
+"00899": {
+"name": "FT潔淨能源",
+"suffix": "TW"
+},
+"00900": {
+"name": "富邦特選高股息30",
+"suffix": "TW"
+},
+"00901": {
+"name": "永豐智能車供應鏈",
+"suffix": "TW"
+},
+"00902": {
+"name": "中信電池及儲能",
+"suffix": "TW"
+},
+"00903": {
+"name": "富邦元宇宙",
+"suffix": "TW"
+},
+"00904": {
+"name": "台新臺灣半導體30",
+"suffix": "TW"
+},
+"00905": {
+"name": "FT臺灣Smart",
+"suffix": "TW"
+},
+"00907": {
+"name": "永豐優息存股",
+"suffix": "TW"
+},
+"00908": {
+"name": "富邦入息REITs+",
+"suffix": "TW"
+},
+"00909": {
+"name": "國泰數位支付服務",
+"suffix": "TW"
+},
+"00910": {
+"name": "第一金太空衛星",
+"suffix": "TW"
+},
+"00911": {
+"name": "兆豐洲際半導體",
+"suffix": "TW"
+},
+"00912": {
+"name": "中信臺灣智慧50",
+"suffix": "TW"
+},
+"00913": {
+"name": "兆豐台灣晶圓製造",
+"suffix": "TW"
+},
+"00915": {
+"name": "凱基優選高股息30",
+"suffix": "TW"
+},
+"00916": {
+"name": "國泰全球品牌50",
+"suffix": "TW"
+},
+"00917": {
+"name": "中信特選金融",
+"suffix": "TW"
+},
+"00918": {
+"name": "大華優利高填息30",
+"suffix": "TW"
+},
+"00919": {
+"name": "群益台灣精選高息",
+"suffix": "TW"
+},
+"00920": {
+"name": "富邦ESG綠色電力",
+"suffix": "TW"
+},
+"00921": {
+"name": "兆豐龍頭等權重",
+"suffix": "TW"
+},
+"00922": {
+"name": "國泰台灣領袖50",
+"suffix": "TW"
+},
+"00923": {
+"name": "群益台ESG低碳50",
+"suffix": "TW"
+},
+"00924": {
+"name": "復華S&P500成長",
+"suffix": "TW"
+},
+"00926": {
+"name": "凱基全球菁英55",
+"suffix": "TW"
+},
+"00927": {
+"name": "群益半導體收益",
+"suffix": "TW"
+},
+"00928": {
+"name": "中信上櫃ESG 30",
+"suffix": "TWO"
+},
+"00929": {
+"name": "復華台灣科技優息",
+"suffix": "TW"
+},
+"00930": {
+"name": "永豐ESG低碳高息",
+"suffix": "TW"
+},
+"00932": {
+"name": "兆豐永續高息等權",
+"suffix": "TW"
+},
+"00934": {
+"name": "中信成長高股息",
+"suffix": "TW"
+},
+"00935": {
+"name": "野村臺灣新科技50",
+"suffix": "TW"
+},
+"00936": {
+"name": "台新永續高息中小",
+"suffix": "TW"
+},
+"00938": {
+"name": "凱基優選30",
+"suffix": "TW"
+},
+"00939": {
+"name": "統一台灣高息動能",
+"suffix": "TW"
+},
+"00940": {
+"name": "元大台灣價值高息",
+"suffix": "TW"
+},
+"00941": {
+"name": "中信上游半導體",
+"suffix": "TW"
+},
+"00943": {
+"name": "兆豐電子高息等權",
+"suffix": "TW"
+},
+"00944": {
+"name": "野村趨勢動能高息",
+"suffix": "TW"
+},
+"00946": {
+"name": "群益科技高息成長",
+"suffix": "TW"
+},
+"00947": {
+"name": "台新臺灣IC設計",
+"suffix": "TW"
+},
+"00949": {
+"name": "復華日本龍頭",
+"suffix": "TW"
+},
+"00951": {
+"name": "台新日本半導體",
+"suffix": "TW"
+},
+"00952": {
+"name": "凱基台灣AI50",
+"suffix": "TW"
+},
+"00954": {
+"name": "中信日本半導體",
+"suffix": "TW"
+},
+"00955": {
+"name": "中信日本商社",
+"suffix": "TWO"
+},
+"00956": {
+"name": "中信日經高股息",
+"suffix": "TW"
+},
+"00960": {
+"name": "野村全球航運龍頭",
+"suffix": "TW"
+},
+"00961": {
+"name": "FT臺灣永續高息",
+"suffix": "TW"
+},
+"00962": {
+"name": "台新AI優息動能",
+"suffix": "TW"
+},
+"00963": {
+"name": "中信全球高股息",
+"suffix": "TW"
+},
+"00964": {
+"name": "中信亞太高股息",
+"suffix": "TW"
+},
+"00965": {
+"name": "元大航太防衛科技",
+"suffix": "TW"
+},
+"00971": {
+"name": "野村美國研發龍頭",
+"suffix": "TW"
+},
+"00972": {
+"name": "野村日本動能高息",
+"suffix": "TW"
+},
+"009800": {
+"name": "中信NASDAQ",
+"suffix": "TW"
+},
+"009801": {
+"name": "中信美國創新科技",
+"suffix": "TW"
+},
+"009802": {
+"name": "富邦旗艦50",
+"suffix": "TW"
+},
+"009803": {
+"name": "玉山市值動能50",
+"suffix": "TW"
+},
+"009804": {
+"name": "聯邦台精彩50",
+"suffix": "TW"
+},
+"009805": {
+"name": "台新美國電力基建",
+"suffix": "TW"
+},
+"009806": {
+"name": "台新標普500",
+"suffix": "TWO"
+},
+"009807": {
+"name": "台新標普科技精選",
+"suffix": "TWO"
+},
+"009808": {
+"name": "華南永昌優選50",
+"suffix": "TW"
+},
+"009809": {
+"name": "富邦淨零ESG50",
+"suffix": "TW"
+},
+"009810": {
+"name": "玉山全球藍籌100",
+"suffix": "TW"
+},
+"009811": {
+"name": "統一美國50",
+"suffix": "TW"
+},
+"009812": {
+"name": "野村日本東證",
+"suffix": "TW"
+},
+"009813": {
+"name": "貝萊德標普卓越50",
+"suffix": "TW"
+},
+"009814": {
+"name": "富邦標普500",
+"suffix": "TWO"
+},
+"009815": {
+"name": "大華美國MAG7+",
+"suffix": "TWO"
+},
+"009816": {
+"name": "凱基台灣TOP50",
+"suffix": "TW"
+},
+"009817": {
+"name": "國泰日本不動產",
+"suffix": "TW"
+},
+"009818": {
+"name": "華南永昌NASDAQxT",
+"suffix": "TW"
+},
+"009819": {
+"name": "中信數據及電力",
+"suffix": "TW"
+},
+"009820": {
+"name": "元大納斯達克精選",
+"suffix": "TW"
+},
+"009821": {
+"name": "野村稀土關鍵資源",
+"suffix": "TW"
+},
+"009822": {
+"name": "華南永昌未來金融",
+"suffix": "TWO"
+},
+"009823": {
+"name": "群益S&P500",
+"suffix": "TWO"
+},
+"009824": {
+"name": "群益美國科技巨頭",
+"suffix": "TW"
+},
+"009825": {
+"name": "聯邦美國金融創新",
+"suffix": "TWO"
+},
+"009826": {
+"name": "貝萊德世界股票",
+"suffix": "TW"
+},
+"009827": {
+"name": "玉山未來全球算力",
+"suffix": "TW"
+},
+"009828": {
+"name": "中信台日韓PCB",
+"suffix": "TW"
+},
+"009829": {
+"name": "大華韓國KOSPI50",
+"suffix": "TW"
+},
+"020000": {
+"name": "富邦特選蘋果N",
+"suffix": "TW"
+},
+"020001": {
+"name": "富邦存股雙十N",
+"suffix": "TWO"
+},
+"020011": {
+"name": "統一微波高息20N",
+"suffix": "TW"
+},
+"020012": {
+"name": "富邦行動通訊N",
+"suffix": "TW"
+},
+"020020": {
+"name": "元大台股領航N",
+"suffix": "TW"
+},
+"020025": {
+"name": "統一亞洲半導體N",
+"suffix": "TWO"
+},
+"020028": {
+"name": "元大特選電動車N",
+"suffix": "TW"
+},
+"020029": {
+"name": "元大ESG高股息N",
+"suffix": "TW"
+},
+"020030": {
+"name": "統一智慧電動車N",
+"suffix": "TW"
+},
+"020031": {
+"name": "統一IC設計臺灣N",
+"suffix": "TW"
+},
+"020032": {
+"name": "元大綠能N",
+"suffix": "TW"
+},
+"020033": {
+"name": "統一恒生科期N",
+"suffix": "TWO"
+},
+"020034": {
+"name": "元大IC設計N",
+"suffix": "TW"
+},
+"020035": {
+"name": "元大上櫃ESG高息N",
+"suffix": "TWO"
+},
+"020036": {
+"name": "元大金融配息N",
+"suffix": "TW"
+},
+"020037": {
+"name": "元大金融高股息N",
+"suffix": "TW"
+},
+"020038": {
+"name": "元大ESG配息N",
+"suffix": "TW"
+},
+"020039": {
+"name": "元大加權N",
+"suffix": "TW"
+},
+"020040": {
+"name": "元大上櫃ESG龍頭N",
+"suffix": "TWO"
+},
+"020041": {
+"name": "兆豐半導體氣候N",
+"suffix": "TWO"
+},
+"1101": {
+"name": "台泥",
+"suffix": "TW"
+},
+"1102": {
+"name": "亞泥",
+"suffix": "TW"
+},
+"1103": {
+"name": "嘉泥",
+"suffix": "TW"
+},
+"1104": {
+"name": "環泥",
+"suffix": "TW"
+},
+"1108": {
+"name": "幸福",
+"suffix": "TW"
+},
+"1109": {
+"name": "信大",
+"suffix": "TW"
+},
+"1110": {
+"name": "東泥",
+"suffix": "TW"
+},
+"1201": {
+"name": "味全",
+"suffix": "TW"
+},
+"1203": {
+"name": "味王",
+"suffix": "TW"
+},
+"1210": {
+"name": "大成",
+"suffix": "TW"
+},
+"1213": {
+"name": "大飲",
+"suffix": "TW"
+},
+"1215": {
+"name": "卜蜂",
+"suffix": "TW"
+},
+"1216": {
+"name": "統一",
+"suffix": "TW"
+},
+"1217": {
+"name": "愛之味",
+"suffix": "TW"
+},
+"1218": {
+"name": "泰山",
+"suffix": "TW"
+},
+"1219": {
+"name": "福壽",
+"suffix": "TW"
+},
+"1220": {
+"name": "台榮",
+"suffix": "TW"
+},
+"1225": {
+"name": "福懋油",
+"suffix": "TW"
+},
+"1227": {
+"name": "佳格",
+"suffix": "TW"
+},
+"1229": {
+"name": "聯華",
+"suffix": "TW"
+},
+"1231": {
+"name": "聯華食",
+"suffix": "TW"
+},
+"1232": {
+"name": "大統益",
+"suffix": "TW"
+},
+"1233": {
+"name": "天仁",
+"suffix": "TW"
+},
+"1234": {
+"name": "黑松",
+"suffix": "TW"
+},
+"1235": {
+"name": "興泰",
+"suffix": "TW"
+},
+"1236": {
+"name": "宏亞",
+"suffix": "TW"
+},
+"1240": {
+"name": "茂生農經",
+"suffix": "TWO"
+},
+"1256": {
+"name": "鮮活果汁-KY",
+"suffix": "TW"
+},
+"1259": {
+"name": "安心",
+"suffix": "TWO"
+},
+"1264": {
+"name": "德麥",
+"suffix": "TWO"
+},
+"1268": {
+"name": "漢來美食",
+"suffix": "TWO"
+},
+"1294": {
+"name": "漢田生技",
+"suffix": "TWO"
+},
+"1295": {
+"name": "生合",
+"suffix": "TWO"
+},
+"1301": {
+"name": "台塑",
+"suffix": "TW"
+},
+"1303": {
+"name": "南亞",
+"suffix": "TW"
+},
+"1304": {
+"name": "台聚",
+"suffix": "TW"
+},
+"1305": {
+"name": "華夏",
+"suffix": "TW"
+},
+"1307": {
+"name": "三芳",
+"suffix": "TW"
+},
+"1308": {
+"name": "亞聚",
+"suffix": "TW"
+},
+"1309": {
+"name": "台達化",
+"suffix": "TW"
+},
+"1310": {
+"name": "台苯",
+"suffix": "TW"
+},
+"1312": {
+"name": "國喬",
+"suffix": "TW"
+},
+"1313": {
+"name": "聯成",
+"suffix": "TW"
+},
+"1314": {
+"name": "中石化",
+"suffix": "TW"
+},
+"1315": {
+"name": "達新",
+"suffix": "TW"
+},
+"1316": {
+"name": "上曜",
+"suffix": "TW"
+},
+"1319": {
+"name": "東陽",
+"suffix": "TW"
+},
+"1321": {
+"name": "大洋",
+"suffix": "TW"
+},
+"1323": {
+"name": "永裕",
+"suffix": "TW"
+},
+"1324": {
+"name": "地球",
+"suffix": "TW"
+},
+"1325": {
+"name": "恆大",
+"suffix": "TW"
+},
+"1326": {
+"name": "台化",
+"suffix": "TW"
+},
+"1336": {
+"name": "台翰",
+"suffix": "TWO"
+},
+"1337": {
+"name": "再生-KY",
+"suffix": "TW"
+},
+"1338": {
+"name": "廣華-KY",
+"suffix": "TW"
+},
+"1339": {
+"name": "昭輝",
+"suffix": "TW"
+},
+"1340": {
+"name": "勝悅-KY",
+"suffix": "TW"
+},
+"1341": {
+"name": "富林-KY",
+"suffix": "TW"
+},
+"1342": {
+"name": "八貫",
+"suffix": "TW"
+},
+"1402": {
+"name": "遠東新",
+"suffix": "TW"
+},
+"1409": {
+"name": "新纖",
+"suffix": "TW"
+},
+"1410": {
+"name": "南染",
+"suffix": "TW"
+},
+"1413": {
+"name": "宏洲",
+"suffix": "TW"
+},
+"1414": {
+"name": "東和",
+"suffix": "TW"
+},
+"1416": {
+"name": "廣豐",
+"suffix": "TW"
+},
+"1417": {
+"name": "嘉裕",
+"suffix": "TW"
+},
+"1418": {
+"name": "東華",
+"suffix": "TW"
+},
+"1419": {
+"name": "新紡",
+"suffix": "TW"
+},
+"1423": {
+"name": "利華",
+"suffix": "TW"
+},
+"1432": {
+"name": "大魯閣",
+"suffix": "TW"
+},
+"1434": {
+"name": "福懋",
+"suffix": "TW"
+},
+"1435": {
+"name": "中福",
+"suffix": "TW"
+},
+"1436": {
+"name": "華友聯",
+"suffix": "TW"
+},
+"1437": {
+"name": "勤益控",
+"suffix": "TW"
+},
+"1438": {
+"name": "三地開發",
+"suffix": "TW"
+},
+"1439": {
+"name": "雋揚",
+"suffix": "TW"
+},
+"1440": {
+"name": "南紡",
+"suffix": "TW"
+},
+"1442": {
+"name": "名軒",
+"suffix": "TW"
+},
+"1443": {
+"name": "立益物流",
+"suffix": "TW"
+},
+"1444": {
+"name": "力麗",
+"suffix": "TW"
+},
+"1445": {
+"name": "大宇",
+"suffix": "TW"
+},
+"1446": {
+"name": "宏和",
+"suffix": "TW"
+},
+"1447": {
+"name": "力鵬",
+"suffix": "TW"
+},
+"1449": {
+"name": "佳和",
+"suffix": "TW"
+},
+"1451": {
+"name": "年興",
+"suffix": "TW"
+},
+"1452": {
+"name": "宏益",
+"suffix": "TW"
+},
+"1453": {
+"name": "大將",
+"suffix": "TW"
+},
+"1454": {
+"name": "台富",
+"suffix": "TW"
+},
+"1455": {
+"name": "集盛",
+"suffix": "TW"
+},
+"1456": {
+"name": "怡華",
+"suffix": "TW"
+},
+"1457": {
+"name": "宜進",
+"suffix": "TW"
+},
+"1459": {
+"name": "聯發",
+"suffix": "TW"
+},
+"1460": {
+"name": "宏遠",
+"suffix": "TW"
+},
+"1463": {
+"name": "強盛新",
+"suffix": "TW"
+},
+"1464": {
+"name": "得力",
+"suffix": "TW"
+},
+"1465": {
+"name": "偉全",
+"suffix": "TW"
+},
+"1466": {
+"name": "聚隆",
+"suffix": "TW"
+},
+"1467": {
+"name": "南緯",
+"suffix": "TW"
+},
+"1468": {
+"name": "昶和",
+"suffix": "TW"
+},
+"1470": {
+"name": "大統新創",
+"suffix": "TW"
+},
+"1471": {
+"name": "首利",
+"suffix": "TW"
+},
+"1472": {
+"name": "三洋實業",
+"suffix": "TW"
+},
+"1473": {
+"name": "台南",
+"suffix": "TW"
+},
+"1474": {
+"name": "弘裕",
+"suffix": "TW"
+},
+"1475": {
+"name": "業旺",
+"suffix": "TW"
+},
+"1476": {
+"name": "儒鴻",
+"suffix": "TW"
+},
+"1477": {
+"name": "聚陽",
+"suffix": "TW"
+},
+"1503": {
+"name": "士電",
+"suffix": "TW"
+},
+"1504": {
+"name": "東元",
+"suffix": "TW"
+},
+"1506": {
+"name": "正道",
+"suffix": "TW"
+},
+"1512": {
+"name": "瑞利",
+"suffix": "TW"
+},
+"1513": {
+"name": "中興電",
+"suffix": "TW"
+},
+"1514": {
+"name": "亞力",
+"suffix": "TW"
+},
+"1515": {
+"name": "力山",
+"suffix": "TW"
+},
+"1516": {
+"name": "川飛",
+"suffix": "TW"
+},
+"1517": {
+"name": "利奇",
+"suffix": "TW"
+},
+"1519": {
+"name": "華城",
+"suffix": "TW"
+},
+"1521": {
+"name": "大億",
+"suffix": "TW"
+},
+"1522": {
+"name": "堤維西",
+"suffix": "TW"
+},
+"1524": {
+"name": "耿鼎",
+"suffix": "TW"
+},
+"1525": {
+"name": "江申",
+"suffix": "TW"
+},
+"1526": {
+"name": "日馳",
+"suffix": "TW"
+},
+"1527": {
+"name": "鑽全",
+"suffix": "TW"
+},
+"1528": {
+"name": "恩德",
+"suffix": "TW"
+},
+"1529": {
+"name": "樂事綠能",
+"suffix": "TW"
+},
+"1530": {
+"name": "亞崴",
+"suffix": "TW"
+},
+"1531": {
+"name": "高林股",
+"suffix": "TW"
+},
+"1532": {
+"name": "勤美",
+"suffix": "TW"
+},
+"1533": {
+"name": "車王電",
+"suffix": "TW"
+},
+"1535": {
+"name": "中宇",
+"suffix": "TW"
+},
+"1536": {
+"name": "和大",
+"suffix": "TW"
+},
+"1537": {
+"name": "廣隆",
+"suffix": "TW"
+},
+"1538": {
+"name": "正峰",
+"suffix": "TW"
+},
+"1539": {
+"name": "巨庭",
+"suffix": "TW"
+},
+"1540": {
+"name": "喬福",
+"suffix": "TW"
+},
+"1541": {
+"name": "錩泰",
+"suffix": "TW"
+},
+"1558": {
+"name": "伸興",
+"suffix": "TW"
+},
+"1560": {
+"name": "中砂",
+"suffix": "TW"
+},
+"1563": {
+"name": "巧新",
+"suffix": "TW"
+},
+"1565": {
+"name": "精華",
+"suffix": "TWO"
+},
+"1568": {
+"name": "倉佑",
+"suffix": "TW"
+},
+"1569": {
+"name": "濱川",
+"suffix": "TWO"
+},
+"1570": {
+"name": "力肯",
+"suffix": "TWO"
+},
+"1580": {
+"name": "新麥",
+"suffix": "TWO"
+},
+"1582": {
+"name": "信錦",
+"suffix": "TW"
+},
+"1583": {
+"name": "程泰",
+"suffix": "TW"
+},
+"1584": {
+"name": "精剛",
+"suffix": "TWO"
+},
+"1586": {
+"name": "和勤",
+"suffix": "TWO"
+},
+"1587": {
+"name": "吉茂",
+"suffix": "TW"
+},
+"1590": {
+"name": "亞德客-KY",
+"suffix": "TW"
+},
+"1591": {
+"name": "駿吉-KY",
+"suffix": "TWO"
+},
+"1593": {
+"name": "祺驊",
+"suffix": "TWO"
+},
+"1595": {
+"name": "川寶",
+"suffix": "TWO"
+},
+"1597": {
+"name": "直得",
+"suffix": "TW"
+},
+"1598": {
+"name": "岱宇",
+"suffix": "TW"
+},
+"1599": {
+"name": "宏佳騰",
+"suffix": "TWO"
+},
+"1603": {
+"name": "華電",
+"suffix": "TW"
+},
+"1604": {
+"name": "聲寶",
+"suffix": "TW"
+},
+"1605": {
+"name": "華新",
+"suffix": "TW"
+},
+"1608": {
+"name": "華榮",
+"suffix": "TW"
+},
+"1609": {
+"name": "大亞",
+"suffix": "TW"
+},
+"1611": {
+"name": "中電",
+"suffix": "TW"
+},
+"1612": {
+"name": "宏泰",
+"suffix": "TW"
+},
+"1614": {
+"name": "三洋電",
+"suffix": "TW"
+},
+"1615": {
+"name": "大山",
+"suffix": "TW"
+},
+"1616": {
+"name": "億泰",
+"suffix": "TW"
+},
+"1617": {
+"name": "榮星",
+"suffix": "TW"
+},
+"1618": {
+"name": "合機",
+"suffix": "TW"
+},
+"1623": {
+"name": "大東電",
+"suffix": "TW"
+},
+"1626": {
+"name": "艾美特-KY",
+"suffix": "TW"
+},
+"1702": {
+"name": "南僑",
+"suffix": "TW"
+},
+"1707": {
+"name": "葡萄王",
+"suffix": "TW"
+},
+"1708": {
+"name": "東鹼",
+"suffix": "TW"
+},
+"1709": {
+"name": "和益",
+"suffix": "TW"
+},
+"1710": {
+"name": "東聯",
+"suffix": "TW"
+},
+"1711": {
+"name": "永光",
+"suffix": "TW"
+},
+"1712": {
+"name": "興農",
+"suffix": "TW"
+},
+"1713": {
+"name": "國化",
+"suffix": "TW"
+},
+"1714": {
+"name": "和桐",
+"suffix": "TW"
+},
+"1717": {
+"name": "長興",
+"suffix": "TW"
+},
+"1718": {
+"name": "中纖",
+"suffix": "TW"
+},
+"1720": {
+"name": "生達",
+"suffix": "TW"
+},
+"1721": {
+"name": "國慶科技",
+"suffix": "TW"
+},
+"1722": {
+"name": "台肥",
+"suffix": "TW"
+},
+"1723": {
+"name": "中碳",
+"suffix": "TW"
+},
+"1725": {
+"name": "元禎",
+"suffix": "TW"
+},
+"1726": {
+"name": "永記",
+"suffix": "TW"
+},
+"1727": {
+"name": "中華化",
+"suffix": "TW"
+},
+"1730": {
+"name": "花仙子",
+"suffix": "TW"
+},
+"1731": {
+"name": "美吾華",
+"suffix": "TW"
+},
+"1732": {
+"name": "毛寶",
+"suffix": "TW"
+},
+"1733": {
+"name": "五鼎",
+"suffix": "TW"
+},
+"1734": {
+"name": "杏輝",
+"suffix": "TW"
+},
+"1735": {
+"name": "日勝化",
+"suffix": "TW"
+},
+"1736": {
+"name": "喬山",
+"suffix": "TW"
+},
+"1737": {
+"name": "臺鹽",
+"suffix": "TW"
+},
+"1742": {
+"name": "台蠟",
+"suffix": "TWO"
+},
+"1752": {
+"name": "南光",
+"suffix": "TW"
+},
+"1760": {
+"name": "寶齡富錦",
+"suffix": "TW"
+},
+"1762": {
+"name": "中化生",
+"suffix": "TW"
+},
+"1773": {
+"name": "勝一",
+"suffix": "TW"
+},
+"1776": {
+"name": "展宇",
+"suffix": "TW"
+},
+"1777": {
+"name": "生泰",
+"suffix": "TWO"
+},
+"1780": {
+"name": "立弘",
+"suffix": "TWO"
+},
+"1781": {
+"name": "合世",
+"suffix": "TWO"
+},
+"1783": {
+"name": "和康生",
+"suffix": "TW"
+},
+"1784": {
+"name": "訊聯",
+"suffix": "TWO"
+},
+"1785": {
+"name": "光洋科",
+"suffix": "TWO"
+},
+"1786": {
+"name": "科妍",
+"suffix": "TW"
+},
+"1788": {
+"name": "杏昌",
+"suffix": "TWO"
+},
+"1789": {
+"name": "神隆",
+"suffix": "TW"
+},
+"1795": {
+"name": "美時",
+"suffix": "TW"
+},
+"1796": {
+"name": "金穎生技",
+"suffix": "TWO"
+},
+"1799": {
+"name": "易威",
+"suffix": "TWO"
+},
+"1802": {
+"name": "台玻",
+"suffix": "TW"
+},
+"1805": {
+"name": "寶徠",
+"suffix": "TW"
+},
+"1806": {
+"name": "冠軍",
+"suffix": "TW"
+},
+"1808": {
+"name": "潤隆",
+"suffix": "TW"
+},
+"1809": {
+"name": "中釉",
+"suffix": "TW"
+},
+"1810": {
+"name": "和成",
+"suffix": "TW"
+},
+"1813": {
+"name": "寶利徠",
+"suffix": "TWO"
+},
+"1815": {
+"name": "富喬",
+"suffix": "TWO"
+},
+"1817": {
+"name": "凱撒衛",
+"suffix": "TW"
+},
+"1903": {
+"name": "士紙",
+"suffix": "TW"
+},
+"1904": {
+"name": "正隆",
+"suffix": "TW"
+},
+"1905": {
+"name": "華紙",
+"suffix": "TW"
+},
+"1906": {
+"name": "寶隆",
+"suffix": "TW"
+},
+"1907": {
+"name": "永豐餘",
+"suffix": "TW"
+},
+"1909": {
+"name": "榮成",
+"suffix": "TW"
+},
+"2002": {
+"name": "中鋼",
+"suffix": "TW"
+},
+"2006": {
+"name": "東和鋼鐵",
+"suffix": "TW"
+},
+"2007": {
+"name": "燁興",
+"suffix": "TW"
+},
+"2008": {
+"name": "高興昌",
+"suffix": "TW"
+},
+"2009": {
+"name": "第一銅",
+"suffix": "TW"
+},
+"2010": {
+"name": "春源",
+"suffix": "TW"
+},
+"2012": {
+"name": "春雨",
+"suffix": "TW"
+},
+"2013": {
+"name": "中鋼構",
+"suffix": "TW"
+},
+"2014": {
+"name": "中鴻",
+"suffix": "TW"
+},
+"2015": {
+"name": "豐興",
+"suffix": "TW"
+},
+"2017": {
+"name": "官田鋼",
+"suffix": "TW"
+},
+"2020": {
+"name": "美亞",
+"suffix": "TW"
+},
+"2022": {
+"name": "聚亨",
+"suffix": "TW"
+},
+"2023": {
+"name": "燁輝",
+"suffix": "TW"
+},
+"2024": {
+"name": "志聯",
+"suffix": "TW"
+},
+"2025": {
+"name": "千興",
+"suffix": "TW"
+},
+"2027": {
+"name": "大成鋼",
+"suffix": "TW"
+},
+"2028": {
+"name": "威致",
+"suffix": "TW"
+},
+"2029": {
+"name": "盛餘",
+"suffix": "TW"
+},
+"2030": {
+"name": "彰源",
+"suffix": "TW"
+},
+"2031": {
+"name": "新光鋼",
+"suffix": "TW"
+},
+"2032": {
+"name": "新鋼",
+"suffix": "TW"
+},
+"2033": {
+"name": "佳大",
+"suffix": "TW"
+},
+"2034": {
+"name": "允強",
+"suffix": "TW"
+},
+"2035": {
+"name": "唐榮",
+"suffix": "TWO"
+},
+"2038": {
+"name": "海光",
+"suffix": "TW"
+},
+"2049": {
+"name": "上銀",
+"suffix": "TW"
+},
+"2059": {
+"name": "川湖",
+"suffix": "TW"
+},
+"2061": {
+"name": "風青",
+"suffix": "TWO"
+},
+"2062": {
+"name": "橋椿",
+"suffix": "TW"
+},
+"2063": {
+"name": "世鎧",
+"suffix": "TWO"
+},
+"2064": {
+"name": "晉椿",
+"suffix": "TWO"
+},
+"2065": {
+"name": "世豐",
+"suffix": "TWO"
+},
+"2066": {
+"name": "世德",
+"suffix": "TWO"
+},
+"2067": {
+"name": "嘉鋼",
+"suffix": "TWO"
+},
+"2069": {
+"name": "運錩",
+"suffix": "TW"
+},
+"2070": {
+"name": "精湛",
+"suffix": "TWO"
+},
+"2072": {
+"name": "世紀風電",
+"suffix": "TW"
+},
+"2073": {
+"name": "雄順",
+"suffix": "TWO"
+},
+"2101": {
+"name": "南港",
+"suffix": "TW"
+},
+"2102": {
+"name": "泰豐",
+"suffix": "TW"
+},
+"2103": {
+"name": "台橡",
+"suffix": "TW"
+},
+"2104": {
+"name": "國際中橡",
+"suffix": "TW"
+},
+"2105": {
+"name": "正新",
+"suffix": "TW"
+},
+"2106": {
+"name": "建大",
+"suffix": "TW"
+},
+"2107": {
+"name": "厚生",
+"suffix": "TW"
+},
+"2108": {
+"name": "南帝",
+"suffix": "TW"
+},
+"2109": {
+"name": "華豐",
+"suffix": "TW"
+},
+"2114": {
+"name": "鑫永銓",
+"suffix": "TW"
+},
+"2115": {
+"name": "六暉-KY",
+"suffix": "TW"
+},
+"2201": {
+"name": "裕隆",
+"suffix": "TW"
+},
+"2204": {
+"name": "中華",
+"suffix": "TW"
+},
+"2206": {
+"name": "三陽工業",
+"suffix": "TW"
+},
+"2207": {
+"name": "和泰車",
+"suffix": "TW"
+},
+"2208": {
+"name": "台船",
+"suffix": "TW"
+},
+"2211": {
+"name": "長榮鋼",
+"suffix": "TW"
+},
+"2221": {
+"name": "大甲",
+"suffix": "TWO"
+},
+"2227": {
+"name": "裕日車",
+"suffix": "TW"
+},
+"2228": {
+"name": "劍麟",
+"suffix": "TW"
+},
+"2230": {
+"name": "泰茂",
+"suffix": "TWO"
+},
+"2231": {
+"name": "為升",
+"suffix": "TW"
+},
+"2233": {
+"name": "宇隆",
+"suffix": "TW"
+},
+"2235": {
+"name": "謚源",
+"suffix": "TWO"
+},
+"2236": {
+"name": "百達-KY",
+"suffix": "TW"
+},
+"2237": {
+"name": "華德動能-創",
+"suffix": "TW"
+},
+"2239": {
+"name": "英利-KY",
+"suffix": "TW"
+},
+"2241": {
+"name": "艾姆勒",
+"suffix": "TW"
+},
+"2243": {
+"name": "宏旭-KY",
+"suffix": "TW"
+},
+"2247": {
+"name": "汎德永業",
+"suffix": "TW"
+},
+"2248": {
+"name": "華勝-KY",
+"suffix": "TW"
+},
+"2250": {
+"name": "IKKA-KY",
+"suffix": "TW"
+},
+"2254": {
+"name": "巨鎧精密-創",
+"suffix": "TW"
+},
+"2258": {
+"name": "鴻華先進-創",
+"suffix": "TW"
+},
+"2301": {
+"name": "光寶科",
+"suffix": "TW"
+},
+"2302": {
+"name": "麗正",
+"suffix": "TW"
+},
+"2303": {
+"name": "聯電",
+"suffix": "TW"
+},
+"2305": {
+"name": "全友",
+"suffix": "TW"
+},
+"2308": {
+"name": "台達電",
+"suffix": "TW"
+},
+"2312": {
+"name": "金寶",
+"suffix": "TW"
+},
+"2313": {
+"name": "華通",
+"suffix": "TW"
+},
+"2314": {
+"name": "台揚",
+"suffix": "TW"
+},
+"2316": {
+"name": "楠梓電",
+"suffix": "TW"
+},
+"2317": {
+"name": "鴻海",
+"suffix": "TW"
+},
+"2321": {
+"name": "東訊",
+"suffix": "TW"
+},
+"2323": {
+"name": "中環",
+"suffix": "TW"
+},
+"2324": {
+"name": "仁寶",
+"suffix": "TW"
+},
+"2327": {
+"name": "國巨*",
+"suffix": "TW"
+},
+"2328": {
+"name": "廣宇",
+"suffix": "TW"
+},
+"2329": {
+"name": "華泰",
+"suffix": "TW"
+},
+"2330": {
+"name": "台積電",
+"suffix": "TW"
+},
+"2331": {
+"name": "精英",
+"suffix": "TW"
+},
+"2332": {
+"name": "友訊",
+"suffix": "TW"
+},
+"2337": {
+"name": "旺宏",
+"suffix": "TW"
+},
+"2338": {
+"name": "光罩",
+"suffix": "TW"
+},
+"2340": {
+"name": "台亞",
+"suffix": "TW"
+},
+"2342": {
+"name": "茂矽",
+"suffix": "TW"
+},
+"2344": {
+"name": "華邦電",
+"suffix": "TW"
+},
+"2345": {
+"name": "智邦",
+"suffix": "TW"
+},
+"2347": {
+"name": "聯強",
+"suffix": "TW"
+},
+"2348": {
+"name": "海悅",
+"suffix": "TW"
+},
+"2349": {
+"name": "錸德",
+"suffix": "TW"
+},
+"2351": {
+"name": "順德",
+"suffix": "TW"
+},
+"2352": {
+"name": "佳世達",
+"suffix": "TW"
+},
+"2353": {
+"name": "宏碁",
+"suffix": "TW"
+},
+"2354": {
+"name": "鴻準",
+"suffix": "TW"
+},
+"2355": {
+"name": "敬鵬",
+"suffix": "TW"
+},
+"2356": {
+"name": "英業達",
+"suffix": "TW"
+},
+"2357": {
+"name": "華碩",
+"suffix": "TW"
+},
+"2359": {
+"name": "所羅門",
+"suffix": "TW"
+},
+"2360": {
+"name": "致茂",
+"suffix": "TW"
+},
+"2362": {
+"name": "藍天",
+"suffix": "TW"
+},
+"2363": {
+"name": "矽統",
+"suffix": "TW"
+},
+"2364": {
+"name": "倫飛",
+"suffix": "TW"
+},
+"2365": {
+"name": "昆盈",
+"suffix": "TW"
+},
+"2367": {
+"name": "燿華",
+"suffix": "TW"
+},
+"2368": {
+"name": "金像電",
+"suffix": "TW"
+},
+"2369": {
+"name": "菱生",
+"suffix": "TW"
+},
+"2371": {
+"name": "大同",
+"suffix": "TW"
+},
+"2373": {
+"name": "震旦行",
+"suffix": "TW"
+},
+"2374": {
+"name": "佳能",
+"suffix": "TW"
+},
+"2375": {
+"name": "凱美",
+"suffix": "TW"
+},
+"2376": {
+"name": "技嘉",
+"suffix": "TW"
+},
+"2377": {
+"name": "微星",
+"suffix": "TW"
+},
+"2379": {
+"name": "瑞昱",
+"suffix": "TW"
+},
+"2380": {
+"name": "虹光",
+"suffix": "TW"
+},
+"2382": {
+"name": "廣達",
+"suffix": "TW"
+},
+"2383": {
+"name": "台光電",
+"suffix": "TW"
+},
+"2385": {
+"name": "群光",
+"suffix": "TW"
+},
+"2387": {
+"name": "精元",
+"suffix": "TW"
+},
+"2388": {
+"name": "威盛",
+"suffix": "TW"
+},
+"2390": {
+"name": "云辰",
+"suffix": "TW"
+},
+"2392": {
+"name": "正崴",
+"suffix": "TW"
+},
+"2393": {
+"name": "億光",
+"suffix": "TW"
+},
+"2395": {
+"name": "研華",
+"suffix": "TW"
+},
+"2397": {
+"name": "友通",
+"suffix": "TW"
+},
+"2399": {
+"name": "映泰",
+"suffix": "TW"
+},
+"2401": {
+"name": "凌陽",
+"suffix": "TW"
+},
+"2402": {
+"name": "毅嘉",
+"suffix": "TW"
+},
+"2404": {
+"name": "漢唐",
+"suffix": "TW"
+},
+"2405": {
+"name": "輔信",
+"suffix": "TW"
+},
+"2406": {
+"name": "國碩",
+"suffix": "TW"
+},
+"2408": {
+"name": "南亞科",
+"suffix": "TW"
+},
+"2409": {
+"name": "友達",
+"suffix": "TW"
+},
+"2412": {
+"name": "中華電",
+"suffix": "TW"
+},
+"2413": {
+"name": "環科",
+"suffix": "TW"
+},
+"2414": {
+"name": "精技",
+"suffix": "TW"
+},
+"2415": {
+"name": "錩新",
+"suffix": "TW"
+},
+"2417": {
+"name": "圓剛",
+"suffix": "TW"
+},
+"2419": {
+"name": "仲琦",
+"suffix": "TW"
+},
+"2420": {
+"name": "新巨",
+"suffix": "TW"
+},
+"2421": {
+"name": "建準",
+"suffix": "TW"
+},
+"2423": {
+"name": "固緯",
+"suffix": "TW"
+},
+"2424": {
+"name": "隴華",
+"suffix": "TW"
+},
+"2425": {
+"name": "承啟",
+"suffix": "TW"
+},
+"2426": {
+"name": "鼎元",
+"suffix": "TW"
+},
+"2427": {
+"name": "三商電",
+"suffix": "TW"
+},
+"2428": {
+"name": "興勤",
+"suffix": "TW"
+},
+"2429": {
+"name": "銘旺科",
+"suffix": "TW"
+},
+"2430": {
+"name": "燦坤",
+"suffix": "TW"
+},
+"2431": {
+"name": "聯昌",
+"suffix": "TW"
+},
+"2432": {
+"name": "倚天酷碁-創",
+"suffix": "TW"
+},
+"2433": {
+"name": "互盛電",
+"suffix": "TW"
+},
+"2434": {
+"name": "統懋",
+"suffix": "TW"
+},
+"2436": {
+"name": "偉詮電",
+"suffix": "TW"
+},
+"2438": {
+"name": "翔耀",
+"suffix": "TW"
+},
+"2439": {
+"name": "美律",
+"suffix": "TW"
+},
+"2440": {
+"name": "太空梭",
+"suffix": "TW"
+},
+"2441": {
+"name": "超豐",
+"suffix": "TW"
+},
+"2442": {
+"name": "新美齊",
+"suffix": "TW"
+},
+"2444": {
+"name": "兆勁",
+"suffix": "TW"
+},
+"2449": {
+"name": "京元電子",
+"suffix": "TW"
+},
+"2450": {
+"name": "神腦",
+"suffix": "TW"
+},
+"2451": {
+"name": "創見",
+"suffix": "TW"
+},
+"2453": {
+"name": "凌群",
+"suffix": "TW"
+},
+"2454": {
+"name": "聯發科",
+"suffix": "TW"
+},
+"2455": {
+"name": "全新",
+"suffix": "TW"
+},
+"2457": {
+"name": "飛宏",
+"suffix": "TW"
+},
+"2458": {
+"name": "義隆",
+"suffix": "TW"
+},
+"2459": {
+"name": "敦吉",
+"suffix": "TW"
+},
+"2460": {
+"name": "建通",
+"suffix": "TW"
+},
+"2461": {
+"name": "光群雷",
+"suffix": "TW"
+},
+"2462": {
+"name": "良得電",
+"suffix": "TW"
+},
+"2464": {
+"name": "盟立",
+"suffix": "TW"
+},
+"2465": {
+"name": "麗臺",
+"suffix": "TW"
+},
+"2466": {
+"name": "冠西電",
+"suffix": "TW"
+},
+"2467": {
+"name": "志聖",
+"suffix": "TW"
+},
+"2468": {
+"name": "華經",
+"suffix": "TW"
+},
+"2471": {
+"name": "資通",
+"suffix": "TW"
+},
+"2472": {
+"name": "立隆電",
+"suffix": "TW"
+},
+"2474": {
+"name": "可成",
+"suffix": "TW"
+},
+"2476": {
+"name": "鉅祥",
+"suffix": "TW"
+},
+"2477": {
+"name": "美隆電",
+"suffix": "TW"
+},
+"2478": {
+"name": "大毅",
+"suffix": "TW"
+},
+"2480": {
+"name": "敦陽科",
+"suffix": "TW"
+},
+"2481": {
+"name": "強茂",
+"suffix": "TW"
+},
+"2482": {
+"name": "連宇",
+"suffix": "TW"
+},
+"2483": {
+"name": "百容",
+"suffix": "TW"
+},
+"2484": {
+"name": "希華",
+"suffix": "TW"
+},
+"2485": {
+"name": "兆赫",
+"suffix": "TW"
+},
+"2486": {
+"name": "一詮",
+"suffix": "TW"
+},
+"2488": {
+"name": "漢平",
+"suffix": "TW"
+},
+"2489": {
+"name": "瑞軒",
+"suffix": "TW"
+},
+"2491": {
+"name": "吉祥全",
+"suffix": "TW"
+},
+"2492": {
+"name": "華新科",
+"suffix": "TW"
+},
+"2493": {
+"name": "揚博",
+"suffix": "TW"
+},
+"2495": {
+"name": "普安",
+"suffix": "TW"
+},
+"2496": {
+"name": "卓越",
+"suffix": "TW"
+},
+"2497": {
+"name": "怡利電",
+"suffix": "TW"
+},
+"2498": {
+"name": "宏達電",
+"suffix": "TW"
+},
+"2501": {
+"name": "國建",
+"suffix": "TW"
+},
+"2504": {
+"name": "國產",
+"suffix": "TW"
+},
+"2505": {
+"name": "國揚",
+"suffix": "TW"
+},
+"2506": {
+"name": "太設",
+"suffix": "TW"
+},
+"2509": {
+"name": "全坤建",
+"suffix": "TW"
+},
+"2511": {
+"name": "太子",
+"suffix": "TW"
+},
+"2514": {
+"name": "龍邦",
+"suffix": "TW"
+},
+"2515": {
+"name": "中工",
+"suffix": "TW"
+},
+"2516": {
+"name": "新建",
+"suffix": "TW"
+},
+"2520": {
+"name": "冠德",
+"suffix": "TW"
+},
+"2524": {
+"name": "京城",
+"suffix": "TW"
+},
+"2527": {
+"name": "宏璟",
+"suffix": "TW"
+},
+"2528": {
+"name": "皇普",
+"suffix": "TW"
+},
+"2530": {
+"name": "華建",
+"suffix": "TW"
+},
+"2534": {
+"name": "宏盛",
+"suffix": "TW"
+},
+"2535": {
+"name": "達欣工",
+"suffix": "TW"
+},
+"2536": {
+"name": "宏普",
+"suffix": "TW"
+},
+"2537": {
+"name": "聯上發",
+"suffix": "TW"
+},
+"2538": {
+"name": "基泰",
+"suffix": "TW"
+},
+"2539": {
+"name": "櫻花建",
+"suffix": "TW"
+},
+"2540": {
+"name": "愛山林",
+"suffix": "TW"
+},
+"2542": {
+"name": "興富發",
+"suffix": "TW"
+},
+"2543": {
+"name": "皇昌",
+"suffix": "TW"
+},
+"2545": {
+"name": "皇翔",
+"suffix": "TW"
+},
+"2546": {
+"name": "根基",
+"suffix": "TW"
+},
+"2547": {
+"name": "日勝生",
+"suffix": "TW"
+},
+"2548": {
+"name": "華固",
+"suffix": "TW"
+},
+"2596": {
+"name": "綠意",
+"suffix": "TWO"
+},
+"2597": {
+"name": "潤弘",
+"suffix": "TW"
+},
+"2601": {
+"name": "益航",
+"suffix": "TW"
+},
+"2603": {
+"name": "長榮",
+"suffix": "TW"
+},
+"2605": {
+"name": "新興",
+"suffix": "TW"
+},
+"2606": {
+"name": "裕民",
+"suffix": "TW"
+},
+"2607": {
+"name": "榮運",
+"suffix": "TW"
+},
+"2608": {
+"name": "嘉里大榮",
+"suffix": "TW"
+},
+"2609": {
+"name": "陽明",
+"suffix": "TW"
+},
+"2610": {
+"name": "華航",
+"suffix": "TW"
+},
+"2611": {
+"name": "志信",
+"suffix": "TW"
+},
+"2612": {
+"name": "中航",
+"suffix": "TW"
+},
+"2613": {
+"name": "中櫃",
+"suffix": "TW"
+},
+"2614": {
+"name": "東森",
+"suffix": "TW"
+},
+"2615": {
+"name": "萬海",
+"suffix": "TW"
+},
+"2616": {
+"name": "山隆",
+"suffix": "TW"
+},
+"2617": {
+"name": "台航",
+"suffix": "TW"
+},
+"2618": {
+"name": "長榮航",
+"suffix": "TW"
+},
+"2630": {
+"name": "亞航",
+"suffix": "TW"
+},
+"2633": {
+"name": "台灣高鐵",
+"suffix": "TW"
+},
+"2634": {
+"name": "漢翔",
+"suffix": "TW"
+},
+"2636": {
+"name": "台驊控股",
+"suffix": "TW"
+},
+"2637": {
+"name": "慧洋-KY",
+"suffix": "TW"
+},
+"2640": {
+"name": "大車隊",
+"suffix": "TWO"
+},
+"2641": {
+"name": "正德",
+"suffix": "TWO"
+},
+"2642": {
+"name": "宅配通",
+"suffix": "TW"
+},
+"2643": {
+"name": "捷迅",
+"suffix": "TWO"
+},
+"2645": {
+"name": "長榮航太",
+"suffix": "TW"
+},
+"2646": {
+"name": "星宇航空",
+"suffix": "TW"
+},
+"2701": {
+"name": "萬企",
+"suffix": "TW"
+},
+"2702": {
+"name": "華園",
+"suffix": "TW"
+},
+"2704": {
+"name": "國賓",
+"suffix": "TW"
+},
+"2705": {
+"name": "六福",
+"suffix": "TW"
+},
+"2706": {
+"name": "第一店",
+"suffix": "TW"
+},
+"2707": {
+"name": "晶華",
+"suffix": "TW"
+},
+"2712": {
+"name": "遠雄來",
+"suffix": "TW"
+},
+"2718": {
+"name": "全心投控",
+"suffix": "TWO"
+},
+"2719": {
+"name": "燦星旅",
+"suffix": "TWO"
+},
+"2722": {
+"name": "夏都",
+"suffix": "TW"
+},
+"2723": {
+"name": "美食-KY",
+"suffix": "TW"
+},
+"2724": {
+"name": "藝舍-KY",
+"suffix": "TWO"
+},
+"2726": {
+"name": "雅茗-KY",
+"suffix": "TWO"
+},
+"2727": {
+"name": "王品",
+"suffix": "TW"
+},
+"2729": {
+"name": "瓦城",
+"suffix": "TWO"
+},
+"2731": {
+"name": "雄獅",
+"suffix": "TW"
+},
+"2732": {
+"name": "六角",
+"suffix": "TWO"
+},
+"2734": {
+"name": "易飛網",
+"suffix": "TWO"
+},
+"2736": {
+"name": "富野",
+"suffix": "TWO"
+},
+"2739": {
+"name": "寒舍",
+"suffix": "TW"
+},
+"2740": {
+"name": "華軒",
+"suffix": "TWO"
+},
+"2743": {
+"name": "山富",
+"suffix": "TWO"
+},
+"2745": {
+"name": "五福",
+"suffix": "TWO"
+},
+"2748": {
+"name": "雲品",
+"suffix": "TW"
+},
+"2751": {
+"name": "王座",
+"suffix": "TWO"
+},
+"2752": {
+"name": "豆府",
+"suffix": "TWO"
+},
+"2753": {
+"name": "八方雲集",
+"suffix": "TW"
+},
+"2754": {
+"name": "亞洲藏壽司",
+"suffix": "TWO"
+},
+"2755": {
+"name": "揚秦",
+"suffix": "TWO"
+},
+"2756": {
+"name": "聯發國際",
+"suffix": "TWO"
+},
+"2762": {
+"name": "世界健身-KY",
+"suffix": "TW"
+},
+"2801": {
+"name": "彰銀",
+"suffix": "TW"
+},
+"2812": {
+"name": "台中銀",
+"suffix": "TW"
+},
+"2816": {
+"name": "旺旺保",
+"suffix": "TW"
+},
+"2820": {
+"name": "華票",
+"suffix": "TW"
+},
+"2832": {
+"name": "台產",
+"suffix": "TW"
+},
+"2834": {
+"name": "臺企銀",
+"suffix": "TW"
+},
+"2836": {
+"name": "高雄銀",
+"suffix": "TW"
+},
+"2838": {
+"name": "聯邦銀",
+"suffix": "TW"
+},
+"2845": {
+"name": "遠東銀",
+"suffix": "TW"
+},
+"2849": {
+"name": "安泰銀",
+"suffix": "TW"
+},
+"2850": {
+"name": "新產",
+"suffix": "TW"
+},
+"2851": {
+"name": "中再保",
+"suffix": "TW"
+},
+"2852": {
+"name": "第一保",
+"suffix": "TW"
+},
+"2855": {
+"name": "統一證",
+"suffix": "TW"
+},
+"2880": {
+"name": "華南金",
+"suffix": "TW"
+},
+"2881": {
+"name": "富邦金",
+"suffix": "TW"
+},
+"2882": {
+"name": "國泰金",
+"suffix": "TW"
+},
+"2883": {
+"name": "凱基金",
+"suffix": "TW"
+},
+"2884": {
+"name": "玉山金",
+"suffix": "TW"
+},
+"2885": {
+"name": "元大金",
+"suffix": "TW"
+},
+"2886": {
+"name": "兆豐金",
+"suffix": "TW"
+},
+"2887": {
+"name": "台新新光金",
+"suffix": "TW"
+},
+"2889": {
+"name": "國票金",
+"suffix": "TW"
+},
+"2890": {
+"name": "永豐金",
+"suffix": "TW"
+},
+"2891": {
+"name": "中信金",
+"suffix": "TW"
+},
+"2892": {
+"name": "第一金",
+"suffix": "TW"
+},
+"2897": {
+"name": "王道銀行",
+"suffix": "TW"
+},
+"2901": {
+"name": "欣欣",
+"suffix": "TW"
+},
+"2903": {
+"name": "遠百",
+"suffix": "TW"
+},
+"2904": {
+"name": "匯僑",
+"suffix": "TW"
+},
+"2905": {
+"name": "三商",
+"suffix": "TW"
+},
+"2906": {
+"name": "高林",
+"suffix": "TW"
+},
+"2908": {
+"name": "特力",
+"suffix": "TW"
+},
+"2910": {
+"name": "統領",
+"suffix": "TW"
+},
+"2911": {
+"name": "麗嬰房",
+"suffix": "TW"
+},
+"2912": {
+"name": "統一超",
+"suffix": "TW"
+},
+"2913": {
+"name": "農林",
+"suffix": "TW"
+},
+"2915": {
+"name": "潤泰全",
+"suffix": "TW"
+},
+"2916": {
+"name": "滿心",
+"suffix": "TWO"
+},
+"2923": {
+"name": "鼎固-KY",
+"suffix": "TW"
+},
+"2924": {
+"name": "宏太-KY",
+"suffix": "TWO"
+},
+"2926": {
+"name": "誠品生活",
+"suffix": "TWO"
+},
+"2929": {
+"name": "淘帝-KY",
+"suffix": "TW"
+},
+"2937": {
+"name": "集雅社",
+"suffix": "TWO"
+},
+"2938": {
+"name": "床的世界",
+"suffix": "TWO"
+},
+"2939": {
+"name": "永邑-KY",
+"suffix": "TW"
+},
+"2941": {
+"name": "米斯特",
+"suffix": "TWO"
+},
+"2945": {
+"name": "三商家購",
+"suffix": "TW"
+},
+"2947": {
+"name": "振宇五金",
+"suffix": "TWO"
+},
+"2948": {
+"name": "寶陞",
+"suffix": "TWO"
+},
+"2949": {
+"name": "欣新網",
+"suffix": "TWO"
+},
+"3002": {
+"name": "歐格",
+"suffix": "TW"
+},
+"3003": {
+"name": "健和興",
+"suffix": "TW"
+},
+"3004": {
+"name": "豐達科",
+"suffix": "TW"
+},
+"3005": {
+"name": "神基",
+"suffix": "TW"
+},
+"3006": {
+"name": "晶豪科",
+"suffix": "TW"
+},
+"3008": {
+"name": "大立光",
+"suffix": "TW"
+},
+"3010": {
+"name": "華立",
+"suffix": "TW"
+},
+"3011": {
+"name": "今皓",
+"suffix": "TW"
+},
+"3013": {
+"name": "晟銘電",
+"suffix": "TW"
+},
+"3014": {
+"name": "聯陽",
+"suffix": "TW"
+},
+"3015": {
+"name": "全漢",
+"suffix": "TW"
+},
+"3016": {
+"name": "嘉晶",
+"suffix": "TW"
+},
+"3017": {
+"name": "奇鋐",
+"suffix": "TW"
+},
+"3018": {
+"name": "隆銘綠能",
+"suffix": "TW"
+},
+"3019": {
+"name": "亞光",
+"suffix": "TW"
+},
+"3021": {
+"name": "鴻名",
+"suffix": "TW"
+},
+"3022": {
+"name": "威強電",
+"suffix": "TW"
+},
+"3023": {
+"name": "信邦",
+"suffix": "TW"
+},
+"3024": {
+"name": "憶聲",
+"suffix": "TW"
+},
+"3025": {
+"name": "星通",
+"suffix": "TW"
+},
+"3026": {
+"name": "禾伸堂",
+"suffix": "TW"
+},
+"3027": {
+"name": "盛達",
+"suffix": "TW"
+},
+"3028": {
+"name": "增你強",
+"suffix": "TW"
+},
+"3029": {
+"name": "零壹",
+"suffix": "TW"
+},
+"3030": {
+"name": "德律",
+"suffix": "TW"
+},
+"3031": {
+"name": "佰鴻",
+"suffix": "TW"
+},
+"3032": {
+"name": "偉訓",
+"suffix": "TW"
+},
+"3033": {
+"name": "威健",
+"suffix": "TW"
+},
+"3034": {
+"name": "聯詠",
+"suffix": "TW"
+},
+"3035": {
+"name": "智原",
+"suffix": "TW"
+},
+"3036": {
+"name": "文曄",
+"suffix": "TW"
+},
+"3037": {
+"name": "欣興",
+"suffix": "TW"
+},
+"3038": {
+"name": "全台",
+"suffix": "TW"
+},
+"3040": {
+"name": "遠見",
+"suffix": "TW"
+},
+"3041": {
+"name": "揚智",
+"suffix": "TW"
+},
+"3042": {
+"name": "晶技",
+"suffix": "TW"
+},
+"3043": {
+"name": "科風",
+"suffix": "TW"
+},
+"3044": {
+"name": "健鼎",
+"suffix": "TW"
+},
+"3045": {
+"name": "台灣大",
+"suffix": "TW"
+},
+"3046": {
+"name": "建碁",
+"suffix": "TW"
+},
+"3047": {
+"name": "訊舟",
+"suffix": "TW"
+},
+"3048": {
+"name": "益登",
+"suffix": "TW"
+},
+"3049": {
+"name": "精金",
+"suffix": "TW"
+},
+"3050": {
+"name": "鈺德",
+"suffix": "TW"
+},
+"3051": {
+"name": "力特",
+"suffix": "TW"
+},
+"3052": {
+"name": "夆典",
+"suffix": "TW"
+},
+"3054": {
+"name": "立萬利",
+"suffix": "TW"
+},
+"3055": {
+"name": "蔚華科",
+"suffix": "TW"
+},
+"3056": {
+"name": "富華新",
+"suffix": "TW"
+},
+"3057": {
+"name": "喬鼎",
+"suffix": "TW"
+},
+"3058": {
+"name": "立德",
+"suffix": "TW"
+},
+"3059": {
+"name": "華晶科",
+"suffix": "TW"
+},
+"3060": {
+"name": "銘異",
+"suffix": "TW"
+},
+"3062": {
+"name": "建漢",
+"suffix": "TW"
+},
+"3064": {
+"name": "泰偉",
+"suffix": "TWO"
+},
+"3066": {
+"name": "李洲",
+"suffix": "TWO"
+},
+"3067": {
+"name": "全域",
+"suffix": "TWO"
+},
+"3071": {
+"name": "協禧",
+"suffix": "TWO"
+},
+"3073": {
+"name": "天方能源",
+"suffix": "TWO"
+},
+"3078": {
+"name": "僑威",
+"suffix": "TWO"
+},
+"3081": {
+"name": "聯亞",
+"suffix": "TWO"
+},
+"3083": {
+"name": "網龍",
+"suffix": "TWO"
+},
+"3085": {
+"name": "新零售",
+"suffix": "TWO"
+},
+"3086": {
+"name": "華義*",
+"suffix": "TWO"
+},
+"3088": {
+"name": "艾訊",
+"suffix": "TWO"
+},
+"3090": {
+"name": "日電貿",
+"suffix": "TW"
+},
+"3092": {
+"name": "鴻碩",
+"suffix": "TW"
+},
+"3093": {
+"name": "港建*",
+"suffix": "TWO"
+},
+"3094": {
+"name": "聯傑",
+"suffix": "TW"
+},
+"3095": {
+"name": "及成",
+"suffix": "TWO"
+},
+"3105": {
+"name": "穩懋",
+"suffix": "TWO"
+},
+"3114": {
+"name": "好德",
+"suffix": "TWO"
+},
+"3115": {
+"name": "富榮綱",
+"suffix": "TWO"
+},
+"3118": {
+"name": "進階",
+"suffix": "TWO"
+},
+"3122": {
+"name": "笙泉",
+"suffix": "TWO"
+},
+"3128": {
+"name": "昇銳",
+"suffix": "TWO"
+},
+"3130": {
+"name": "一零四",
+"suffix": "TW"
+},
+"3131": {
+"name": "弘塑",
+"suffix": "TWO"
+},
+"3135": {
+"name": "凌航",
+"suffix": "TW"
+},
+"3138": {
+"name": "耀登",
+"suffix": "TW"
+},
+"3141": {
+"name": "晶宏",
+"suffix": "TWO"
+},
+"3147": {
+"name": "大綜",
+"suffix": "TWO"
+},
+"3149": {
+"name": "正達",
+"suffix": "TW"
+},
+"3150": {
+"name": "鈺寶-創",
+"suffix": "TW"
+},
+"3152": {
+"name": "璟德",
+"suffix": "TWO"
+},
+"3158": {
+"name": "嘉實",
+"suffix": "TWO"
+},
+"3162": {
+"name": "精確",
+"suffix": "TWO"
+},
+"3163": {
+"name": "波若威",
+"suffix": "TWO"
+},
+"3164": {
+"name": "景岳",
+"suffix": "TW"
+},
+"3167": {
+"name": "大量",
+"suffix": "TW"
+},
+"3168": {
+"name": "眾福科",
+"suffix": "TW"
+},
+"3169": {
+"name": "亞信",
+"suffix": "TWO"
+},
+"3171": {
+"name": "炎洲流通",
+"suffix": "TWO"
+},
+"3176": {
+"name": "基亞",
+"suffix": "TWO"
+},
+"3178": {
+"name": "公準",
+"suffix": "TWO"
+},
+"3188": {
+"name": "鑫龍騰",
+"suffix": "TWO"
+},
+"3189": {
+"name": "景碩",
+"suffix": "TW"
+},
+"3191": {
+"name": "雲嘉南",
+"suffix": "TWO"
+},
+"3205": {
+"name": "佰研",
+"suffix": "TWO"
+},
+"3206": {
+"name": "志豐",
+"suffix": "TWO"
+},
+"3207": {
+"name": "耀勝",
+"suffix": "TWO"
+},
+"3209": {
+"name": "全科",
+"suffix": "TW"
+},
+"3211": {
+"name": "順達",
+"suffix": "TWO"
+},
+"3213": {
+"name": "茂訊",
+"suffix": "TWO"
+},
+"3217": {
+"name": "優群",
+"suffix": "TWO"
+},
+"3218": {
+"name": "大學光",
+"suffix": "TWO"
+},
+"3219": {
+"name": "倚強科",
+"suffix": "TWO"
+},
+"3221": {
+"name": "台嘉碩",
+"suffix": "TWO"
+},
+"3224": {
+"name": "三顧",
+"suffix": "TWO"
+},
+"3226": {
+"name": "龍鋒",
+"suffix": "TWO"
+},
+"3227": {
+"name": "原相",
+"suffix": "TWO"
+},
+"3228": {
+"name": "金麗科",
+"suffix": "TWO"
+},
+"3229": {
+"name": "晟鈦",
+"suffix": "TW"
+},
+"3230": {
+"name": "錦明",
+"suffix": "TWO"
+},
+"3231": {
+"name": "緯創",
+"suffix": "TW"
+},
+"3232": {
+"name": "昱捷",
+"suffix": "TWO"
+},
+"3234": {
+"name": "光環",
+"suffix": "TWO"
+},
+"3236": {
+"name": "千如",
+"suffix": "TWO"
+},
+"3252": {
+"name": "海灣",
+"suffix": "TWO"
+},
+"3257": {
+"name": "虹冠電",
+"suffix": "TW"
+},
+"3259": {
+"name": "鑫創",
+"suffix": "TWO"
+},
+"3260": {
+"name": "威剛",
+"suffix": "TWO"
+},
+"3264": {
+"name": "欣銓",
+"suffix": "TWO"
+},
+"3265": {
+"name": "台星科",
+"suffix": "TWO"
+},
+"3266": {
+"name": "昇陽",
+"suffix": "TW"
+},
+"3268": {
+"name": "海德威",
+"suffix": "TWO"
+},
+"3272": {
+"name": "東碩",
+"suffix": "TWO"
+},
+"3276": {
+"name": "宇環",
+"suffix": "TWO"
+},
+"3284": {
+"name": "太普高",
+"suffix": "TWO"
+},
+"3285": {
+"name": "微端",
+"suffix": "TWO"
+},
+"3287": {
+"name": "廣寰科",
+"suffix": "TWO"
+},
+"3288": {
+"name": "點晶",
+"suffix": "TWO"
+},
+"3289": {
+"name": "宜特",
+"suffix": "TWO"
+},
+"3290": {
+"name": "東浦",
+"suffix": "TWO"
+},
+"3293": {
+"name": "鈊象",
+"suffix": "TWO"
+},
+"3294": {
+"name": "英濟",
+"suffix": "TWO"
+},
+"3296": {
+"name": "勝德",
+"suffix": "TW"
+},
+"3297": {
+"name": "杭特",
+"suffix": "TWO"
+},
+"3303": {
+"name": "岱稜",
+"suffix": "TWO"
+},
+"3305": {
+"name": "昇貿",
+"suffix": "TW"
+},
+"3306": {
+"name": "鼎天",
+"suffix": "TWO"
+},
+"3308": {
+"name": "聯德",
+"suffix": "TW"
+},
+"3310": {
+"name": "佳穎",
+"suffix": "TWO"
+},
+"3311": {
+"name": "閎暉",
+"suffix": "TW"
+},
+"3312": {
+"name": "弘憶股",
+"suffix": "TW"
+},
+"3313": {
+"name": "斐成",
+"suffix": "TWO"
+},
+"3317": {
+"name": "尼克森",
+"suffix": "TWO"
+},
+"3321": {
+"name": "同泰",
+"suffix": "TW"
+},
+"3322": {
+"name": "建舜電",
+"suffix": "TWO"
+},
+"3323": {
+"name": "加百裕",
+"suffix": "TWO"
+},
+"3324": {
+"name": "雙鴻",
+"suffix": "TWO"
+},
+"3325": {
+"name": "旭品",
+"suffix": "TWO"
+},
+"3332": {
+"name": "幸康",
+"suffix": "TWO"
+},
+"3338": {
+"name": "泰碩",
+"suffix": "TW"
+},
+"3339": {
+"name": "泰谷",
+"suffix": "TWO"
+},
+"3346": {
+"name": "麗清",
+"suffix": "TW"
+},
+"3349": {
+"name": "寶德",
+"suffix": "TWO"
+},
+"3354": {
+"name": "律勝",
+"suffix": "TWO"
+},
+"3356": {
+"name": "奇偶",
+"suffix": "TW"
+},
+"3357": {
+"name": "臺慶科",
+"suffix": "TWO"
+},
+"3360": {
+"name": "尚立",
+"suffix": "TWO"
+},
+"3362": {
+"name": "先進光",
+"suffix": "TWO"
+},
+"3363": {
+"name": "上詮",
+"suffix": "TWO"
+},
+"3372": {
+"name": "典範",
+"suffix": "TWO"
+},
+"3373": {
+"name": "熱映",
+"suffix": "TWO"
+},
+"3374": {
+"name": "精材",
+"suffix": "TWO"
+},
+"3376": {
+"name": "新日興",
+"suffix": "TW"
+},
+"3379": {
+"name": "彬台",
+"suffix": "TWO"
+},
+"3380": {
+"name": "明泰",
+"suffix": "TW"
+},
+"3388": {
+"name": "崇越電",
+"suffix": "TWO"
+},
+"3390": {
+"name": "旭軟",
+"suffix": "TWO"
+},
+"3402": {
+"name": "漢科",
+"suffix": "TWO"
+},
+"3406": {
+"name": "玉晶光",
+"suffix": "TW"
+},
+"3413": {
+"name": "京鼎",
+"suffix": "TW"
+},
+"3416": {
+"name": "融程電",
+"suffix": "TW"
+},
+"3419": {
+"name": "譁裕",
+"suffix": "TW"
+},
+"3430": {
+"name": "奇鈦科",
+"suffix": "TWO"
+},
+"3432": {
+"name": "台端",
+"suffix": "TW"
+},
+"3434": {
+"name": "哲固",
+"suffix": "TWO"
+},
+"3437": {
+"name": "榮創",
+"suffix": "TW"
+},
+"3438": {
+"name": "類比科",
+"suffix": "TWO"
+},
+"3441": {
+"name": "聯一光",
+"suffix": "TWO"
+},
+"3443": {
+"name": "創意",
+"suffix": "TW"
+},
+"3444": {
+"name": "利機",
+"suffix": "TWO"
+},
+"3447": {
+"name": "展達",
+"suffix": "TW"
+},
+"3450": {
+"name": "聯鈞",
+"suffix": "TW"
+},
+"3455": {
+"name": "由田",
+"suffix": "TWO"
+},
+"3465": {
+"name": "進泰電子",
+"suffix": "TWO"
+},
+"3466": {
+"name": "德晉",
+"suffix": "TWO"
+},
+"3467": {
+"name": "台灣精材",
+"suffix": "TWO"
+},
+"3479": {
+"name": "安勤",
+"suffix": "TWO"
+},
+"3481": {
+"name": "群創",
+"suffix": "TW"
+},
+"3483": {
+"name": "力致",
+"suffix": "TWO"
+},
+"3484": {
+"name": "崧騰",
+"suffix": "TWO"
+},
+"3485": {
+"name": "敘豐",
+"suffix": "TWO"
+},
+"3489": {
+"name": "森寶",
+"suffix": "TWO"
+},
+"3490": {
+"name": "單井",
+"suffix": "TWO"
+},
+"3491": {
+"name": "昇達科",
+"suffix": "TWO"
+},
+"3492": {
+"name": "長盛",
+"suffix": "TWO"
+},
+"3494": {
+"name": "誠研",
+"suffix": "TW"
+},
+"3498": {
+"name": "陽程",
+"suffix": "TWO"
+},
+"3499": {
+"name": "環天科",
+"suffix": "TWO"
+},
+"3501": {
+"name": "維熹",
+"suffix": "TW"
+},
+"3504": {
+"name": "揚明光",
+"suffix": "TW"
+},
+"3508": {
+"name": "位速",
+"suffix": "TWO"
+},
+"3511": {
+"name": "矽瑪",
+"suffix": "TWO"
+},
+"3512": {
+"name": "皇龍",
+"suffix": "TWO"
+},
+"3515": {
+"name": "華擎",
+"suffix": "TW"
+},
+"3516": {
+"name": "亞帝歐",
+"suffix": "TWO"
+},
+"3518": {
+"name": "柏騰",
+"suffix": "TW"
+},
+"3520": {
+"name": "華盈",
+"suffix": "TWO"
+},
+"3521": {
+"name": "台鋼建設",
+"suffix": "TWO"
+},
+"3522": {
+"name": "御嵿",
+"suffix": "TWO"
+},
+"3523": {
+"name": "迎輝",
+"suffix": "TWO"
+},
+"3526": {
+"name": "凡甲",
+"suffix": "TWO"
+},
+"3527": {
+"name": "聚積",
+"suffix": "TWO"
+},
+"3528": {
+"name": "安馳",
+"suffix": "TW"
+},
+"3529": {
+"name": "力旺",
+"suffix": "TWO"
+},
+"3530": {
+"name": "晶相光",
+"suffix": "TW"
+},
+"3531": {
+"name": "先益",
+"suffix": "TWO"
+},
+"3532": {
+"name": "台勝科",
+"suffix": "TW"
+},
+"3533": {
+"name": "嘉澤",
+"suffix": "TW"
+},
+"3535": {
+"name": "晶彩科",
+"suffix": "TW"
+},
+"3537": {
+"name": "堡達",
+"suffix": "TWO"
+},
+"3540": {
+"name": "曜越",
+"suffix": "TWO"
+},
+"3541": {
+"name": "西柏",
+"suffix": "TWO"
+},
+"3543": {
+"name": "州巧",
+"suffix": "TW"
+},
+"3545": {
+"name": "敦泰",
+"suffix": "TW"
+},
+"3546": {
+"name": "宇峻",
+"suffix": "TWO"
+},
+"3548": {
+"name": "兆利",
+"suffix": "TWO"
+},
+"3550": {
+"name": "聯穎",
+"suffix": "TW"
+},
+"3551": {
+"name": "世禾",
+"suffix": "TWO"
+},
+"3552": {
+"name": "同致",
+"suffix": "TWO"
+},
+"3555": {
+"name": "博士旺",
+"suffix": "TWO"
+},
+"3556": {
+"name": "禾瑞亞",
+"suffix": "TWO"
+},
+"3557": {
+"name": "嘉威",
+"suffix": "TW"
+},
+"3558": {
+"name": "神準",
+"suffix": "TWO"
+},
+"3563": {
+"name": "牧德",
+"suffix": "TW"
+},
+"3564": {
+"name": "其陽",
+"suffix": "TWO"
+},
+"3567": {
+"name": "逸昌",
+"suffix": "TWO"
+},
+"3570": {
+"name": "大塚",
+"suffix": "TWO"
+},
+"3576": {
+"name": "聯合再生",
+"suffix": "TW"
+},
+"3577": {
+"name": "泓格",
+"suffix": "TWO"
+},
+"3580": {
+"name": "友威科",
+"suffix": "TWO"
+},
+"3581": {
+"name": "博磊",
+"suffix": "TWO"
+},
+"3583": {
+"name": "辛耘",
+"suffix": "TW"
+},
+"3587": {
+"name": "閎康",
+"suffix": "TWO"
+},
+"3588": {
+"name": "通嘉",
+"suffix": "TW"
+},
+"3591": {
+"name": "艾笛森",
+"suffix": "TW"
+},
+"3592": {
+"name": "瑞鼎",
+"suffix": "TW"
+},
+"3593": {
+"name": "力銘",
+"suffix": "TW"
+},
+"3594": {
+"name": "磐儀",
+"suffix": "TWO"
+},
+"3596": {
+"name": "智易",
+"suffix": "TW"
+},
+"3597": {
+"name": "映興",
+"suffix": "TWO"
+},
+"3605": {
+"name": "宏致",
+"suffix": "TW"
+},
+"3607": {
+"name": "谷崧",
+"suffix": "TW"
+},
+"3609": {
+"name": "三一東林",
+"suffix": "TWO"
+},
+"3611": {
+"name": "鼎翰",
+"suffix": "TWO"
+},
+"3615": {
+"name": "安可",
+"suffix": "TWO"
+},
+"3617": {
+"name": "碩天",
+"suffix": "TW"
+},
+"3622": {
+"name": "洋華",
+"suffix": "TW"
+},
+"3623": {
+"name": "富晶通",
+"suffix": "TWO"
+},
+"3624": {
+"name": "光頡",
+"suffix": "TWO"
+},
+"3625": {
+"name": "西勝",
+"suffix": "TWO"
+},
+"3628": {
+"name": "盈正",
+"suffix": "TWO"
+},
+"3629": {
+"name": "地心引力",
+"suffix": "TWO"
+},
+"3630": {
+"name": "新鉅科",
+"suffix": "TWO"
+},
+"3631": {
+"name": "晟楠",
+"suffix": "TWO"
+},
+"3632": {
+"name": "研勤",
+"suffix": "TWO"
+},
+"3645": {
+"name": "達邁",
+"suffix": "TW"
+},
+"3646": {
+"name": "艾恩特",
+"suffix": "TWO"
+},
+"3652": {
+"name": "精聯",
+"suffix": "TW"
+},
+"3653": {
+"name": "健策",
+"suffix": "TW"
+},
+"3661": {
+"name": "世芯-KY",
+"suffix": "TW"
+},
+"3663": {
+"name": "鑫科",
+"suffix": "TWO"
+},
+"3664": {
+"name": "安瑞-KY",
+"suffix": "TWO"
+},
+"3665": {
+"name": "貿聯-KY",
+"suffix": "TW"
+},
+"3666": {
+"name": "光耀",
+"suffix": "TWO"
+},
+"3669": {
+"name": "圓展",
+"suffix": "TW"
+},
+"3672": {
+"name": "康聯訊",
+"suffix": "TWO"
+},
+"3673": {
+"name": "TPK-KY",
+"suffix": "TW"
+},
+"3675": {
+"name": "德微",
+"suffix": "TWO"
+},
+"3679": {
+"name": "新至陞",
+"suffix": "TW"
+},
+"3680": {
+"name": "家登",
+"suffix": "TWO"
+},
+"3684": {
+"name": "榮昌",
+"suffix": "TWO"
+},
+"3685": {
+"name": "元創精密",
+"suffix": "TWO"
+},
+"3686": {
+"name": "達能",
+"suffix": "TW"
+},
+"3687": {
+"name": "歐買尬",
+"suffix": "TWO"
+},
+"3689": {
+"name": "湧德",
+"suffix": "TWO"
+},
+"3691": {
+"name": "碩禾",
+"suffix": "TWO"
+},
+"3693": {
+"name": "營邦",
+"suffix": "TWO"
+},
+"3694": {
+"name": "海華",
+"suffix": "TW"
+},
+"3701": {
+"name": "大眾控",
+"suffix": "TW"
+},
+"3702": {
+"name": "大聯大",
+"suffix": "TW"
+},
+"3703": {
+"name": "欣陸",
+"suffix": "TW"
+},
+"3704": {
+"name": "合勤控",
+"suffix": "TW"
+},
+"3705": {
+"name": "永信",
+"suffix": "TW"
+},
+"3706": {
+"name": "神達",
+"suffix": "TW"
+},
+"3707": {
+"name": "漢磊",
+"suffix": "TWO"
+},
+"3708": {
+"name": "上緯投控",
+"suffix": "TW"
+},
+"3709": {
+"name": "鑫聯大投控",
+"suffix": "TWO"
+},
+"3710": {
+"name": "連展投控",
+"suffix": "TWO"
+},
+"3711": {
+"name": "日月光投控",
+"suffix": "TW"
+},
+"3712": {
+"name": "永崴投控",
+"suffix": "TW"
+},
+"3713": {
+"name": "新晶投控",
+"suffix": "TWO"
+},
+"3714": {
+"name": "富采",
+"suffix": "TW"
+},
+"3715": {
+"name": "定穎投控",
+"suffix": "TW"
+},
+"3716": {
+"name": "中化控股",
+"suffix": "TW"
+},
+"3717": {
+"name": "聯嘉投控",
+"suffix": "TW"
+},
+"3718": {
+"name": "中光電投控",
+"suffix": "TWO"
+},
+"4102": {
+"name": "永日",
+"suffix": "TWO"
+},
+"4104": {
+"name": "佳醫",
+"suffix": "TW"
+},
+"4105": {
+"name": "東洋",
+"suffix": "TWO"
+},
+"4106": {
+"name": "雃博",
+"suffix": "TW"
+},
+"4107": {
+"name": "邦特",
+"suffix": "TWO"
+},
+"4108": {
+"name": "懷特",
+"suffix": "TW"
+},
+"4109": {
+"name": "加捷生醫",
+"suffix": "TWO"
+},
+"4111": {
+"name": "濟生",
+"suffix": "TWO"
+},
+"4113": {
+"name": "聯上",
+"suffix": "TWO"
+},
+"4114": {
+"name": "健喬",
+"suffix": "TWO"
+},
+"4116": {
+"name": "明基醫",
+"suffix": "TWO"
+},
+"4119": {
+"name": "旭富",
+"suffix": "TW"
+},
+"4120": {
+"name": "友華",
+"suffix": "TWO"
+},
+"4121": {
+"name": "優盛",
+"suffix": "TWO"
+},
+"4123": {
+"name": "晟德",
+"suffix": "TWO"
+},
+"4126": {
+"name": "太醫",
+"suffix": "TWO"
+},
+"4127": {
+"name": "天良",
+"suffix": "TWO"
+},
+"4128": {
+"name": "中天",
+"suffix": "TWO"
+},
+"4129": {
+"name": "聯合",
+"suffix": "TWO"
+},
+"4131": {
+"name": "浩泰",
+"suffix": "TWO"
+},
+"4133": {
+"name": "亞諾法",
+"suffix": "TW"
+},
+"4137": {
+"name": "麗豐-KY",
+"suffix": "TW"
+},
+"4138": {
+"name": "曜亞",
+"suffix": "TWO"
+},
+"4139": {
+"name": "馬光-KY",
+"suffix": "TWO"
+},
+"4142": {
+"name": "國光生",
+"suffix": "TW"
+},
+"4147": {
+"name": "中裕",
+"suffix": "TWO"
+},
+"4148": {
+"name": "全宇生技-KY",
+"suffix": "TW"
+},
+"4153": {
+"name": "鈺緯",
+"suffix": "TWO"
+},
+"4154": {
+"name": "樂威科-KY",
+"suffix": "TWO"
+},
+"4155": {
+"name": "訊映",
+"suffix": "TW"
+},
+"4157": {
+"name": "太景*-KY",
+"suffix": "TWO"
+},
+"4160": {
+"name": "訊聯基因",
+"suffix": "TWO"
+},
+"4161": {
+"name": "聿新科",
+"suffix": "TWO"
+},
+"4162": {
+"name": "智擎",
+"suffix": "TWO"
+},
+"4163": {
+"name": "鐿鈦",
+"suffix": "TWO"
+},
+"4164": {
+"name": "承業醫",
+"suffix": "TW"
+},
+"4166": {
+"name": "友霖",
+"suffix": "TWO"
+},
+"4167": {
+"name": "松瑞藥",
+"suffix": "TWO"
+},
+"4168": {
+"name": "醣聯",
+"suffix": "TWO"
+},
+"4169": {
+"name": "泰宗",
+"suffix": "TW"
+},
+"4171": {
+"name": "瑞基",
+"suffix": "TWO"
+},
+"4173": {
+"name": "久裕",
+"suffix": "TWO"
+},
+"4174": {
+"name": "浩鼎",
+"suffix": "TWO"
+},
+"4175": {
+"name": "杏一",
+"suffix": "TWO"
+},
+"4178": {
+"name": "永笙-KY",
+"suffix": "TW"
+},
+"4183": {
+"name": "福永生技",
+"suffix": "TWO"
+},
+"4188": {
+"name": "安克",
+"suffix": "TWO"
+},
+"4190": {
+"name": "佐登-KY",
+"suffix": "TW"
+},
+"4192": {
+"name": "杏國",
+"suffix": "TWO"
+},
+"4195": {
+"name": "基米-創",
+"suffix": "TW"
+},
+"4198": {
+"name": "欣大健康",
+"suffix": "TWO"
+},
+"4205": {
+"name": "中華食",
+"suffix": "TWO"
+},
+"4207": {
+"name": "環泰",
+"suffix": "TWO"
+},
+"4303": {
+"name": "信立",
+"suffix": "TWO"
+},
+"4304": {
+"name": "勝昱",
+"suffix": "TWO"
+},
+"4305": {
+"name": "世坤",
+"suffix": "TWO"
+},
+"4306": {
+"name": "炎洲",
+"suffix": "TW"
+},
+"4401": {
+"name": "東隆興",
+"suffix": "TWO"
+},
+"4402": {
+"name": "郡都開發",
+"suffix": "TWO"
+},
+"4406": {
+"name": "新昕纖",
+"suffix": "TWO"
+},
+"4413": {
+"name": "飛寶企業",
+"suffix": "TWO"
+},
+"4414": {
+"name": "如興",
+"suffix": "TW"
+},
+"4416": {
+"name": "三圓",
+"suffix": "TWO"
+},
+"4417": {
+"name": "金洲",
+"suffix": "TWO"
+},
+"4419": {
+"name": "皇家美食",
+"suffix": "TWO"
+},
+"4420": {
+"name": "光明",
+"suffix": "TWO"
+},
+"4426": {
+"name": "利勤",
+"suffix": "TW"
+},
+"4430": {
+"name": "耀億",
+"suffix": "TWO"
+},
+"4432": {
+"name": "銘旺實",
+"suffix": "TWO"
+},
+"4433": {
+"name": "興采",
+"suffix": "TWO"
+},
+"4438": {
+"name": "廣越",
+"suffix": "TW"
+},
+"4439": {
+"name": "冠星-KY",
+"suffix": "TW"
+},
+"4440": {
+"name": "宜新實業",
+"suffix": "TW"
+},
+"4441": {
+"name": "振大環球",
+"suffix": "TW"
+},
+"4442": {
+"name": "竣邦-KY",
+"suffix": "TWO"
+},
+"4502": {
+"name": "健信",
+"suffix": "TWO"
+},
+"4503": {
+"name": "金雨",
+"suffix": "TWO"
+},
+"4506": {
+"name": "崇友",
+"suffix": "TWO"
+},
+"4510": {
+"name": "高鋒",
+"suffix": "TWO"
+},
+"4513": {
+"name": "福裕",
+"suffix": "TWO"
+},
+"4523": {
+"name": "永彰",
+"suffix": "TWO"
+},
+"4526": {
+"name": "東台",
+"suffix": "TW"
+},
+"4527": {
+"name": "方土霖",
+"suffix": "TWO"
+},
+"4528": {
+"name": "江興鍛",
+"suffix": "TWO"
+},
+"4529": {
+"name": "淳紳",
+"suffix": "TWO"
+},
+"4530": {
+"name": "天意能創",
+"suffix": "TWO"
+},
+"4532": {
+"name": "瑞智",
+"suffix": "TW"
+},
+"4533": {
+"name": "協易機",
+"suffix": "TWO"
+},
+"4534": {
+"name": "慶騰",
+"suffix": "TWO"
+},
+"4535": {
+"name": "至興",
+"suffix": "TWO"
+},
+"4536": {
+"name": "拓凱",
+"suffix": "TW"
+},
+"4538": {
+"name": "大詠城",
+"suffix": "TWO"
+},
+"4540": {
+"name": "全球傳動",
+"suffix": "TW"
+},
+"4541": {
+"name": "晟田",
+"suffix": "TWO"
+},
+"4542": {
+"name": "科嶠",
+"suffix": "TWO"
+},
+"4543": {
+"name": "萬在",
+"suffix": "TWO"
+},
+"4545": {
+"name": "銘鈺",
+"suffix": "TW"
+},
+"4549": {
+"name": "桓達",
+"suffix": "TWO"
+},
+"4550": {
+"name": "長佳",
+"suffix": "TWO"
+},
+"4551": {
+"name": "智伸科",
+"suffix": "TW"
+},
+"4552": {
+"name": "力達-KY",
+"suffix": "TW"
+},
+"4554": {
+"name": "橙的",
+"suffix": "TWO"
+},
+"4555": {
+"name": "氣立",
+"suffix": "TW"
+},
+"4556": {
+"name": "旭然",
+"suffix": "TWO"
+},
+"4557": {
+"name": "永新-KY",
+"suffix": "TW"
+},
+"4558": {
+"name": "寶緯",
+"suffix": "TWO"
+},
+"4560": {
+"name": "強信-KY",
+"suffix": "TW"
+},
+"4561": {
+"name": "健椿",
+"suffix": "TWO"
+},
+"4562": {
+"name": "穎漢",
+"suffix": "TW"
+},
+"4563": {
+"name": "百德",
+"suffix": "TWO"
+},
+"4564": {
+"name": "元翎",
+"suffix": "TW"
+},
+"4566": {
+"name": "時碩工業",
+"suffix": "TW"
+},
+"4568": {
+"name": "科際精密",
+"suffix": "TWO"
+},
+"4569": {
+"name": "六方科-KY",
+"suffix": "TW"
+},
+"4571": {
+"name": "鈞興-KY",
+"suffix": "TW"
+},
+"4572": {
+"name": "駐龍",
+"suffix": "TW"
+},
+"4576": {
+"name": "大銀微系統",
+"suffix": "TW"
+},
+"4577": {
+"name": "達航科技",
+"suffix": "TWO"
+},
+"4580": {
+"name": "捷流閥業",
+"suffix": "TWO"
+},
+"4581": {
+"name": "光隆精密-KY",
+"suffix": "TW"
+},
+"4582": {
+"name": "聚恆-創",
+"suffix": "TW"
+},
+"4583": {
+"name": "台灣精銳",
+"suffix": "TW"
+},
+"4584": {
+"name": "君帆",
+"suffix": "TWO"
+},
+"4585": {
+"name": "達明",
+"suffix": "TW"
+},
+"4588": {
+"name": "玖鼎電力",
+"suffix": "TW"
+},
+"4590": {
+"name": "富田-創",
+"suffix": "TW"
+},
+"4609": {
+"name": "唐鋒",
+"suffix": "TWO"
+},
+"4702": {
+"name": "中美實",
+"suffix": "TWO"
+},
+"4706": {
+"name": "大恭",
+"suffix": "TWO"
+},
+"4707": {
+"name": "磐亞",
+"suffix": "TWO"
+},
+"4711": {
+"name": "永純",
+"suffix": "TWO"
+},
+"4714": {
+"name": "永捷",
+"suffix": "TWO"
+},
+"4716": {
+"name": "大立",
+"suffix": "TWO"
+},
+"4720": {
+"name": "德淵",
+"suffix": "TW"
+},
+"4721": {
+"name": "美琪瑪",
+"suffix": "TWO"
+},
+"4722": {
+"name": "國精化",
+"suffix": "TW"
+},
+"4726": {
+"name": "永昕",
+"suffix": "TWO"
+},
+"4728": {
+"name": "雙美",
+"suffix": "TWO"
+},
+"4729": {
+"name": "熒茂",
+"suffix": "TWO"
+},
+"4735": {
+"name": "豪展",
+"suffix": "TWO"
+},
+"4736": {
+"name": "泰博",
+"suffix": "TW"
+},
+"4737": {
+"name": "華廣",
+"suffix": "TW"
+},
+"4739": {
+"name": "康普",
+"suffix": "TW"
+},
+"4741": {
+"name": "泓瀚",
+"suffix": "TWO"
+},
+"4743": {
+"name": "合一",
+"suffix": "TWO"
+},
+"4744": {
+"name": "皇將",
+"suffix": "TWO"
+},
+"4745": {
+"name": "合富-KY",
+"suffix": "TWO"
+},
+"4746": {
+"name": "台耀",
+"suffix": "TW"
+},
+"4747": {
+"name": "強生*",
+"suffix": "TWO"
+},
+"4749": {
+"name": "新應材",
+"suffix": "TWO"
+},
+"4754": {
+"name": "國碳科",
+"suffix": "TWO"
+},
+"4755": {
+"name": "三福化",
+"suffix": "TW"
+},
+"4760": {
+"name": "勤凱",
+"suffix": "TWO"
+},
+"4763": {
+"name": "材料*-KY",
+"suffix": "TW"
+},
+"4764": {
+"name": "雙鍵",
+"suffix": "TW"
+},
+"4766": {
+"name": "南寶",
+"suffix": "TW"
+},
+"4767": {
+"name": "誠泰科技",
+"suffix": "TWO"
+},
+"4768": {
+"name": "晶呈科技",
+"suffix": "TWO"
+},
+"4770": {
+"name": "上品",
+"suffix": "TW"
+},
+"4771": {
+"name": "望隼",
+"suffix": "TW"
+},
+"4772": {
+"name": "台特化",
+"suffix": "TWO"
+},
+"4806": {
+"name": "桂田文創",
+"suffix": "TWO"
+},
+"4807": {
+"name": "日成-KY",
+"suffix": "TW"
+},
+"4903": {
+"name": "聯光通",
+"suffix": "TWO"
+},
+"4904": {
+"name": "遠傳",
+"suffix": "TW"
+},
+"4905": {
+"name": "台聯電",
+"suffix": "TWO"
+},
+"4906": {
+"name": "正文",
+"suffix": "TW"
+},
+"4907": {
+"name": "富宇",
+"suffix": "TWO"
+},
+"4908": {
+"name": "前鼎",
+"suffix": "TWO"
+},
+"4909": {
+"name": "新復興",
+"suffix": "TWO"
+},
+"4911": {
+"name": "德英",
+"suffix": "TWO"
+},
+"4912": {
+"name": "聯德控股-KY",
+"suffix": "TW"
+},
+"4915": {
+"name": "致伸",
+"suffix": "TW"
+},
+"4916": {
+"name": "事欣科",
+"suffix": "TW"
+},
+"4919": {
+"name": "新唐",
+"suffix": "TW"
+},
+"4923": {
+"name": "力士",
+"suffix": "TWO"
+},
+"4924": {
+"name": "欣厚-KY",
+"suffix": "TWO"
+},
+"4927": {
+"name": "泰鼎-KY",
+"suffix": "TW"
+},
+"4930": {
+"name": "燦星網",
+"suffix": "TW"
+},
+"4931": {
+"name": "新盛力",
+"suffix": "TWO"
+},
+"4933": {
+"name": "友輝",
+"suffix": "TWO"
+},
+"4934": {
+"name": "太極",
+"suffix": "TW"
+},
+"4935": {
+"name": "茂林-KY",
+"suffix": "TW"
+},
+"4938": {
+"name": "和碩",
+"suffix": "TW"
+},
+"4939": {
+"name": "亞電",
+"suffix": "TWO"
+},
+"4942": {
+"name": "嘉彰",
+"suffix": "TW"
+},
+"4943": {
+"name": "康控-KY",
+"suffix": "TW"
+},
+"4946": {
+"name": "辣椒",
+"suffix": "TWO"
+},
+"4949": {
+"name": "有成精密",
+"suffix": "TW"
+},
+"4950": {
+"name": "金耘國際",
+"suffix": "TWO"
+},
+"4951": {
+"name": "精拓科",
+"suffix": "TWO"
+},
+"4952": {
+"name": "凌通",
+"suffix": "TW"
+},
+"4953": {
+"name": "緯致",
+"suffix": "TWO"
+},
+"4956": {
+"name": "光鋐",
+"suffix": "TW"
+},
+"4958": {
+"name": "臻鼎-KY",
+"suffix": "TW"
+},
+"4960": {
+"name": "誠美材",
+"suffix": "TW"
+},
+"4961": {
+"name": "天鈺",
+"suffix": "TW"
+},
+"4966": {
+"name": "譜瑞-KY",
+"suffix": "TWO"
+},
+"4967": {
+"name": "十銓",
+"suffix": "TW"
+},
+"4968": {
+"name": "立積",
+"suffix": "TW"
+},
+"4971": {
+"name": "IET-KY",
+"suffix": "TWO"
+},
+"4972": {
+"name": "湯石照明",
+"suffix": "TWO"
+},
+"4973": {
+"name": "廣穎",
+"suffix": "TWO"
+},
+"4974": {
+"name": "亞泰",
+"suffix": "TWO"
+},
+"4976": {
+"name": "佳凌",
+"suffix": "TW"
+},
+"4977": {
+"name": "眾達-KY",
+"suffix": "TW"
+},
+"4979": {
+"name": "華星光",
+"suffix": "TWO"
+},
+"4989": {
+"name": "榮科",
+"suffix": "TW"
+},
+"4991": {
+"name": "環宇-KY",
+"suffix": "TWO"
+},
+"4994": {
+"name": "傳奇",
+"suffix": "TW"
+},
+"4995": {
+"name": "晶達",
+"suffix": "TWO"
+},
+"4999": {
+"name": "鑫禾",
+"suffix": "TW"
+},
+"5007": {
+"name": "三星",
+"suffix": "TW"
+},
+"5009": {
+"name": "榮剛",
+"suffix": "TWO"
+},
+"5011": {
+"name": "久陽",
+"suffix": "TWO"
+},
+"5013": {
+"name": "強新",
+"suffix": "TWO"
+},
+"5014": {
+"name": "建錩",
+"suffix": "TWO"
+},
+"5015": {
+"name": "華祺",
+"suffix": "TWO"
+},
+"5016": {
+"name": "松和",
+"suffix": "TWO"
+},
+"5201": {
+"name": "凱衛",
+"suffix": "TWO"
+},
+"5202": {
+"name": "力新",
+"suffix": "TWO"
+},
+"5203": {
+"name": "訊連",
+"suffix": "TW"
+},
+"5205": {
+"name": "中茂",
+"suffix": "TWO"
+},
+"5206": {
+"name": "坤悅",
+"suffix": "TWO"
+},
+"5209": {
+"name": "新鼎",
+"suffix": "TWO"
+},
+"5210": {
+"name": "寶碩",
+"suffix": "TWO"
+},
+"5211": {
+"name": "蒙恬",
+"suffix": "TWO"
+},
+"5212": {
+"name": "凌網",
+"suffix": "TWO"
+},
+"5213": {
+"name": "亞昕",
+"suffix": "TWO"
+},
+"5215": {
+"name": "科嘉-KY",
+"suffix": "TW"
+},
+"5220": {
+"name": "萬達光電",
+"suffix": "TWO"
+},
+"5222": {
+"name": "全訊",
+"suffix": "TW"
+},
+"5223": {
+"name": "安力-KY",
+"suffix": "TWO"
+},
+"5225": {
+"name": "東科-KY",
+"suffix": "TW"
+},
+"5227": {
+"name": "立凱-KY",
+"suffix": "TWO"
+},
+"5228": {
+"name": "鈺鎧",
+"suffix": "TWO"
+},
+"5230": {
+"name": "雷笛克光學",
+"suffix": "TWO"
+},
+"5234": {
+"name": "達興材料",
+"suffix": "TW"
+},
+"5236": {
+"name": "凌陽創新",
+"suffix": "TW"
+},
+"5243": {
+"name": "乙盛-KY",
+"suffix": "TW"
+},
+"5244": {
+"name": "弘凱",
+"suffix": "TW"
+},
+"5245": {
+"name": "智晶",
+"suffix": "TWO"
+},
+"5251": {
+"name": "天鉞電",
+"suffix": "TWO"
+},
+"5258": {
+"name": "虹堡",
+"suffix": "TW"
+},
+"5263": {
+"name": "智崴",
+"suffix": "TWO"
+},
+"5269": {
+"name": "祥碩",
+"suffix": "TW"
+},
+"5272": {
+"name": "笙科",
+"suffix": "TWO"
+},
+"5274": {
+"name": "信驊",
+"suffix": "TWO"
+},
+"5276": {
+"name": "達輝-KY",
+"suffix": "TWO"
+},
+"5278": {
+"name": "尚凡*",
+"suffix": "TWO"
+},
+"5283": {
+"name": "禾聯碩",
+"suffix": "TW"
+},
+"5284": {
+"name": "jpp-KY",
+"suffix": "TW"
+},
+"5285": {
+"name": "界霖",
+"suffix": "TW"
+},
+"5287": {
+"name": "數字",
+"suffix": "TWO"
+},
+"5288": {
+"name": "豐祥-KY",
+"suffix": "TW"
+},
+"5289": {
+"name": "宜鼎",
+"suffix": "TWO"
+},
+"5291": {
+"name": "邑昇",
+"suffix": "TWO"
+},
+"5292": {
+"name": "華懋",
+"suffix": "TW"
+},
+"5299": {
+"name": "杰力",
+"suffix": "TWO"
+},
+"5301": {
+"name": "寶得利",
+"suffix": "TWO"
+},
+"5302": {
+"name": "太欣",
+"suffix": "TWO"
+},
+"5306": {
+"name": "桂盟",
+"suffix": "TW"
+},
+"5309": {
+"name": "系統電",
+"suffix": "TWO"
+},
+"5310": {
+"name": "天剛",
+"suffix": "TWO"
+},
+"5312": {
+"name": "寶島科",
+"suffix": "TWO"
+},
+"5314": {
+"name": "世紀*",
+"suffix": "TWO"
+},
+"5315": {
+"name": "光聯",
+"suffix": "TWO"
+},
+"5321": {
+"name": "美而快",
+"suffix": "TWO"
+},
+"5324": {
+"name": "士開",
+"suffix": "TWO"
+},
+"5328": {
+"name": "華容",
+"suffix": "TWO"
+},
+"5340": {
+"name": "建榮",
+"suffix": "TWO"
+},
+"5344": {
+"name": "立衛",
+"suffix": "TWO"
+},
+"5345": {
+"name": "馥鴻",
+"suffix": "TWO"
+},
+"5347": {
+"name": "世界",
+"suffix": "TWO"
+},
+"5348": {
+"name": "正能量智能",
+"suffix": "TWO"
+},
+"5351": {
+"name": "鈺創",
+"suffix": "TWO"
+},
+"5353": {
+"name": "台林",
+"suffix": "TWO"
+},
+"5355": {
+"name": "佳總",
+"suffix": "TWO"
+},
+"5356": {
+"name": "協益",
+"suffix": "TWO"
+},
+"5364": {
+"name": "力麗店",
+"suffix": "TWO"
+},
+"5381": {
+"name": "光譜",
+"suffix": "TWO"
+},
+"5386": {
+"name": "青雲",
+"suffix": "TWO"
+},
+"5388": {
+"name": "中磊",
+"suffix": "TW"
+},
+"5392": {
+"name": "能率",
+"suffix": "TWO"
+},
+"5398": {
+"name": "慕康生醫",
+"suffix": "TWO"
+},
+"5403": {
+"name": "中菲",
+"suffix": "TWO"
+},
+"5410": {
+"name": "國眾",
+"suffix": "TWO"
+},
+"5425": {
+"name": "台半",
+"suffix": "TWO"
+},
+"5426": {
+"name": "振發",
+"suffix": "TWO"
+},
+"5432": {
+"name": "新門",
+"suffix": "TWO"
+},
+"5434": {
+"name": "崇越",
+"suffix": "TW"
+},
+"5438": {
+"name": "東友",
+"suffix": "TWO"
+},
+"5439": {
+"name": "高技",
+"suffix": "TWO"
+},
+"5443": {
+"name": "均豪",
+"suffix": "TWO"
+},
+"5450": {
+"name": "南良",
+"suffix": "TWO"
+},
+"5452": {
+"name": "佶優",
+"suffix": "TWO"
+},
+"5455": {
+"name": "昇益",
+"suffix": "TWO"
+},
+"5457": {
+"name": "宣德",
+"suffix": "TWO"
+},
+"5460": {
+"name": "同協",
+"suffix": "TWO"
+},
+"5464": {
+"name": "霖宏",
+"suffix": "TWO"
+},
+"5465": {
+"name": "富驊",
+"suffix": "TWO"
+},
+"5468": {
+"name": "凱鈺",
+"suffix": "TWO"
+},
+"5469": {
+"name": "瀚宇博",
+"suffix": "TW"
+},
+"5471": {
+"name": "松翰",
+"suffix": "TW"
+},
+"5474": {
+"name": "聰泰",
+"suffix": "TWO"
+},
+"5475": {
+"name": "德宏",
+"suffix": "TWO"
+},
+"5478": {
+"name": "智冠",
+"suffix": "TWO"
+},
+"5481": {
+"name": "新華",
+"suffix": "TWO"
+},
+"5483": {
+"name": "中美晶",
+"suffix": "TWO"
+},
+"5484": {
+"name": "慧友",
+"suffix": "TW"
+},
+"5487": {
+"name": "通泰",
+"suffix": "TWO"
+},
+"5488": {
+"name": "松普",
+"suffix": "TWO"
+},
+"5489": {
+"name": "彩富",
+"suffix": "TWO"
+},
+"5490": {
+"name": "同亨",
+"suffix": "TWO"
+},
+"5493": {
+"name": "三聯",
+"suffix": "TWO"
+},
+"5498": {
+"name": "凱崴",
+"suffix": "TWO"
+},
+"5508": {
+"name": "永信建",
+"suffix": "TWO"
+},
+"5511": {
+"name": "德昌",
+"suffix": "TWO"
+},
+"5512": {
+"name": "力麒",
+"suffix": "TWO"
+},
+"5514": {
+"name": "三豐",
+"suffix": "TWO"
+},
+"5515": {
+"name": "建國",
+"suffix": "TW"
+},
+"5516": {
+"name": "雙喜",
+"suffix": "TWO"
+},
+"5519": {
+"name": "隆大",
+"suffix": "TW"
+},
+"5520": {
+"name": "力泰",
+"suffix": "TWO"
+},
+"5521": {
+"name": "工信",
+"suffix": "TW"
+},
+"5522": {
+"name": "遠雄",
+"suffix": "TW"
+},
+"5523": {
+"name": "豐謙",
+"suffix": "TWO"
+},
+"5525": {
+"name": "順天",
+"suffix": "TW"
+},
+"5529": {
+"name": "鉅陞",
+"suffix": "TWO"
+},
+"5530": {
+"name": "龍巖",
+"suffix": "TWO"
+},
+"5531": {
+"name": "鄉林",
+"suffix": "TW"
+},
+"5533": {
+"name": "皇鼎",
+"suffix": "TW"
+},
+"5534": {
+"name": "長虹",
+"suffix": "TW"
+},
+"5536": {
+"name": "聖暉*",
+"suffix": "TWO"
+},
+"5538": {
+"name": "東明-KY",
+"suffix": "TW"
+},
+"5543": {
+"name": "桓鼎-KY",
+"suffix": "TWO"
+},
+"5546": {
+"name": "永固-KY",
+"suffix": "TW"
+},
+"5547": {
+"name": "久舜",
+"suffix": "TWO"
+},
+"5548": {
+"name": "安倉",
+"suffix": "TWO"
+},
+"5601": {
+"name": "台聯櫃",
+"suffix": "TWO"
+},
+"5603": {
+"name": "陸海",
+"suffix": "TWO"
+},
+"5604": {
+"name": "中連",
+"suffix": "TWO"
+},
+"5607": {
+"name": "遠雄港",
+"suffix": "TW"
+},
+"5608": {
+"name": "四維航",
+"suffix": "TW"
+},
+"5609": {
+"name": "中菲行",
+"suffix": "TWO"
+},
+"5701": {
+"name": "劍湖山",
+"suffix": "TWO"
+},
+"5703": {
+"name": "亞都",
+"suffix": "TWO"
+},
+"5704": {
+"name": "老爺知",
+"suffix": "TWO"
+},
+"5706": {
+"name": "鳳凰",
+"suffix": "TW"
+},
+"5864": {
+"name": "致和證",
+"suffix": "TWO"
+},
+"5871": {
+"name": "中租-KY",
+"suffix": "TW"
+},
+"5876": {
+"name": "上海商銀",
+"suffix": "TW"
+},
+"5878": {
+"name": "台名",
+"suffix": "TWO"
+},
+"5880": {
+"name": "合庫金",
+"suffix": "TW"
+},
+"5902": {
+"name": "德記",
+"suffix": "TWO"
+},
+"5903": {
+"name": "全家",
+"suffix": "TWO"
+},
+"5904": {
+"name": "寶雅*",
+"suffix": "TWO"
+},
+"5905": {
+"name": "南仁湖",
+"suffix": "TWO"
+},
+"5906": {
+"name": "台南-KY",
+"suffix": "TW"
+},
+"5907": {
+"name": "大洋-KY",
+"suffix": "TW"
+},
+"6005": {
+"name": "群益證",
+"suffix": "TW"
+},
+"6015": {
+"name": "宏遠證",
+"suffix": "TWO"
+},
+"6016": {
+"name": "康和證",
+"suffix": "TWO"
+},
+"6020": {
+"name": "大展證",
+"suffix": "TWO"
+},
+"6021": {
+"name": "美好證",
+"suffix": "TWO"
+},
+"6023": {
+"name": "元大期",
+"suffix": "TWO"
+},
+"6024": {
+"name": "群益期",
+"suffix": "TW"
+},
+"6026": {
+"name": "福邦證",
+"suffix": "TWO"
+},
+"6028": {
+"name": "公勝保經",
+"suffix": "TWO"
+},
+"6101": {
+"name": "寬魚國際",
+"suffix": "TWO"
+},
+"6103": {
+"name": "合邦",
+"suffix": "TWO"
+},
+"6104": {
+"name": "創惟",
+"suffix": "TWO"
+},
+"6108": {
+"name": "競國",
+"suffix": "TW"
+},
+"6109": {
+"name": "亞元",
+"suffix": "TWO"
+},
+"6111": {
+"name": "光聚晶電",
+"suffix": "TWO"
+},
+"6112": {
+"name": "邁達特",
+"suffix": "TW"
+},
+"6113": {
+"name": "亞矽",
+"suffix": "TWO"
+},
+"6114": {
+"name": "久威",
+"suffix": "TWO"
+},
+"6115": {
+"name": "鎰勝",
+"suffix": "TW"
+},
+"6116": {
+"name": "彩晶",
+"suffix": "TW"
+},
+"6117": {
+"name": "迎廣",
+"suffix": "TW"
+},
+"6118": {
+"name": "建達",
+"suffix": "TWO"
+},
+"6120": {
+"name": "達運",
+"suffix": "TW"
+},
+"6121": {
+"name": "新普",
+"suffix": "TWO"
+},
+"6122": {
+"name": "擎邦",
+"suffix": "TWO"
+},
+"6123": {
+"name": "上奇",
+"suffix": "TWO"
+},
+"6124": {
+"name": "業強",
+"suffix": "TWO"
+},
+"6125": {
+"name": "廣運",
+"suffix": "TWO"
+},
+"6126": {
+"name": "信音",
+"suffix": "TWO"
+},
+"6127": {
+"name": "九豪",
+"suffix": "TWO"
+},
+"6128": {
+"name": "上福",
+"suffix": "TW"
+},
+"6129": {
+"name": "普誠",
+"suffix": "TWO"
+},
+"6130": {
+"name": "上亞科技",
+"suffix": "TWO"
+},
+"6133": {
+"name": "金橋",
+"suffix": "TW"
+},
+"6134": {
+"name": "萬旭",
+"suffix": "TWO"
+},
+"6136": {
+"name": "富爾特",
+"suffix": "TW"
+},
+"6138": {
+"name": "茂達",
+"suffix": "TWO"
+},
+"6139": {
+"name": "亞翔",
+"suffix": "TW"
+},
+"6140": {
+"name": "訊達",
+"suffix": "TWO"
+},
+"6141": {
+"name": "柏承",
+"suffix": "TW"
+},
+"6142": {
+"name": "友勁",
+"suffix": "TW"
+},
+"6143": {
+"name": "振曜",
+"suffix": "TWO"
+},
+"6144": {
+"name": "得利影",
+"suffix": "TWO"
+},
+"6146": {
+"name": "耕興",
+"suffix": "TWO"
+},
+"6147": {
+"name": "頎邦",
+"suffix": "TWO"
+},
+"6148": {
+"name": "驊宏資",
+"suffix": "TWO"
+},
+"6150": {
+"name": "撼訊",
+"suffix": "TWO"
+},
+"6151": {
+"name": "晉倫",
+"suffix": "TWO"
+},
+"6152": {
+"name": "百一",
+"suffix": "TW"
+},
+"6153": {
+"name": "嘉聯益",
+"suffix": "TW"
+},
+"6154": {
+"name": "順發",
+"suffix": "TWO"
+},
+"6155": {
+"name": "鈞寶",
+"suffix": "TW"
+},
+"6156": {
+"name": "松上",
+"suffix": "TWO"
+},
+"6158": {
+"name": "禾昌",
+"suffix": "TWO"
+},
+"6160": {
+"name": "欣技",
+"suffix": "TWO"
+},
+"6161": {
+"name": "捷波",
+"suffix": "TWO"
+},
+"6163": {
+"name": "華電網",
+"suffix": "TWO"
+},
+"6164": {
+"name": "華興",
+"suffix": "TW"
+},
+"6165": {
+"name": "浪凡",
+"suffix": "TW"
+},
+"6166": {
+"name": "凌華",
+"suffix": "TW"
+},
+"6167": {
+"name": "久正",
+"suffix": "TWO"
+},
+"6168": {
+"name": "宏齊",
+"suffix": "TW"
+},
+"6169": {
+"name": "昱泉",
+"suffix": "TWO"
+},
+"6170": {
+"name": "統振",
+"suffix": "TWO"
+},
+"6171": {
+"name": "大城地產",
+"suffix": "TWO"
+},
+"6173": {
+"name": "信昌電",
+"suffix": "TWO"
+},
+"6174": {
+"name": "安碁",
+"suffix": "TWO"
+},
+"6175": {
+"name": "立敦",
+"suffix": "TWO"
+},
+"6176": {
+"name": "瑞儀",
+"suffix": "TW"
+},
+"6177": {
+"name": "達麗",
+"suffix": "TW"
+},
+"6179": {
+"name": "亞通",
+"suffix": "TWO"
+},
+"6180": {
+"name": "橘子",
+"suffix": "TWO"
+},
+"6182": {
+"name": "合晶",
+"suffix": "TWO"
+},
+"6183": {
+"name": "關貿",
+"suffix": "TW"
+},
+"6184": {
+"name": "大豐電",
+"suffix": "TW"
+},
+"6185": {
+"name": "幃翔",
+"suffix": "TWO"
+},
+"6186": {
+"name": "新潤",
+"suffix": "TWO"
+},
+"6187": {
+"name": "萬潤",
+"suffix": "TWO"
+},
+"6188": {
+"name": "廣明",
+"suffix": "TWO"
+},
+"6189": {
+"name": "豐藝",
+"suffix": "TW"
+},
+"6190": {
+"name": "萬泰科",
+"suffix": "TWO"
+},
+"6191": {
+"name": "精成科",
+"suffix": "TW"
+},
+"6192": {
+"name": "巨路",
+"suffix": "TW"
+},
+"6194": {
+"name": "育富",
+"suffix": "TWO"
+},
+"6195": {
+"name": "詩肯",
+"suffix": "TWO"
+},
+"6196": {
+"name": "帆宣",
+"suffix": "TW"
+},
+"6197": {
+"name": "佳必琪",
+"suffix": "TW"
+},
+"6198": {
+"name": "瑞築",
+"suffix": "TWO"
+},
+"6199": {
+"name": "天品",
+"suffix": "TWO"
+},
+"6201": {
+"name": "亞弘電",
+"suffix": "TW"
+},
+"6202": {
+"name": "盛群",
+"suffix": "TW"
+},
+"6203": {
+"name": "海韻電",
+"suffix": "TWO"
+},
+"6204": {
+"name": "艾華",
+"suffix": "TWO"
+},
+"6205": {
+"name": "詮欣",
+"suffix": "TW"
+},
+"6206": {
+"name": "飛捷",
+"suffix": "TW"
+},
+"6207": {
+"name": "雷科",
+"suffix": "TWO"
+},
+"6208": {
+"name": "日揚",
+"suffix": "TWO"
+},
+"6209": {
+"name": "今國光",
+"suffix": "TW"
+},
+"6210": {
+"name": "慶生",
+"suffix": "TWO"
+},
+"6212": {
+"name": "理銘",
+"suffix": "TWO"
+},
+"6213": {
+"name": "聯茂",
+"suffix": "TW"
+},
+"6214": {
+"name": "精誠",
+"suffix": "TW"
+},
+"6215": {
+"name": "和椿",
+"suffix": "TW"
+},
+"6216": {
+"name": "居易",
+"suffix": "TW"
+},
+"6217": {
+"name": "中探針",
+"suffix": "TWO"
+},
+"6218": {
+"name": "豪勉",
+"suffix": "TWO"
+},
+"6219": {
+"name": "富旺",
+"suffix": "TWO"
+},
+"6220": {
+"name": "岳豐",
+"suffix": "TWO"
+},
+"6221": {
+"name": "晉泰",
+"suffix": "TWO"
+},
+"6222": {
+"name": "立軒",
+"suffix": "TWO"
+},
+"6223": {
+"name": "旺矽",
+"suffix": "TWO"
+},
+"6224": {
+"name": "聚鼎",
+"suffix": "TW"
+},
+"6225": {
+"name": "天瀚",
+"suffix": "TW"
+},
+"6226": {
+"name": "光鼎",
+"suffix": "TW"
+},
+"6227": {
+"name": "茂綸",
+"suffix": "TWO"
+},
+"6228": {
+"name": "全譜",
+"suffix": "TWO"
+},
+"6229": {
+"name": "研通",
+"suffix": "TWO"
+},
+"6230": {
+"name": "尼得科超眾",
+"suffix": "TW"
+},
+"6231": {
+"name": "系微",
+"suffix": "TWO"
+},
+"6233": {
+"name": "旺玖",
+"suffix": "TWO"
+},
+"6234": {
+"name": "高僑",
+"suffix": "TWO"
+},
+"6235": {
+"name": "華孚",
+"suffix": "TW"
+},
+"6236": {
+"name": "中湛",
+"suffix": "TWO"
+},
+"6237": {
+"name": "驊訊",
+"suffix": "TWO"
+},
+"6239": {
+"name": "力成",
+"suffix": "TW"
+},
+"6240": {
+"name": "松崗",
+"suffix": "TWO"
+},
+"6241": {
+"name": "鑫永洋",
+"suffix": "TWO"
+},
+"6242": {
+"name": "立康",
+"suffix": "TWO"
+},
+"6243": {
+"name": "迅杰",
+"suffix": "TW"
+},
+"6244": {
+"name": "茂迪",
+"suffix": "TWO"
+},
+"6245": {
+"name": "立端",
+"suffix": "TWO"
+},
+"6246": {
+"name": "臺龍",
+"suffix": "TWO"
+},
+"6248": {
+"name": "沛波",
+"suffix": "TWO"
+},
+"6257": {
+"name": "矽格",
+"suffix": "TW"
+},
+"6259": {
+"name": "百徽",
+"suffix": "TWO"
+},
+"6261": {
+"name": "久元",
+"suffix": "TWO"
+},
+"6263": {
+"name": "普萊德",
+"suffix": "TWO"
+},
+"6264": {
+"name": "富裔",
+"suffix": "TWO"
+},
+"6265": {
+"name": "方土昶",
+"suffix": "TWO"
+},
+"6266": {
+"name": "泰詠",
+"suffix": "TWO"
+},
+"6269": {
+"name": "台郡",
+"suffix": "TW"
+},
+"6270": {
+"name": "倍微",
+"suffix": "TWO"
+},
+"6271": {
+"name": "同欣電",
+"suffix": "TW"
+},
+"6272": {
+"name": "驊陞",
+"suffix": "TW"
+},
+"6274": {
+"name": "台燿",
+"suffix": "TWO"
+},
+"6275": {
+"name": "元山",
+"suffix": "TWO"
+},
+"6276": {
+"name": "安鈦克",
+"suffix": "TWO"
+},
+"6277": {
+"name": "宏正",
+"suffix": "TW"
+},
+"6278": {
+"name": "台表科",
+"suffix": "TW"
+},
+"6279": {
+"name": "胡連",
+"suffix": "TWO"
+},
+"6281": {
+"name": "全國電",
+"suffix": "TW"
+},
+"6282": {
+"name": "康舒",
+"suffix": "TW"
+},
+"6283": {
+"name": "淳安",
+"suffix": "TW"
+},
+"6284": {
+"name": "佳邦",
+"suffix": "TWO"
+},
+"6285": {
+"name": "啟碁",
+"suffix": "TW"
+},
+"6290": {
+"name": "良維",
+"suffix": "TWO"
+},
+"6291": {
+"name": "沛亨",
+"suffix": "TWO"
+},
+"6292": {
+"name": "迅德",
+"suffix": "TWO"
+},
+"6294": {
+"name": "智基",
+"suffix": "TWO"
+},
+"6405": {
+"name": "悅城",
+"suffix": "TW"
+},
+"6409": {
+"name": "旭隼",
+"suffix": "TW"
+},
+"6411": {
+"name": "晶焱",
+"suffix": "TWO"
+},
+"6412": {
+"name": "群電",
+"suffix": "TW"
+},
+"6414": {
+"name": "樺漢",
+"suffix": "TW"
+},
+"6415": {
+"name": "矽力*-KY",
+"suffix": "TW"
+},
+"6416": {
+"name": "瑞祺電通",
+"suffix": "TW"
+},
+"6417": {
+"name": "韋僑",
+"suffix": "TWO"
+},
+"6418": {
+"name": "詠昇",
+"suffix": "TWO"
+},
+"6419": {
+"name": "京晨科",
+"suffix": "TWO"
+},
+"6423": {
+"name": "億而得",
+"suffix": "TWO"
+},
+"6425": {
+"name": "易發",
+"suffix": "TWO"
+},
+"6426": {
+"name": "統新",
+"suffix": "TW"
+},
+"6431": {
+"name": "光麗-KY",
+"suffix": "TW"
+},
+"6432": {
+"name": "今展科",
+"suffix": "TWO"
+},
+"6435": {
+"name": "大中",
+"suffix": "TWO"
+},
+"6438": {
+"name": "迅得",
+"suffix": "TW"
+},
+"6441": {
+"name": "廣錠",
+"suffix": "TWO"
+},
+"6442": {
+"name": "光聖",
+"suffix": "TW"
+},
+"6443": {
+"name": "元晶",
+"suffix": "TW"
+},
+"6446": {
+"name": "藥華藥",
+"suffix": "TW"
+},
+"6449": {
+"name": "鈺邦",
+"suffix": "TW"
+},
+"6451": {
+"name": "訊芯-KY",
+"suffix": "TW"
+},
+"6456": {
+"name": "GIS-KY",
+"suffix": "TW"
+},
+"6461": {
+"name": "益得",
+"suffix": "TWO"
+},
+"6462": {
+"name": "神盾",
+"suffix": "TWO"
+},
+"6464": {
+"name": "台數科",
+"suffix": "TW"
+},
+"6465": {
+"name": "威潤",
+"suffix": "TWO"
+},
+"6469": {
+"name": "大樹",
+"suffix": "TWO"
+},
+"6470": {
+"name": "宇智",
+"suffix": "TWO"
+},
+"6472": {
+"name": "保瑞",
+"suffix": "TW"
+},
+"6474": {
+"name": "華豫寧",
+"suffix": "TWO"
+},
+"6477": {
+"name": "安集",
+"suffix": "TW"
+},
+"6482": {
+"name": "弘煜科",
+"suffix": "TWO"
+},
+"6485": {
+"name": "點序",
+"suffix": "TWO"
+},
+"6486": {
+"name": "互動",
+"suffix": "TWO"
+},
+"6488": {
+"name": "環球晶",
+"suffix": "TWO"
+},
+"6491": {
+"name": "晶碩",
+"suffix": "TW"
+},
+"6492": {
+"name": "生華科",
+"suffix": "TWO"
+},
+"6494": {
+"name": "九齊",
+"suffix": "TWO"
+},
+"6496": {
+"name": "科懋",
+"suffix": "TWO"
+},
+"6498": {
+"name": "久禾光",
+"suffix": "TWO"
+},
+"6499": {
+"name": "益安",
+"suffix": "TWO"
+},
+"6504": {
+"name": "南六",
+"suffix": "TW"
+},
+"6505": {
+"name": "台塑化",
+"suffix": "TW"
+},
+"6506": {
+"name": "雙邦",
+"suffix": "TWO"
+},
+"6508": {
+"name": "惠光",
+"suffix": "TWO"
+},
+"6509": {
+"name": "聚和",
+"suffix": "TWO"
+},
+"6510": {
+"name": "精測",
+"suffix": "TWO"
+},
+"6512": {
+"name": "啟發電",
+"suffix": "TWO"
+},
+"6515": {
+"name": "穎崴",
+"suffix": "TW"
+},
+"6516": {
+"name": "勤崴國際",
+"suffix": "TWO"
+},
+"6517": {
+"name": "保勝光學",
+"suffix": "TWO"
+},
+"6523": {
+"name": "達爾膚",
+"suffix": "TWO"
+},
+"6525": {
+"name": "捷敏-KY",
+"suffix": "TW"
+},
+"6526": {
+"name": "達發",
+"suffix": "TW"
+},
+"6527": {
+"name": "明達醫",
+"suffix": "TWO"
+},
+"6530": {
+"name": "創威",
+"suffix": "TWO"
+},
+"6531": {
+"name": "愛普*",
+"suffix": "TW"
+},
+"6532": {
+"name": "瑞耘",
+"suffix": "TWO"
+},
+"6533": {
+"name": "晶心科",
+"suffix": "TW"
+},
+"6534": {
+"name": "正瀚-創",
+"suffix": "TW"
+},
+"6535": {
+"name": "順藥",
+"suffix": "TWO"
+},
+"6538": {
+"name": "倉和",
+"suffix": "TWO"
+},
+"6541": {
+"name": "泰福-KY",
+"suffix": "TW"
+},
+"6542": {
+"name": "隆中",
+"suffix": "TWO"
+},
+"6546": {
+"name": "正基",
+"suffix": "TWO"
+},
+"6547": {
+"name": "高端疫苗",
+"suffix": "TWO"
+},
+"6548": {
+"name": "長科*",
+"suffix": "TWO"
+},
+"6552": {
+"name": "易華電",
+"suffix": "TW"
+},
+"6556": {
+"name": "勝品",
+"suffix": "TWO"
+},
+"6558": {
+"name": "興能高",
+"suffix": "TW"
+},
+"6560": {
+"name": "欣普羅",
+"suffix": "TWO"
+},
+"6561": {
+"name": "是方",
+"suffix": "TWO"
+},
+"6568": {
+"name": "宏觀",
+"suffix": "TWO"
+},
+"6569": {
+"name": "醫揚",
+"suffix": "TWO"
+},
+"6570": {
+"name": "維田",
+"suffix": "TWO"
+},
+"6573": {
+"name": "虹揚-KY",
+"suffix": "TW"
+},
+"6574": {
+"name": "霈方",
+"suffix": "TWO"
+},
+"6576": {
+"name": "逸達",
+"suffix": "TWO"
+},
+"6577": {
+"name": "勁豐",
+"suffix": "TWO"
+},
+"6578": {
+"name": "達邦蛋白",
+"suffix": "TWO"
+},
+"6579": {
+"name": "研揚",
+"suffix": "TW"
+},
+"6581": {
+"name": "鋼聯",
+"suffix": "TW"
+},
+"6582": {
+"name": "申豐",
+"suffix": "TW"
+},
+"6584": {
+"name": "南俊國際",
+"suffix": "TWO"
+},
+"6585": {
+"name": "鼎基",
+"suffix": "TW"
+},
+"6588": {
+"name": "東典光電",
+"suffix": "TWO"
+},
+"6589": {
+"name": "台康生技",
+"suffix": "TW"
+},
+"6590": {
+"name": "普鴻",
+"suffix": "TWO"
+},
+"6591": {
+"name": "動力-KY",
+"suffix": "TW"
+},
+"6592": {
+"name": "和潤企業",
+"suffix": "TW"
+},
+"6593": {
+"name": "台灣銘板",
+"suffix": "TWO"
+},
+"6596": {
+"name": "寬宏藝術",
+"suffix": "TWO"
+},
+"6597": {
+"name": "立誠",
+"suffix": "TWO"
+},
+"6598": {
+"name": "ABC-KY",
+"suffix": "TW"
+},
+"6603": {
+"name": "富強鑫",
+"suffix": "TWO"
+},
+"6605": {
+"name": "帝寶",
+"suffix": "TW"
+},
+"6606": {
+"name": "建德工業",
+"suffix": "TW"
+},
+"6609": {
+"name": "瀧澤科",
+"suffix": "TWO"
+},
+"6612": {
+"name": "奈米醫材",
+"suffix": "TWO"
+},
+"6613": {
+"name": "朋億*",
+"suffix": "TWO"
+},
+"6614": {
+"name": "資拓宏宇",
+"suffix": "TW"
+},
+"6615": {
+"name": "慧智",
+"suffix": "TWO"
+},
+"6616": {
+"name": "特昇-KY",
+"suffix": "TWO"
+},
+"6617": {
+"name": "共信-KY",
+"suffix": "TWO"
+},
+"6620": {
+"name": "漢達",
+"suffix": "TWO"
+},
+"6624": {
+"name": "萬年清",
+"suffix": "TWO"
+},
+"6625": {
+"name": "必應",
+"suffix": "TW"
+},
+"6629": {
+"name": "泰金-KY",
+"suffix": "TWO"
+},
+"6637": {
+"name": "醫影",
+"suffix": "TWO"
+},
+"6640": {
+"name": "均華",
+"suffix": "TWO"
+},
+"6641": {
+"name": "基士德-KY",
+"suffix": "TW"
+},
+"6642": {
+"name": "富致",
+"suffix": "TWO"
+},
+"6643": {
+"name": "M31",
+"suffix": "TWO"
+},
+"6645": {
+"name": "金萬林-創",
+"suffix": "TW"
+},
+"6649": {
+"name": "台生材",
+"suffix": "TWO"
+},
+"6651": {
+"name": "全宇昕",
+"suffix": "TWO"
+},
+"6654": {
+"name": "天正國際",
+"suffix": "TWO"
+},
+"6655": {
+"name": "科定",
+"suffix": "TW"
+},
+"6657": {
+"name": "華安",
+"suffix": "TW"
+},
+"6658": {
+"name": "聯策",
+"suffix": "TW"
+},
+"6661": {
+"name": "威健生技",
+"suffix": "TWO"
+},
+"6662": {
+"name": "樂斯科",
+"suffix": "TWO"
+},
+"6664": {
+"name": "群翊",
+"suffix": "TWO"
+},
+"6666": {
+"name": "羅麗芬-KY",
+"suffix": "TW"
+},
+"6667": {
+"name": "信紘科",
+"suffix": "TWO"
+},
+"6668": {
+"name": "中揚光",
+"suffix": "TW"
+},
+"6669": {
+"name": "緯穎",
+"suffix": "TW"
+},
+"6670": {
+"name": "復盛應用",
+"suffix": "TW"
+},
+"6671": {
+"name": "三能-KY",
+"suffix": "TW"
+},
+"6672": {
+"name": "騰輝電子-KY",
+"suffix": "TW"
+},
+"6674": {
+"name": "鋐寶科技",
+"suffix": "TW"
+},
+"6679": {
+"name": "鈺太",
+"suffix": "TWO"
+},
+"6680": {
+"name": "鑫創電子",
+"suffix": "TWO"
+},
+"6683": {
+"name": "雍智科技",
+"suffix": "TWO"
+},
+"6684": {
+"name": "安格",
+"suffix": "TWO"
+},
+"6689": {
+"name": "伊雲谷",
+"suffix": "TW"
+},
+"6690": {
+"name": "安碁資訊",
+"suffix": "TWO"
+},
+"6691": {
+"name": "洋基工程",
+"suffix": "TW"
+},
+"6692": {
+"name": "進能服",
+"suffix": "TWO"
+},
+"6693": {
+"name": "廣閎科",
+"suffix": "TWO"
+},
+"6695": {
+"name": "芯鼎",
+"suffix": "TW"
+},
+"6697": {
+"name": "東捷資訊",
+"suffix": "TWO"
+},
+"6698": {
+"name": "旭暉應材",
+"suffix": "TW"
+},
+"6703": {
+"name": "軒郁",
+"suffix": "TWO"
+},
+"6706": {
+"name": "惠特",
+"suffix": "TW"
+},
+"6708": {
+"name": "天擎",
+"suffix": "TWO"
+},
+"6712": {
+"name": "長聖",
+"suffix": "TWO"
+},
+"6715": {
+"name": "嘉基",
+"suffix": "TW"
+},
+"6716": {
+"name": "應廣",
+"suffix": "TWO"
+},
+"6719": {
+"name": "力智",
+"suffix": "TW"
+},
+"6720": {
+"name": "久昌",
+"suffix": "TWO"
+},
+"6721": {
+"name": "信實",
+"suffix": "TWO"
+},
+"6722": {
+"name": "輝創",
+"suffix": "TW"
+},
+"6725": {
+"name": "矽科宏晟",
+"suffix": "TWO"
+},
+"6727": {
+"name": "亞泰金屬",
+"suffix": "TWO"
+},
+"6728": {
+"name": "上洋",
+"suffix": "TWO"
+},
+"6730": {
+"name": "常廣",
+"suffix": "TWO"
+},
+"6732": {
+"name": "昇佳電子",
+"suffix": "TWO"
+},
+"6733": {
+"name": "博晟生醫",
+"suffix": "TWO"
+},
+"6735": {
+"name": "美達科技",
+"suffix": "TWO"
+},
+"6739": {
+"name": "竹陞科技",
+"suffix": "TWO"
+},
+"6741": {
+"name": "91APP*-KY",
+"suffix": "TWO"
+},
+"6742": {
+"name": "澤米",
+"suffix": "TW"
+},
+"6743": {
+"name": "安普新",
+"suffix": "TW"
+},
+"6751": {
+"name": "智聯服務",
+"suffix": "TWO"
+},
+"6752": {
+"name": "叡揚",
+"suffix": "TWO"
+},
+"6753": {
+"name": "龍德造船",
+"suffix": "TW"
+},
+"6754": {
+"name": "匯僑設計",
+"suffix": "TW"
+},
+"6756": {
+"name": "威鋒電子",
+"suffix": "TW"
+},
+"6757": {
+"name": "台灣虎航",
+"suffix": "TW"
+},
+"6761": {
+"name": "穩得",
+"suffix": "TWO"
+},
+"6762": {
+"name": "達亞",
+"suffix": "TWO"
+},
+"6763": {
+"name": "綠界科技*",
+"suffix": "TWO"
+},
+"6767": {
+"name": "台微醫",
+"suffix": "TWO"
+},
+"6768": {
+"name": "志強-KY",
+"suffix": "TW"
+},
+"6770": {
+"name": "力積電",
+"suffix": "TW"
+},
+"6771": {
+"name": "平和環保-創",
+"suffix": "TW"
+},
+"6776": {
+"name": "展碁國際",
+"suffix": "TW"
+},
+"6781": {
+"name": "AES-KY",
+"suffix": "TW"
+},
+"6782": {
+"name": "視陽",
+"suffix": "TW"
+},
+"6785": {
+"name": "昱展新藥",
+"suffix": "TWO"
+},
+"6788": {
+"name": "華景電",
+"suffix": "TWO"
+},
+"6789": {
+"name": "采鈺",
+"suffix": "TW"
+},
+"6790": {
+"name": "永豐實",
+"suffix": "TW"
+},
+"6791": {
+"name": "虎門科技",
+"suffix": "TWO"
+},
+"6792": {
+"name": "詠業",
+"suffix": "TW"
+},
+"6794": {
+"name": "向榮生技",
+"suffix": "TW"
+},
+"6796": {
+"name": "晉弘",
+"suffix": "TW"
+},
+"6799": {
+"name": "來頡",
+"suffix": "TW"
+},
+"6803": {
+"name": "崑鼎",
+"suffix": "TWO"
+},
+"6804": {
+"name": "明係",
+"suffix": "TWO"
+},
+"6805": {
+"name": "富世達",
+"suffix": "TW"
+},
+"6807": {
+"name": "峰源-KY",
+"suffix": "TW"
+},
+"6811": {
+"name": "宏碁資訊",
+"suffix": "TWO"
+},
+"6821": {
+"name": "聯寶",
+"suffix": "TWO"
+},
+"6823": {
+"name": "濾能",
+"suffix": "TWO"
+},
+"6829": {
+"name": "千附精密",
+"suffix": "TWO"
+},
+"6830": {
+"name": "汎銓",
+"suffix": "TW"
+},
+"6831": {
+"name": "邁科",
+"suffix": "TW"
+},
+"6834": {
+"name": "天二科技",
+"suffix": "TW"
+},
+"6835": {
+"name": "圓裕",
+"suffix": "TW"
+},
+"6838": {
+"name": "台新藥",
+"suffix": "TW"
+},
+"6840": {
+"name": "東研信超",
+"suffix": "TWO"
+},
+"6841": {
+"name": "長佳智能",
+"suffix": "TWO"
+},
+"6843": {
+"name": "進典",
+"suffix": "TWO"
+},
+"6844": {
+"name": "諾貝兒",
+"suffix": "TWO"
+},
+"6846": {
+"name": "綠茵",
+"suffix": "TWO"
+},
+"6854": {
+"name": "錼創科技-KY創",
+"suffix": "TW"
+},
+"6855": {
+"name": "數泓科",
+"suffix": "TWO"
+},
+"6856": {
+"name": "鑫傳",
+"suffix": "TWO"
+},
+"6859": {
+"name": "伯特光",
+"suffix": "TWO"
+},
+"6861": {
+"name": "睿生光電",
+"suffix": "TW"
+},
+"6862": {
+"name": "三集瑞-KY",
+"suffix": "TW"
+},
+"6863": {
+"name": "永道-KY",
+"suffix": "TW"
+},
+"6865": {
+"name": "偉康科技",
+"suffix": "TWO"
+},
+"6869": {
+"name": "雲豹能源",
+"suffix": "TW"
+},
+"6870": {
+"name": "騰雲",
+"suffix": "TWO"
+},
+"6872": {
+"name": "浩宇生醫",
+"suffix": "TWO"
+},
+"6873": {
+"name": "泓德能源",
+"suffix": "TW"
+},
+"6874": {
+"name": "倍力",
+"suffix": "TWO"
+},
+"6875": {
+"name": "國邑*",
+"suffix": "TWO"
+},
+"6877": {
+"name": "鏵友益",
+"suffix": "TWO"
+},
+"6881": {
+"name": "潤德",
+"suffix": "TWO"
+},
+"6884": {
+"name": "海柏特",
+"suffix": "TWO"
+},
+"6885": {
+"name": "全福生技",
+"suffix": "TW"
+},
+"6887": {
+"name": "寶綠特-KY",
+"suffix": "TW"
+},
+"6890": {
+"name": "來億-KY",
+"suffix": "TW"
+},
+"6894": {
+"name": "衛司特",
+"suffix": "TWO"
+},
+"6895": {
+"name": "宏碩系統",
+"suffix": "TWO"
+},
+"6899": {
+"name": "創為精密",
+"suffix": "TWO"
+},
+"6901": {
+"name": "鑽石投資",
+"suffix": "TW"
+},
+"6902": {
+"name": "GOGOLOOK",
+"suffix": "TW"
+},
+"6903": {
+"name": "巨漢",
+"suffix": "TWO"
+},
+"6904": {
+"name": "伯鑫",
+"suffix": "TWO"
+},
+"6906": {
+"name": "現觀科",
+"suffix": "TW"
+},
+"6907": {
+"name": "雅特力-KY",
+"suffix": "TWO"
+},
+"6908": {
+"name": "宏碁遊戲-創",
+"suffix": "TW"
+},
+"6909": {
+"name": "創控",
+"suffix": "TW"
+},
+"6910": {
+"name": "德鴻",
+"suffix": "TWO"
+},
+"6913": {
+"name": "鴻呈",
+"suffix": "TWO"
+},
+"6914": {
+"name": "阜爾運通",
+"suffix": "TW"
+},
+"6916": {
+"name": "華凌",
+"suffix": "TW"
+},
+"6918": {
+"name": "愛派司",
+"suffix": "TW"
+},
+"6919": {
+"name": "康霈*",
+"suffix": "TW"
+},
+"6921": {
+"name": "嘉雨思-創",
+"suffix": "TW"
+},
+"6922": {
+"name": "宸曜",
+"suffix": "TWO"
+},
+"6923": {
+"name": "中台",
+"suffix": "TW"
+},
+"6924": {
+"name": "榮惠-KY創",
+"suffix": "TW"
+},
+"6925": {
+"name": "意藍",
+"suffix": "TWO"
+},
+"6928": {
+"name": "攸泰科技",
+"suffix": "TW"
+},
+"6929": {
+"name": "佑全",
+"suffix": "TWO"
+},
+"6931": {
+"name": "青松健康",
+"suffix": "TW"
+},
+"6933": {
+"name": "AMAX-KY",
+"suffix": "TW"
+},
+"6934": {
+"name": "心誠鎂",
+"suffix": "TW"
+},
+"6936": {
+"name": "永鴻生技",
+"suffix": "TW"
+},
+"6937": {
+"name": "天虹",
+"suffix": "TW"
+},
+"6944": {
+"name": "兆聯實業",
+"suffix": "TW"
+},
+"6945": {
+"name": "圓祥生技",
+"suffix": "TWO"
+},
+"6947": {
+"name": "台鎔科技",
+"suffix": "TW"
+},
+"6949": {
+"name": "沛爾生醫*-創",
+"suffix": "TW"
+},
+"6951": {
+"name": "青新-創",
+"suffix": "TW"
+},
+"6952": {
+"name": "大武山",
+"suffix": "TW"
+},
+"6953": {
+"name": "家碩",
+"suffix": "TWO"
+},
+"6955": {
+"name": "邦睿生技-創",
+"suffix": "TW"
+},
+"6957": {
+"name": "裕慶-KY",
+"suffix": "TW"
+},
+"6958": {
+"name": "日盛台駿",
+"suffix": "TW"
+},
+"6961": {
+"name": "旅天下",
+"suffix": "TWO"
+},
+"6962": {
+"name": "奕力-KY",
+"suffix": "TW"
+},
+"6965": {
+"name": "中傑-KY",
+"suffix": "TW"
+},
+"6967": {
+"name": "汎瑋材料",
+"suffix": "TWO"
+},
+"6968": {
+"name": "萬達寵物",
+"suffix": "TWO"
+},
+"6969": {
+"name": "成信實業*-創",
+"suffix": "TW"
+},
+"6971": {
+"name": "惠民實業",
+"suffix": "TWO"
+},
+"6982": {
+"name": "大井泵浦",
+"suffix": "TWO"
+},
+"6983": {
+"name": "華洋精機",
+"suffix": "TWO"
+},
+"6986": {
+"name": "和迅",
+"suffix": "TWO"
+},
+"6988": {
+"name": "威力暘-創",
+"suffix": "TW"
+},
+"6994": {
+"name": "富威電力",
+"suffix": "TW"
+},
+"6996": {
+"name": "力領科技",
+"suffix": "TWO"
+},
+"6997": {
+"name": "博弘",
+"suffix": "TWO"
+},
+"7402": {
+"name": "邑錡",
+"suffix": "TWO"
+},
+"7547": {
+"name": "碩網",
+"suffix": "TWO"
+},
+"7556": {
+"name": "意德士",
+"suffix": "TWO"
+},
+"7584": {
+"name": "樂意",
+"suffix": "TWO"
+},
+"7610": {
+"name": "聯友金屬-創",
+"suffix": "TW"
+},
+"7631": {
+"name": "聚賢研發-創",
+"suffix": "TW"
+},
+"7642": {
+"name": "昶瑞機電",
+"suffix": "TWO"
+},
+"7689": {
+"name": "大鵬科CLMX",
+"suffix": "TW"
+},
+"7703": {
+"name": "銳澤",
+"suffix": "TWO"
+},
+"7704": {
+"name": "明遠精密",
+"suffix": "TWO"
+},
+"7705": {
+"name": "三商餐飲",
+"suffix": "TW"
+},
+"7708": {
+"name": "全家餐飲",
+"suffix": "TWO"
+},
+"7709": {
+"name": "榮田",
+"suffix": "TWO"
+},
+"7711": {
+"name": "永擎",
+"suffix": "TW"
+},
+"7712": {
+"name": "博盛半導體",
+"suffix": "TWO"
+},
+"7713": {
+"name": "威力德生醫",
+"suffix": "TWO"
+},
+"7714": {
+"name": "創泓科技",
+"suffix": "TWO"
+},
+"7715": {
+"name": "裕山",
+"suffix": "TWO"
+},
+"7716": {
+"name": "昱臺國際",
+"suffix": "TWO"
+},
+"7717": {
+"name": "萊德光電-KY",
+"suffix": "TWO"
+},
+"7718": {
+"name": "友鋮",
+"suffix": "TWO"
+},
+"7721": {
+"name": "微程式",
+"suffix": "TW"
+},
+"7722": {
+"name": "LINEPAY",
+"suffix": "TW"
+},
+"7723": {
+"name": "築間",
+"suffix": "TWO"
+},
+"7728": {
+"name": "光焱科技",
+"suffix": "TWO"
+},
+"7730": {
+"name": "暉盛-創",
+"suffix": "TW"
+},
+"7732": {
+"name": "金興精密",
+"suffix": "TW"
+},
+"7734": {
+"name": "印能科技",
+"suffix": "TWO"
+},
+"7736": {
+"name": "虎山",
+"suffix": "TW"
+},
+"7738": {
+"name": "東聯互動",
+"suffix": "TWO"
+},
+"7740": {
+"name": "熙特爾-創",
+"suffix": "TW"
+},
+"7743": {
+"name": "金利食安",
+"suffix": "TWO"
+},
+"7744": {
+"name": "崴寶",
+"suffix": "TWO"
+},
+"7747": {
+"name": "昕奇雲端",
+"suffix": "TWO"
+},
+"7749": {
+"name": "意騰-KY",
+"suffix": "TW"
+},
+"7750": {
+"name": "新代",
+"suffix": "TW"
+},
+"7751": {
+"name": "竑騰",
+"suffix": "TWO"
+},
+"7753": {
+"name": "星亞",
+"suffix": "TWO"
+},
+"7757": {
+"name": "金色三麥",
+"suffix": "TWO"
+},
+"7760": {
+"name": "享溫馨",
+"suffix": "TW"
+},
+"7765": {
+"name": "中華資安",
+"suffix": "TW"
+},
+"7767": {
+"name": "仁大資訊",
+"suffix": "TWO"
+},
+"7768": {
+"name": "頌勝科技",
+"suffix": "TW"
+},
+"7769": {
+"name": "鴻勁",
+"suffix": "TW"
+},
+"7770": {
+"name": "君曜",
+"suffix": "TWO"
+},
+"7772": {
+"name": "耀穎",
+"suffix": "TWO"
+},
+"7777": {
+"name": "能率亞洲",
+"suffix": "TWO"
+},
+"7780": {
+"name": "大研生醫*",
+"suffix": "TW"
+},
+"7782": {
+"name": "光速火箭",
+"suffix": "TWO"
+},
+"7786": {
+"name": "東方風能",
+"suffix": "TW"
+},
+"7788": {
+"name": "松川精密",
+"suffix": "TW"
+},
+"7791": {
+"name": "皇家可口",
+"suffix": "TW"
+},
+"7792": {
+"name": "安葆",
+"suffix": "TWO"
+},
+"7794": {
+"name": "宏碁智新",
+"suffix": "TWO"
+},
+"7795": {
+"name": "長廣",
+"suffix": "TW"
+},
+"7799": {
+"name": "禾榮科",
+"suffix": "TW"
+},
+"7803": {
+"name": "雲象科技-創",
+"suffix": "TW"
+},
+"7805": {
+"name": "威聯通",
+"suffix": "TWO"
+},
+"7810": {
+"name": "捷創科技",
+"suffix": "TWO"
+},
+"7811": {
+"name": "民盛",
+"suffix": "TWO"
+},
+"7812": {
+"name": "稜研科技*-創",
+"suffix": "TW"
+},
+"7814": {
+"name": "海昌生技",
+"suffix": "TWO"
+},
+"7818": {
+"name": "溢泰實業",
+"suffix": "TW"
+},
+"7819": {
+"name": "精誠金融",
+"suffix": "TWO"
+},
+"7820": {
+"name": "立盈",
+"suffix": "TWO"
+},
+"7821": {
+"name": "神數",
+"suffix": "TW"
+},
+"7822": {
+"name": "倍利科",
+"suffix": "TW"
+},
+"7823": {
+"name": "奧義賽博-KY創",
+"suffix": "TW"
+},
+"7825": {
+"name": "和亞智慧",
+"suffix": "TWO"
+},
+"7827": {
+"name": "漢康-KY創",
+"suffix": "TW"
+},
+"7828": {
+"name": "創新服務",
+"suffix": "TWO"
+},
+"7835": {
+"name": "永悅健康-創",
+"suffix": "TW"
+},
+"7839": {
+"name": "達人網",
+"suffix": "TWO"
+},
+"7842": {
+"name": "天能綠電",
+"suffix": "TWO"
+},
+"7855": {
+"name": "和運租車",
+"suffix": "TW"
+},
+"7856": {
+"name": "漢測",
+"suffix": "TWO"
+},
+"8011": {
+"name": "台通",
+"suffix": "TW"
+},
+"8016": {
+"name": "矽創",
+"suffix": "TW"
+},
+"8021": {
+"name": "尖點",
+"suffix": "TW"
+},
+"8024": {
+"name": "佑華",
+"suffix": "TWO"
+},
+"8027": {
+"name": "鈦昇",
+"suffix": "TWO"
+},
+"8028": {
+"name": "昇陽半導體",
+"suffix": "TW"
+},
+"8032": {
+"name": "光菱",
+"suffix": "TWO"
+},
+"8033": {
+"name": "雷虎",
+"suffix": "TW"
+},
+"8034": {
+"name": "榮群",
+"suffix": "TWO"
+},
+"8038": {
+"name": "長園科",
+"suffix": "TWO"
+},
+"8039": {
+"name": "台虹",
+"suffix": "TW"
+},
+"8040": {
+"name": "九暘",
+"suffix": "TWO"
+},
+"8042": {
+"name": "金山電",
+"suffix": "TWO"
+},
+"8043": {
+"name": "蜜望實",
+"suffix": "TWO"
+},
+"8044": {
+"name": "網家",
+"suffix": "TWO"
+},
+"8045": {
+"name": "達運光電",
+"suffix": "TW"
+},
+"8046": {
+"name": "南電",
+"suffix": "TW"
+},
+"8047": {
+"name": "星雲",
+"suffix": "TWO"
+},
+"8048": {
+"name": "德勝",
+"suffix": "TWO"
+},
+"8049": {
+"name": "晶采",
+"suffix": "TWO"
+},
+"8050": {
+"name": "廣積",
+"suffix": "TWO"
+},
+"8054": {
+"name": "安國",
+"suffix": "TWO"
+},
+"8059": {
+"name": "凱碩",
+"suffix": "TWO"
+},
+"8064": {
+"name": "東捷",
+"suffix": "TWO"
+},
+"8066": {
+"name": "來思達",
+"suffix": "TWO"
+},
+"8067": {
+"name": "志旭",
+"suffix": "TWO"
+},
+"8068": {
+"name": "全達",
+"suffix": "TWO"
+},
+"8069": {
+"name": "元太",
+"suffix": "TWO"
+},
+"8070": {
+"name": "長華*",
+"suffix": "TW"
+},
+"8071": {
+"name": "能率網通",
+"suffix": "TWO"
+},
+"8072": {
+"name": "陞泰",
+"suffix": "TW"
+},
+"8074": {
+"name": "鉅橡",
+"suffix": "TWO"
+},
+"8076": {
+"name": "伍豐",
+"suffix": "TWO"
+},
+"8077": {
+"name": "洛碁",
+"suffix": "TWO"
+},
+"8080": {
+"name": "泰霖",
+"suffix": "TWO"
+},
+"8081": {
+"name": "致新",
+"suffix": "TW"
+},
+"8083": {
+"name": "瑞穎",
+"suffix": "TWO"
+},
+"8084": {
+"name": "巨虹",
+"suffix": "TWO"
+},
+"8085": {
+"name": "福華",
+"suffix": "TWO"
+},
+"8086": {
+"name": "宏捷科",
+"suffix": "TWO"
+},
+"8087": {
+"name": "麗升能源",
+"suffix": "TWO"
+},
+"8088": {
+"name": "品安",
+"suffix": "TWO"
+},
+"8089": {
+"name": "康全電訊",
+"suffix": "TWO"
+},
+"8091": {
+"name": "翔名",
+"suffix": "TWO"
+},
+"8092": {
+"name": "建暐",
+"suffix": "TWO"
+},
+"8093": {
+"name": "保銳",
+"suffix": "TWO"
+},
+"8096": {
+"name": "擎亞",
+"suffix": "TWO"
+},
+"8097": {
+"name": "常珵",
+"suffix": "TWO"
+},
+"8099": {
+"name": "大世科",
+"suffix": "TWO"
+},
+"8101": {
+"name": "華冠",
+"suffix": "TW"
+},
+"8102": {
+"name": "傑霖科技",
+"suffix": "TWO"
+},
+"8103": {
+"name": "瀚荃",
+"suffix": "TW"
+},
+"8104": {
+"name": "錸寶",
+"suffix": "TW"
+},
+"8105": {
+"name": "凌巨",
+"suffix": "TW"
+},
+"8107": {
+"name": "大億金茂",
+"suffix": "TWO"
+},
+"8109": {
+"name": "博大",
+"suffix": "TWO"
+},
+"8110": {
+"name": "華東",
+"suffix": "TW"
+},
+"8111": {
+"name": "立碁",
+"suffix": "TWO"
+},
+"8112": {
+"name": "至上",
+"suffix": "TW"
+},
+"8114": {
+"name": "振樺電",
+"suffix": "TW"
+},
+"8121": {
+"name": "越峰",
+"suffix": "TWO"
+},
+"8131": {
+"name": "福懋科",
+"suffix": "TW"
+},
+"8147": {
+"name": "正淩",
+"suffix": "TWO"
+},
+"8150": {
+"name": "南茂",
+"suffix": "TW"
+},
+"8155": {
+"name": "博智",
+"suffix": "TWO"
+},
+"8162": {
+"name": "微矽電子-創",
+"suffix": "TW"
+},
+"8163": {
+"name": "達方",
+"suffix": "TW"
+},
+"8171": {
+"name": "天宇",
+"suffix": "TWO"
+},
+"8176": {
+"name": "智捷",
+"suffix": "TWO"
+},
+"8182": {
+"name": "加高",
+"suffix": "TWO"
+},
+"8183": {
+"name": "精星",
+"suffix": "TWO"
+},
+"8201": {
+"name": "無敵",
+"suffix": "TW"
+},
+"8210": {
+"name": "勤誠",
+"suffix": "TW"
+},
+"8213": {
+"name": "志超",
+"suffix": "TW"
+},
+"8215": {
+"name": "明基材",
+"suffix": "TW"
+},
+"8222": {
+"name": "寶一",
+"suffix": "TW"
+},
+"8227": {
+"name": "巨有科技",
+"suffix": "TWO"
+},
+"8234": {
+"name": "新漢",
+"suffix": "TWO"
+},
+"8240": {
+"name": "華宏",
+"suffix": "TWO"
+},
+"8249": {
+"name": "菱光",
+"suffix": "TW"
+},
+"8255": {
+"name": "朋程",
+"suffix": "TWO"
+},
+"8261": {
+"name": "富鼎",
+"suffix": "TW"
+},
+"8271": {
+"name": "宇瞻",
+"suffix": "TW"
+},
+"8272": {
+"name": "全景軟體",
+"suffix": "TWO"
+},
+"8277": {
+"name": "商丞",
+"suffix": "TWO"
+},
+"8279": {
+"name": "生展",
+"suffix": "TWO"
+},
+"8284": {
+"name": "三竹",
+"suffix": "TWO"
+},
+"8289": {
+"name": "泰藝",
+"suffix": "TWO"
+},
+"8291": {
+"name": "尚茂",
+"suffix": "TWO"
+},
+"8299": {
+"name": "群聯",
+"suffix": "TWO"
+},
+"8341": {
+"name": "日友",
+"suffix": "TW"
+},
+"8342": {
+"name": "益張",
+"suffix": "TWO"
+},
+"8349": {
+"name": "恒耀",
+"suffix": "TWO"
+},
+"8354": {
+"name": "冠好",
+"suffix": "TWO"
+},
+"8358": {
+"name": "金居",
+"suffix": "TWO"
+},
+"8367": {
+"name": "建新國際",
+"suffix": "TW"
+},
+"8374": {
+"name": "羅昇",
+"suffix": "TW"
+},
+"8383": {
+"name": "千附",
+"suffix": "TWO"
+},
+"8390": {
+"name": "金益鼎",
+"suffix": "TWO"
+},
+"8401": {
+"name": "白紗科",
+"suffix": "TWO"
+},
+"8403": {
+"name": "盛弘",
+"suffix": "TWO"
+},
+"8404": {
+"name": "百和興業-KY",
+"suffix": "TW"
+},
+"8409": {
+"name": "商之器",
+"suffix": "TWO"
+},
+"8410": {
+"name": "森田",
+"suffix": "TWO"
+},
+"8411": {
+"name": "福貞-KY",
+"suffix": "TW"
+},
+"8415": {
+"name": "大國鋼",
+"suffix": "TWO"
+},
+"8416": {
+"name": "實威",
+"suffix": "TWO"
+},
+"8421": {
+"name": "旭源",
+"suffix": "TWO"
+},
+"8422": {
+"name": "可寧衛*",
+"suffix": "TW"
+},
+"8423": {
+"name": "保綠-KY",
+"suffix": "TWO"
+},
+"8424": {
+"name": "惠普",
+"suffix": "TWO"
+},
+"8426": {
+"name": "紅木-KY",
+"suffix": "TWO"
+},
+"8429": {
+"name": "金麗-KY",
+"suffix": "TW"
+},
+"8431": {
+"name": "匯鑽科",
+"suffix": "TWO"
+},
+"8432": {
+"name": "東生華",
+"suffix": "TWO"
+},
+"8433": {
+"name": "弘帆",
+"suffix": "TWO"
+},
+"8435": {
+"name": "鉅邁",
+"suffix": "TWO"
+},
+"8436": {
+"name": "大江",
+"suffix": "TWO"
+},
+"8437": {
+"name": "大地-KY",
+"suffix": "TWO"
+},
+"8438": {
+"name": "昶昕",
+"suffix": "TW"
+},
+"8440": {
+"name": "綠電",
+"suffix": "TWO"
+},
+"8442": {
+"name": "威宏-KY",
+"suffix": "TW"
+},
+"8443": {
+"name": "阿瘦",
+"suffix": "TW"
+},
+"8444": {
+"name": "綠河-KY",
+"suffix": "TWO"
+},
+"8446": {
+"name": "華研",
+"suffix": "TWO"
+},
+"8450": {
+"name": "霹靂",
+"suffix": "TWO"
+},
+"8454": {
+"name": "富邦媒",
+"suffix": "TW"
+},
+"8455": {
+"name": "大拓-KY",
+"suffix": "TWO"
+},
+"8462": {
+"name": "柏文",
+"suffix": "TW"
+},
+"8463": {
+"name": "潤泰材",
+"suffix": "TW"
+},
+"8464": {
+"name": "億豐",
+"suffix": "TW"
+},
+"8466": {
+"name": "美吉吉-KY",
+"suffix": "TW"
+},
+"8467": {
+"name": "波力-KY",
+"suffix": "TW"
+},
+"8472": {
+"name": "納維康",
+"suffix": "TWO"
+},
+"8473": {
+"name": "山林水",
+"suffix": "TW"
+},
+"8476": {
+"name": "台境*",
+"suffix": "TW"
+},
+"8477": {
+"name": "創業家",
+"suffix": "TWO"
+},
+"8478": {
+"name": "東哥遊艇",
+"suffix": "TW"
+},
+"8481": {
+"name": "政伸",
+"suffix": "TW"
+},
+"8482": {
+"name": "商億-KY",
+"suffix": "TW"
+},
+"8487": {
+"name": "愛爾達-創",
+"suffix": "TW"
+},
+"8488": {
+"name": "吉源-KY",
+"suffix": "TW"
+},
+"8489": {
+"name": "三貝德",
+"suffix": "TWO"
+},
+"8499": {
+"name": "鼎炫-KY",
+"suffix": "TW"
+},
+"8905": {
+"name": "裕國",
+"suffix": "TWO"
+},
+"8906": {
+"name": "花王",
+"suffix": "TWO"
+},
+"8908": {
+"name": "欣雄",
+"suffix": "TWO"
+},
+"8916": {
+"name": "光隆",
+"suffix": "TWO"
+},
+"8917": {
+"name": "欣泰",
+"suffix": "TWO"
+},
+"8921": {
+"name": "沈氏",
+"suffix": "TWO"
+},
+"8923": {
+"name": "時報",
+"suffix": "TWO"
+},
+"8924": {
+"name": "大田",
+"suffix": "TWO"
+},
+"8926": {
+"name": "台汽電",
+"suffix": "TW"
+},
+"8927": {
+"name": "北基",
+"suffix": "TWO"
+},
+"8928": {
+"name": "鉅明",
+"suffix": "TWO"
+},
+"8929": {
+"name": "富堡",
+"suffix": "TWO"
+},
+"8930": {
+"name": "青鋼",
+"suffix": "TWO"
+},
+"8931": {
+"name": "大汽電",
+"suffix": "TWO"
+},
+"8932": {
+"name": "智通*",
+"suffix": "TWO"
+},
+"8933": {
+"name": "愛地雅",
+"suffix": "TWO"
+},
+"8935": {
+"name": "邦泰",
+"suffix": "TWO"
+},
+"8936": {
+"name": "國統",
+"suffix": "TWO"
+},
+"8937": {
+"name": "合騏*",
+"suffix": "TWO"
+},
+"8938": {
+"name": "明安",
+"suffix": "TWO"
+},
+"8940": {
+"name": "新天地",
+"suffix": "TW"
+},
+"8941": {
+"name": "關中",
+"suffix": "TWO"
+},
+"8942": {
+"name": "森鉅",
+"suffix": "TWO"
+},
+"8996": {
+"name": "高力",
+"suffix": "TW"
+},
+"9103": {
+"name": "美德醫療-DR",
+"suffix": "TW"
+},
+"910322": {
+"name": "康師傅-DR",
+"suffix": "TW"
+},
+"9105": {
+"name": "泰金寶-DR",
+"suffix": "TW"
+},
+"910861": {
+"name": "神州-DR",
+"suffix": "TW"
+},
+"9110": {
+"name": "越南控-DR",
+"suffix": "TW"
+},
+"911608": {
+"name": "明輝-DR",
+"suffix": "TW"
+},
+"911622": {
+"name": "泰聚亨-DR",
+"suffix": "TW"
+},
+"911868": {
+"name": "同方友友-DR",
+"suffix": "TW"
+},
+"912000": {
+"name": "晨訊科-DR",
+"suffix": "TW"
+},
+"9136": {
+"name": "巨騰-DR",
+"suffix": "TW"
+},
+"9802": {
+"name": "鈺齊-KY",
+"suffix": "TW"
+},
+"9902": {
+"name": "台火",
+"suffix": "TW"
+},
+"9904": {
+"name": "寶成",
+"suffix": "TW"
+},
+"9905": {
+"name": "大華",
+"suffix": "TW"
+},
+"9906": {
+"name": "欣巴巴",
+"suffix": "TW"
+},
+"9907": {
+"name": "統一實",
+"suffix": "TW"
+},
+"9908": {
+"name": "大台北",
+"suffix": "TW"
+},
+"9910": {
+"name": "豐泰",
+"suffix": "TW"
+},
+"9911": {
+"name": "櫻花",
+"suffix": "TW"
+},
+"9912": {
+"name": "偉聯",
+"suffix": "TW"
+},
+"9914": {
+"name": "美利達",
+"suffix": "TW"
+},
+"9917": {
+"name": "中保科",
+"suffix": "TW"
+},
+"9918": {
+"name": "欣天然",
+"suffix": "TW"
+},
+"9919": {
+"name": "康那香",
+"suffix": "TW"
+},
+"9921": {
+"name": "巨大",
+"suffix": "TW"
+},
+"9924": {
+"name": "福興",
+"suffix": "TW"
+},
+"9925": {
+"name": "新保",
+"suffix": "TW"
+},
+"9926": {
+"name": "新海",
+"suffix": "TW"
+},
+"9927": {
+"name": "泰銘",
+"suffix": "TW"
+},
+"9928": {
+"name": "中視",
+"suffix": "TW"
+},
+"9929": {
+"name": "秋雨",
+"suffix": "TW"
+},
+"9930": {
+"name": "中聯資源",
+"suffix": "TW"
+},
+"9931": {
+"name": "欣高",
+"suffix": "TW"
+},
+"9933": {
+"name": "中鼎",
+"suffix": "TW"
+},
+"9934": {
+"name": "成霖",
+"suffix": "TW"
+},
+"9935": {
+"name": "慶豐富",
+"suffix": "TW"
+},
+"9937": {
+"name": "全國",
+"suffix": "TW"
+},
+"9938": {
+"name": "百和",
+"suffix": "TW"
+},
+"9939": {
+"name": "宏全",
+"suffix": "TW"
+},
+"9940": {
+"name": "信義",
+"suffix": "TW"
+},
+"9941": {
+"name": "裕融",
+"suffix": "TW"
+},
+"9942": {
+"name": "茂順",
+"suffix": "TW"
+},
+"9943": {
+"name": "好樂迪",
+"suffix": "TW"
+},
+"9944": {
+"name": "新麗",
+"suffix": "TW"
+},
+"9945": {
+"name": "潤泰新",
+"suffix": "TW"
+},
+"9946": {
+"name": "三發地產",
+"suffix": "TW"
+},
+"9949": {
+"name": "琉園",
+"suffix": "TWO"
+},
+"9950": {
+"name": "萬國通",
+"suffix": "TWO"
+},
+"9951": {
+"name": "皇田",
+"suffix": "TWO"
+},
+"9955": {
+"name": "佳龍",
+"suffix": "TW"
+},
+"9958": {
+"name": "世紀鋼",
+"suffix": "TW"
+},
+"9960": {
+"name": "邁達康",
+"suffix": "TWO"
+},
+"9962": {
+"name": "有益",
+"suffix": "TWO"
+}
+}

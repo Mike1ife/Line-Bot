@@ -24,6 +24,8 @@ YT_PATTERN = re.compile(r"^yt (.+)$")
 GG_PATTERN = re.compile(r"^gg (.+)$")
 AI_PATTERN = re.compile(r"^ai (.+)$")
 BOXSCORE_PATTERN = re.compile(r"^隨機戰報(?: ([^\s]+))?$")
+TW_STOCK_PATTERN = re.compile(r"^台股(?: (.+))?$")
+US_STOCK_PATTERN = re.compile(r"^美股(?: (.+))?$")
 REPORT_PATTERN = re.compile(r"^戰報(?: ([^\s]+))?$")
 ACHIEVEMENT_PATTERN = re.compile(r"^成就(?: ([^\s]+))?$")
 
@@ -342,6 +344,29 @@ def text_message(event: MessageEvent):
         LINE_BOT_API.reply_message(
             event.reply_token,
             TextSendMessage(text=response, quick_reply=_quick_reply("nba", "help")),
+        )
+
+    twStockMatch = TW_STOCK_PATTERN.match(message)
+    if twStockMatch:
+        response = get_tw_stock(query=twStockMatch.group(1) or "")
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("加權", "help")),
+        )
+
+    usStockMatch = US_STOCK_PATTERN.match(message)
+    if usStockMatch:
+        response = get_us_stock(query=usStockMatch.group(1) or "")
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("加權", "help")),
+        )
+
+    if message == "加權":
+        response = get_taiex()
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("台股 2330", "美股 AAPL")),
         )
 
     achievementMatch = ACHIEVEMENT_PATTERN.match(message)
