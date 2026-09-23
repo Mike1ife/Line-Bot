@@ -12,6 +12,11 @@ from utils._espn import (
     espn_date_for_tw_date,
     get_event_map,
 )
+from utils._f1 import (
+    get_next_race,
+    format_tw,
+    countdown_to,
+)
 from utils._team_table import (
     NBA_ABBR_ENG_TO_ABBR_CN,
     NBA_SIMP_CN_TO_TRAD_CN,
@@ -1551,5 +1556,42 @@ def get_achievement_message(userName: str, userId: int = -1):
 
     if badges["loyalTeam"]:
         lines.append(f"🐶 忠犬 {badges['loyalTeam']} ×{badges['loyalCount']}")
+
+    return "\n".join(lines)
+
+
+def get_f1_schedule():
+    """f1 - next race weekend with every session in Taiwan time."""
+    try:
+        race = get_next_race()
+    except Exception as err:
+        return f"❌ F1 賽程讀取失敗\n{type(err).__name__}: {err}"
+
+    if not race:
+        return "本季 F1 已經結束了"
+
+    location = ", ".join(part for part in (race["locality"], race["country"]) if part)
+    header = f"🏁 F1 第{race['round']}站 {race['name']}"
+    if race["isSprint"]:
+        header += "（衝刺賽週末）"
+
+    lines = [header, f"📍 {race['circuit']}, {location}", ""]
+
+    nowUTC = datetime.now(timezone.utc)
+    nextMarked = False
+    for label, startUTC in race["sessions"]:
+        if startUTC <= nowUTC:
+            marker = "✅"
+        elif not nextMarked:
+            marker = "▶️"
+            nextMarked = True
+        else:
+            marker = "　"
+        lines.append(f"{marker} {label} {format_tw(startUTC)}")
+
+    remaining = countdown_to(race["raceUTC"])
+    lines.append("")
+    lines.append(f"⏱️ 距離正賽 {remaining}" if remaining else "🏎️ 正賽進行中")
+    lines.append("（以上為台灣時間）")
 
     return "\n".join(lines)

@@ -337,6 +337,13 @@ def text_message(event: MessageEvent):
         response = get_nba_scoreboard()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
+    if message.lower() == "f1":
+        response = get_f1_schedule()
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("nba", "help")),
+        )
+
     achievementMatch = ACHIEVEMENT_PATTERN.match(message)
     if achievementMatch:
         target = achievementMatch.group(1)
