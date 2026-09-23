@@ -12,6 +12,13 @@ from utils._espn import (
     espn_date_for_tw_date,
     get_event_map,
 )
+from utils._stock import (
+    resolve_tw,
+    get_quote,
+    format_tw_time,
+    limit_flag,
+    TAIEX,
+)
 from utils._f1 import (
     get_next_race,
     format_tw,
@@ -1595,3 +1602,94 @@ def get_f1_schedule():
     lines.append("（以上為台灣時間）")
 
     return "\n".join(lines)
+
+
+def _format_quote(quote: dict):
+    """Shared quote layout.
+
+    Red is a rise and green a fall, following the Taiwanese convention rather
+    than the American one, and applied to both markets for one consistent
+    reading.
+    """
+    if quote["change"] > 0:
+        mark, sign = "🔴", "+"
+    elif quote["change"] < 0:
+        mark, sign = "🟢", ""
+    else:
+        mark, sign = "⚪", ""
+
+    lines = [
+        f"{quote['name']} {quote['symbol']}",
+        f"{mark} {quote['price']:,.2f} {quote['currency']}  "
+        f"{sign}{quote['change']:,.2f} ({sign}{quote['changePercent']:.2f}%)"
+        f"{limit_flag(quote)}",
+        "",
+    ]
+
+    if quote["dayLow"] and quote["dayHigh"]:
+        lines.append(f"高低 {quote['dayLow']:,.2f} ~ {quote['dayHigh']:,.2f}")
+    if quote["yearLow"] and quote["yearHigh"]:
+        lines.append(f"52週 {quote['yearLow']:,.2f} ~ {quote['yearHigh']:,.2f}")
+
+    volume = quote["volume"]
+    if volume:
+        # Taiwanese quote boards count in 張 (lots of 1,000 shares).
+        lines.append(
+            f"成交量 {volume // 1000:,} 張" if quote["isTaiwan"] else f"成交量 {volume:,}"
+        )
+
+    freshness = "即時" if quote["isFresh"] else "最後成交"
+    lines.append(f"🕐 {format_tw_time(quote['quotedAt'])} {freshness}（台灣時間）")
+    return "\n".join(lines)
+
+
+def get_tw_stock(query: str):
+    """台股 - Taiwan listed or OTC, by code or Chinese name."""
+    if not query:
+        return "使用方式: 台股 2330 或 台股 台積電"
+
+    symbol, name, candidates = resolve_tw(query)
+    if candidates:
+        return "\n".join(
+            [f"「{query}」符合多檔，請指定:"]
+            + [f"{code} {stockName}" for code, stockName in candidates]
+        )
+    if not symbol:
+        return f"找不到 {query}\n請用股票代號或中文名稱，例如 台股 2330"
+
+    try:
+        quote = get_quote(symbol, displayName=name)
+    except Exception as err:
+        return f"❌ 股價讀取失敗\n{type(err).__name__}: {err}"
+
+    if not quote:
+        return f"找不到 {query}"
+    return _format_quote(quote)
+
+
+def get_us_stock(query: str):
+    """美股 - US symbols, and anything else Yahoo indexes (ETF, futures, crypto)."""
+    if not query:
+        return "使用方式: 美股 AAPL"
+
+    try:
+        quote = get_quote(query.strip().upper())
+    except Exception as err:
+        return f"❌ 股價讀取失敗\n{type(err).__name__}: {err}"
+
+    if not quote:
+        return f"找不到 {query}"
+    return _format_quote(quote)
+
+
+def get_taiex():
+    """加權 - the TAIEX. Named to avoid 大盤, which means 'over' in the prop game."""
+    try:
+        quote = get_quote(TAIEX)
+    except Exception as err:
+        return f"❌ 指數讀取失敗\n{type(err).__name__}: {err}"
+
+    if not quote:
+        return "指數讀取失敗"
+    quote["name"] = "加權指數"
+    return _format_quote(quote)
