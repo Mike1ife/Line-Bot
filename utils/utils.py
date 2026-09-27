@@ -3,7 +3,7 @@ import random
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor
 
-from config import IMGUR_CLIENT_ID, LONG_CAT_API_KEY
+from config import IMGUR_CLIENT_ID
 from utils._user_table import *
 from utils._espn import (
     get_scoreboard,
@@ -12,6 +12,7 @@ from utils._espn import (
     espn_date_for_tw_date,
     get_event_map,
 )
+from utils._gemini import generate, GeminiError
 from utils._stock import (
     resolve_tw,
     get_quote,
@@ -1160,7 +1161,7 @@ def get_google_image(keyword: str):
     return requests.get(imgSrc).status_code, imgSrc
 
 
-def get_long_cat_prediction():
+def get_gemini_prediction():
     # predictionInfo = {
     #   "Match": [{"teamNames": (team1Name, team2Name), "teamOdds": (team1Odds, team2Odds), "teamStandings": (team1Standing, team2Standing)}],
     #   "Stat": [{"playerName": playerName, "statType": statType, "statTarget": statTarget, "odds": (overOdds, underOdds)}]
@@ -1216,57 +1217,27 @@ def get_long_cat_prediction():
         )
         prompts.append(playerStatBetString)
 
-    headers = {
-        "Authorization": f"Bearer {LONG_CAT_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    data = {
-        "model": "LongCat-Flash-Chat",
-        "messages": [
-            {
-                "role": "system",
-                "content": systemPrompt,
-            },
-            {"role": "user", "content": "\n".join(prompts)},
-        ],
-        "max_tokens": 1024,
-        "temperature": 0.0,
-    }
-
-    response = requests.post(
-        "https://api.longcat.chat/openai/v1/chat/completions",
-        headers=headers,
-        json=data,
-    )
-    return response.json()["choices"][0]["message"]["content"]
+    try:
+        return generate(
+            systemPrompt=systemPrompt,
+            userPrompt="\n".join(prompts),
+            maxTokens=1024,
+            temperature=0.0,
+        )
+    except GeminiError as err:
+        return f"❌ AI 預測失敗\n{err}"
 
 
-def get_long_cat_inference(content: str):
-    headers = {
-        "Authorization": f"Bearer {LONG_CAT_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    data = {
-        "model": "LongCat-Flash-Chat",
-        "messages": [
-            {
-                "role": "system",
-                "content": "你是一個名叫Billy(外號李狗)的暴躁Line機器人",
-            },
-            {"role": "user", "content": content},
-        ],
-        "max_tokens": 512,
-        "temperature": 1.0,
-    }
-
-    response = requests.post(
-        "https://api.longcat.chat/openai/v1/chat/completions",
-        headers=headers,
-        json=data,
-    )
-    return response.json()["choices"][0]["message"]["content"]
+def get_gemini_inference(content: str):
+    try:
+        return generate(
+            systemPrompt="你是一個名叫Billy(外號李狗)的暴躁Line機器人",
+            userPrompt=content,
+            maxTokens=512,
+            temperature=1.0,
+        )
+    except GeminiError as err:
+        return f"❌ AI 回應失敗\n{err}"
 
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

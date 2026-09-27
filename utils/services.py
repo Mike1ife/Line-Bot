@@ -309,12 +309,12 @@ def text_message(event: MessageEvent):
             )
 
     if message.lower() == "ai預測":
-        response = get_long_cat_prediction()
+        response = get_gemini_prediction()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     aiMatch = AI_PATTERN.match(message.lower())
     if aiMatch:
-        response = get_long_cat_inference(content=aiMatch.group(1))
+        response = get_gemini_inference(content=aiMatch.group(1))
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "牢大":
