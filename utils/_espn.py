@@ -80,16 +80,27 @@ def get_scoreboard(espnDate: str):
         if not awayName or not homeName:
             continue
 
+        status = event["status"]
+
+        def record(competitor):
+            records = competitor.get("records") or []
+            return records[0].get("summary", "") if records else ""
+
         games.append(
             {
                 "eventId": event["id"],
-                "state": event["status"]["type"]["state"],  # pre / in / post
-                "completed": event["status"]["type"]["completed"],
+                "state": status["type"]["state"],  # pre / in / post
+                "completed": status["type"]["completed"],
+                "statusDetail": status["type"].get("shortDetail", ""),
+                "period": status.get("period"),
+                "displayClock": status.get("displayClock"),
                 "startUTC": event["date"],
                 "awayName": awayName,
                 "homeName": homeName,
                 "awayScore": int(away["score"]) if away.get("score") else 0,
                 "homeScore": int(home["score"]) if home.get("score") else 0,
+                "awayRecord": record(away),
+                "homeRecord": record(home),
             }
         )
 
@@ -194,3 +205,21 @@ def get_event_map(twGameDate: str):
             tipoffUTC,
         )
     return events
+
+
+def get_tw_slate(twDate: str):
+    """Games relevant to a Taiwan date, as (played, upcoming).
+
+    The NBA day that lands on a Taiwan date is the previous Eastern date. Once
+    every one of those games is final - typically early afternoon in Taiwan -
+    the next Eastern slate is returned too, so the bot can show what is coming
+    without depending on whether a slate has been posted to the database.
+    """
+    played = get_scoreboard(espn_date_for_tw_date(twDate))
+    if played and not all(game["completed"] for game in played):
+        return played, []
+    try:
+        upcoming = get_scoreboard(twDate)
+    except Exception:
+        upcoming = []
+    return played, upcoming

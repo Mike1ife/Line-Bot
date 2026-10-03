@@ -751,49 +751,55 @@ def get_image_url(imgKey: str):
 
 
 def get_player_boxscore() -> str:
-    conn = _get_connection()
-    with conn.cursor() as cur:
-        cur.execute(
-            "SELECT boxscore_url FROM match_of_the_day ORDER BY id DESC LIMIT 1"
-        )
-        boxScoreUrl = cur.fetchone()[0]
+    """Stat lines for the players who currently have an open prop bet.
 
-    data = requests.get(boxScoreUrl).text
-    soup = BeautifulSoup(data, "html.parser")
-    table_list = soup.find_all("div", class_="table_list_live")
+    Scoped to the ACTIVE match, so once a slate is settled there are no open
+    props and this returns "" - the nba command then simply omits the section.
+    Replaces the old match_of_the_day lookup, which took the most recently
+    inserted row regardless of date or is_active and so could show a settled,
+    or months-old, game.
 
-    player_stats_dict = {}
-    for team_table in table_list:
-        player_list = team_table.find("tbody").find_all("tr")
-        for row in player_list:
-            player_name = row.find("td", class_="tdw-1 left")
-            if not player_name:
-                continue
-
-            player_name = player_name.text
-            player_stats = row.find_all("td")
-            score = player_stats[-2].text.strip()
-            board = player_stats[8].text.strip()
-            steal = player_stats[11].text.strip()
-
-            player_stats_dict.setdefault(
-                player_name, {"得分": score, "籃板": board, "抄截": steal}
-            )
-
-    if not player_stats_dict:
+    Stats come from the ESPN boxscore via match.espn_event_id, so players join
+    on the English name already in player_stat_bet: no chinese_name lookup and
+    no fixed Hupu column indices.
+    """
+    try:
+        conn = _get_connection()
+        with conn.cursor() as cur:
+            cur.execute(SQL_SELECT_ACTIVE_STAT_MATCHES)
+            matches = cur.fetchall()
+            if not matches:
+                return ""
+            bets = {}
+            for matchId, _d, _t1, _t2, _e in matches:
+                cur.execute(SQL_SELECT_STAT_BETS_FOR_MATCH, (matchId,))
+                bets[matchId] = cur.fetchall()
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:  # conn may be unbound if connecting failed
+            pass
         return ""
 
+    # Network calls happen outside the cursor so the connection is not held
+    # open across HTTP, and a feed problem degrades to an empty section.
     result = []
-    with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_PLAYER_STAT_BET)
-        playerStatBetList = cur.fetchall()
-        for matchId, playerName, playerChineseName, statType in playerStatBetList:
-            result.append(
-                f"{playerName} {statType} {player_stats_dict[playerChineseName][statType]}"
-            )
+    for matchId, gameDate, team1Name, team2Name, eventId in matches:
+        try:
+            if not eventId:
+                eventId = find_event_id(
+                    gameDate.strftime("%Y-%m-%d"), team1Name, team2Name
+                )
+            boxscore = get_boxscore(eventId) if eventId else {}
+        except Exception:
+            continue
+        for playerName, statType in bets.get(matchId, []):
+            stat = boxscore.get(playerName)
+            if not stat or statType not in stat:
+                continue  # has not played yet, or did not dress
+            result.append(f"{playerName} {statType} {stat[statType]}")
 
     return "\n".join(result)
-
 
 def get_daily_active_matches():
     conn = _get_connection()

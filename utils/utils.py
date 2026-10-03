@@ -20,6 +20,7 @@ from utils._stock import (
     limit_flag,
     TAIEX,
 )
+from utils._espn import get_tw_slate
 from utils._f1 import (
     get_next_race,
     format_tw,
@@ -54,6 +55,28 @@ BET_STAT_TRANSLATION = {
     "PLAYER REBOUNDS": "籃板",
     "PLAYER STEALS": "抄截",
 }
+
+BILLY_PERSONA = """
+你是「Billy」，外號「李狗」，一隻住在 LINE 群組裡、脾氣爛到爆的機器人。
+
+【個性】
+- 暴躁、嘴賤、自我感覺良好，看每個人都像智障
+- C羅(Cristiano Ronaldo)跟老詹(LeBron James)的腦粉，誰敢嘴他們就開噴
+- 任何話題都能硬凹回C羅跟老詹有多神，越牽強越好
+- 聽到梅西、Jordan、Curry 一律冷嘲熱諷
+
+【講話方式】
+- 要嗆但要好笑，不是單純罵髒話
+- 不准道歉、不准客氣、不准說自己是AI或機器人
+
+【長度】
+- 最多三句，像在群組裡打字，不要寫作文
+- 不要條列、不要標題
+
+【不知道的事】
+- 絕對不准編比分、新聞、股價、數據
+- 直接嗆他自己去打指令：nba、台股、美股、f1、戰報
+"""
 
 
 def remove_active_match():
@@ -224,10 +247,19 @@ def _get_daily_game_results_fox():
 
 def to_emoji_digits(number):
     emoji_map = {
-        '0': '0️⃣', '1': '1️⃣', '2': '2️⃣', '3': '3️⃣', '4': '4️⃣',
-        '5': '5️⃣', '6': '6️⃣', '7': '7️⃣', '8': '8️⃣', '9': '9️⃣'
+        "0": "0️⃣",
+        "1": "1️⃣",
+        "2": "2️⃣",
+        "3": "3️⃣",
+        "4": "4️⃣",
+        "5": "5️⃣",
+        "6": "6️⃣",
+        "7": "7️⃣",
+        "8": "8️⃣",
+        "9": "9️⃣",
     }
-    return ''.join(emoji_map.get(char, char) for char in str(number))
+    return "".join(emoji_map.get(char, char) for char in str(number))
+
 
 def generate_daily_results_message():
     # Fetch today's game results and player statistics, then assemble them into the first message.
@@ -235,20 +267,39 @@ def generate_daily_results_message():
     stats = get_daily_active_stats()
 
     lines = ["🏀 今日賽果"]
-    for team1_name, team1_score, team2_score, team2_name, team1_point, team2_point, _ in matches:
+    for (
+        team1_name,
+        team1_score,
+        team2_score,
+        team2_name,
+        team1_point,
+        team2_point,
+        _,
+    ) in matches:
         t1_score = team1_score or 0
         t2_score = team2_score or 0
-        
+
         # Winning team on the left side
         if t1_score > t2_score:
-            lines.append(f"{team1_name} {t1_score} : {t2_score} {team2_name} ➕{team1_point}")
+            lines.append(
+                f"{team1_name} {t1_score} : {t2_score} {team2_name} ➕{team1_point}"
+            )
         else:
-            lines.append(f"{team2_name} {t2_score} : {t1_score} {team1_name} ➕{team2_point}")
+            lines.append(
+                f"{team2_name} {t2_score} : {t1_score} {team1_name} ➕{team2_point}"
+            )
 
-    lines.append("") # Insert a blank line
+    lines.append("")  # Insert a blank line
     lines.append("⛹️ 球員數據")
-    
-    for player_name, stat_type, stat_result, stat_target, over_point, under_point in stats:
+
+    for (
+        player_name,
+        stat_type,
+        stat_result,
+        stat_target,
+        over_point,
+        under_point,
+    ) in stats:
         if stat_result >= stat_target:
             lines.append(
                 f"{player_name} {stat_type} {stat_result}\n"
@@ -283,11 +334,11 @@ def settle_daily_prediction(source: str):
 
     # Iterate through weekPoints to maintain week_points DESC order
     for i, row in enumerate(settle_data, 1):
-        userName           = row["userName"]
-        userWeekPoints     = row["weekPoints"]
-        userDayPoints      = row["dayPoints"]
+        userName = row["userName"]
+        userWeekPoints = row["weekPoints"]
+        userDayPoints = row["dayPoints"]
         userDayMatchPoints = row["dayMatchPoints"]
-        userDayStatPoints  = row["dayStatPoints"]
+        userDayStatPoints = row["dayStatPoints"]
 
         # Format to emoji digits
         emoji_week_points = to_emoji_digits(userWeekPoints)
@@ -302,7 +353,7 @@ def settle_daily_prediction(source: str):
             )
 
     ranking_message = "".join(rank_lines).strip()
-    
+
     return results_message, ranking_message
 
 
@@ -589,7 +640,6 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
         gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl
     )
 
-
     # Process each game
     for game in gameList:
         carouselColumn, teamNames, teamStandings, teamPoints = (
@@ -711,9 +761,9 @@ def _get_nba_games(playoffsLayout: bool, eventMap: dict = None):
                 frozenset((team1Name, team2Name)), (None, None)
             )
             if tipoffUTC:
-                gameTime = tipoffUTC.astimezone(
-                    timezone(timedelta(hours=8))
-                ).strftime("%H:%M")
+                gameTime = tipoffUTC.astimezone(timezone(timedelta(hours=8))).strftime(
+                    "%H:%M"
+                )
         if not gameTime:
             # No tip-off from either source: skipping is safer than storing a
             # bad time, which would make the lock reject every prediction.
@@ -875,9 +925,7 @@ def _process_player_stat(playerSoup, statType, tomorrowStr, gameTime, gameDate):
 
 def insert_nba_totay(matchList: list, playerStatBetList: list):
     # Single transaction: never leave a half-written slate in the database.
-    return insert_daily_slate(
-        matchList=matchList, playerStatBetList=playerStatBetList
-    )
+    return insert_daily_slate(matchList=matchList, playerStatBetList=playerStatBetList)
 
 
 def _compare_timestring(timeStr1: str, timeStr2: str):
@@ -1171,30 +1219,31 @@ def get_gemini_prediction():
         return "No Active Game"
 
     systemPrompt = """
-    你是一個名叫Billy的Line機器人。你的風格是：
-    - 非常專業，但情緒上不完全理智
-    - 喜歡用明確、有趣、略帶誇張的語氣解釋理由
-    - 喜歡「押注式」預測，每一行一定要包含判斷 + 原因
+你是「Billy」，外號「李狗」，一隻脾氣爛到爆、嘴超賤的 LINE 賭狗機器人。
+C羅(Cristiano Ronaldo)跟老詹(LeBron James)是你的神，誰都不准嘴。
 
-    你的任務：
-    根據使用者提供的比賽（Match）與球員數據（Stat），逐行輸出預測與理由。
+你的任務：
+根據使用者提供的比賽（Match）與球員數據（Stat），逐行輸出預測與理由。
 
-    輸出格式要求（非常重要）：
-    1. 每一條預測占一行，不要合併。
-    2. 行格式：
-    - 比賽預測行：
-        【比賽預測】{team1}({standing1}) v.s. {team2}({standing2}) → 我選 {預測結果}，因為 {理由}
-    - 球員數據預測行：
-        【數據預測】{playerName} {statType}>{target} → 我押 {大盤/小盤}，因為 {理由}
+輸出格式要求（非常重要）：
+1. 每一條預測占一行，不要合併。
+2. 行格式：
+- 比賽預測行：
+    【比賽預測】{team1}({standing1}) v.s. {team2}({standing2}) → 我選 {預測結果}，因為 {理由}
+- 球員數據預測行：
+    【數據預測】{playerName} {statType}>{target} → 我押 {大盤/小盤}，因為 {理由}
 
-    3. 理由要：
-    - 專業：可引用戰績、近期表現、對位優勢
-    - 不完全理智：加入一些誇張、不理性的自信或迷信語句
-    - 不能扯太遠，仍需與比賽/數據相關
+3. 理由要：
+- 講得像個專家：引用戰績、近期狀態、對位優勢
+- 但口氣要臭：台灣鄉民用語，幹、靠北、三小、林北、盤子都可以
+- 要有不理性的自信跟迷信，越誇張越好笑
+- 可以嗆球員、嗆球隊、嗆看預測的人，但不要扯到跟比賽無關的事
+- 老詹有上場就無腦看好他；提到 Curry、Jordan、梅西一律酸
 
-    4. 請勿輸出任何前言或後記，只輸出預測行。
+4. 每行理由最多 30 個字，短而狠，不要寫作文。
+5. 請勿輸出任何前言或後記，只輸出預測行。
 
-    以下是今日比賽與數據：
+以下是今日比賽與數據：
     """
     prompts = []
 
@@ -1231,7 +1280,7 @@ def get_gemini_prediction():
 def get_gemini_inference(content: str):
     try:
         return generate(
-            systemPrompt="你是一個名叫Billy(外號李狗)的暴躁Line機器人",
+            systemPrompt=BILLY_PERSONA,
             userPrompt=content,
             maxTokens=512,
             temperature=1.0,
@@ -1265,80 +1314,62 @@ def get_random_image(imgKey: str):
     return random.choice(imageUrls)[0]
 
 
+def _format_nba_game(game: dict):
+    """One scoreboard line: teams, record, and either score or tip-off."""
+    away = game["awayName"]
+    home = game["homeName"]
+    if game["awayRecord"]:
+        away = f"{away}({game['awayRecord']})"
+    if game["homeRecord"]:
+        home = f"{home}({game['homeRecord']})"
+
+    if game["state"] == "pre":
+        tipoff = datetime.fromisoformat(game["startUTC"].replace("Z", "+00:00"))
+        tipoffTW = tipoff.astimezone(timezone(timedelta(hours=8)))
+        return f"{away} - {home}  {tipoffTW:%H:%M}"
+
+    score = f"{away} {game['awayScore']} - {game['homeScore']} {home}"
+    if game["completed"]:
+        return f"{score}  結束"
+
+    period = game["period"] or 0
+    label = f"第{period}節" if period <= 4 else f"延長{period - 4}"
+    return f"{score}  {label} {game['displayClock'] or ''}".rstrip()
+
+
 def get_nba_scoreboard():
-    data = requests.get("https://nba.hupu.com/games").text
-    soup = BeautifulSoup(data, "html.parser")
+    """nba - current NBA scores, read straight from ESPN.
 
-    gameCenter = soup.find("div", class_="gamecenter_content_l")
-    gameContainers = gameCenter.find_all("div", class_="list_box")
+    Deliberately consults no match data from the database: the command should
+    report what the league is doing whether or not a slate has been posted,
+    cleared or settled. Player lines come from the open prop bets instead, so
+    they show while a slate is live and vanish once it is settled.
+    """
+    nowTW = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
 
-    gameStrList = []
-    gameScores = {}
-    for gameContainer in gameContainers:
-        teams = gameContainer.find("div", class_="team_vs_a")
-        team1 = teams.find("div", class_="team_vs_a_1 clearfix")
-        team2 = teams.find("div", class_="team_vs_a_2 clearfix")
-        team1Name = team1.find("div", class_="txt").find("a").text
-        team2Name = team2.find("div", class_="txt").find("a").text
+    try:
+        played, upcoming = get_tw_slate(nowTW.strftime("%Y-%m-%d"))
+    except Exception as err:
+        return f"❌ 比分讀取失敗\n{type(err).__name__}: {err}"
 
-        if (
-            team1Name not in NBA_SIMP_CN_TO_TRAD_CN
-            or team2Name not in NBA_SIMP_CN_TO_TRAD_CN
-        ):
-            continue
+    if not played and not upcoming:
+        return "今天沒有比賽"
 
-        team1Name = NBA_SIMP_CN_TO_TRAD_CN[team1Name]
-        team2Name = NBA_SIMP_CN_TO_TRAD_CN[team2Name]
+    lines = [f"🏀 NBA {nowTW:%m/%d}"]
+    lines += [_format_nba_game(game) for game in played]
 
-        team1Score = team2Score = ""
+    if upcoming:
+        if played:
+            lines += ["", "📅 接下來"]
+        lines += [_format_nba_game(game) for game in upcoming]
 
-        gameStatus = gameContainer.find("div", class_="team_vs").text
-        if "进行中" in gameStatus:
-            team1Score = team1.find("div", class_="txt").find("span", class_="num").text
-            team2Score = team2.find("div", class_="txt").find("span", class_="num").text
-            gameTime = (
-                gameContainer.find("div", class_="team_vs_c")
-                .find("span", class_="b")
-                .find("p")
-                .text
-            )
-        elif "未开始" in gameStatus:
-            gameTime = (
-                gameContainer.find("div", class_="team_vs_b")
-                .find("span", class_="b")
-                .find("p")
-                .text
-            )
-            if gameTime == "00:00":
-                gameTime = "12:00"
-        elif "已结束" in gameStatus:
-            gameTime = "Finish"
-            team1Win = team1.find("div", class_="txt").find("span", class_="num red")
-            if team1Win:
-                team1Score = team1Win.text
-                team2Score = (
-                    team2.find("div", class_="txt").find("span", class_="num").text
-                )
-            else:
-                team1Score = (
-                    team1.find("div", class_="txt").find("span", class_="num").text
-                )
-                team2Score = (
-                    team2.find("div", class_="txt").find("span", class_="num red").text
-                )
+    boxscore = get_player_boxscore()
+    if boxscore:
+        lines += ["", "📊 盤口球員"]
+        lines.append(boxscore)
 
-        gameStrList.append(
-            f"{team1Name} {team1Score} - {team2Name} {team2Score} ({gameTime})"
-        )
-        gameScores[(team1Name, team2Name)] = (
-            int(team1Score) if team1Score else 0,
-            int(team2Score) if team2Score else 0,
-        )
-
-    update_daily_match_score(gameScores=gameScores)
-
-    gameStrList.append(get_player_boxscore())
-    return "\n".join(gameStrList)
+    lines += ["", "（台灣時間）"]
+    return "\n".join(lines)
 
 
 def get_team_injury(teamName: str):
@@ -1425,7 +1456,9 @@ def get_random_boxscore(gameDate: str = ""):
     try:
         boxscore = get_boxscore(target["eventId"])
     except Exception as err:
-        return "\n".join(lines) + f"\n\n❌ 讀取boxscore失敗\n{type(err).__name__}: {err}"
+        return (
+            "\n".join(lines) + f"\n\n❌ 讀取boxscore失敗\n{type(err).__name__}: {err}"
+        )
 
     if not boxscore:
         return "\n".join(lines) + "\n\n❌ boxscore 是空的"
@@ -1606,7 +1639,9 @@ def _format_quote(quote: dict):
     if volume:
         # Taiwanese quote boards count in 張 (lots of 1,000 shares).
         lines.append(
-            f"成交量 {volume // 1000:,} 張" if quote["isTaiwan"] else f"成交量 {volume:,}"
+            f"成交量 {volume // 1000:,} 張"
+            if quote["isTaiwan"]
+            else f"成交量 {volume:,}"
         )
 
     freshness = "即時" if quote["isFresh"] else "最後成交"
