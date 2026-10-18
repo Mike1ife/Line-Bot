@@ -46,6 +46,40 @@ def user_is_admin(userUID: str):
     return False
 
 
+def get_users_auto():
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_USER_AUTO)
+        return cur.fetchall()
+
+
+def update_user_auto(userUID: str, isAuto: bool):
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_UPDATE_USER_AUTO, (isAuto, userUID))
+    conn.commit()
+
+
+def insert_auto_predictions(userUID: str = None):
+    """Fill the active slate for 托管 users (one user, or all if userUID is None).
+
+    Existing picks are kept (ON CONFLICT DO NOTHING) and started games are
+    skipped. Returns the number of picks inserted.
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(SQL_INSERT_AUTO_PREDICT_MATCH, {"uid": userUID})
+            inserted = cur.rowcount
+            cur.execute(SQL_INSERT_AUTO_PREDICT_STAT, {"uid": userUID})
+            inserted += cur.rowcount
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    return inserted
+
+
 def delete_active_match_tuples():
     conn = _get_connection()
     with conn.cursor() as cur:
@@ -260,7 +294,8 @@ def _pre_settle_week_points():
         if prevPoint != currBestPoint:
             monthPoint -= reduction
             reduction = 0
-        updateMap[name] = [dayPoint, int(monthPoint * partial)]
+        # 13+ users push the 100/90/80... ladder below zero; floor it.
+        updateMap[name] = [dayPoint, max(0, int(monthPoint * partial))]
         currBestPoint = prevPoint
         reduction += 10
 
@@ -298,7 +333,8 @@ def get_type_best(rankType: str, nextRankType: str):
             nextRankPoint -= reduction
             reduction = 0
 
-        updateMap[name] = [0, nextRankPoint]
+        # 13+ users push the 100/90/80... ladder below zero; floor it.
+        updateMap[name] = [0, max(0, nextRankPoint)]
         currBestPoint = point
         reduction += 10
 

@@ -24,7 +24,8 @@ def CREATE_USER_TABLE():
                 all_time_points INTEGER DEFAULT 0,
                 week_goat_count INTEGER DEFAULT 0,
                 month_goat_count INTEGER DEFAULT 0,
-                is_admin BOOLEAN DEFAULT FALSE
+                is_admin BOOLEAN DEFAULT FALSE,
+                is_auto BOOLEAN DEFAULT FALSE
             );
             """
             cur.execute(SQL)

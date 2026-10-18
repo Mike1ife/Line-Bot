@@ -28,6 +28,7 @@ TW_STOCK_PATTERN = re.compile(r"^台股(?: (.+))?$")
 US_STOCK_PATTERN = re.compile(r"^美股(?: (.+))?$")
 REPORT_PATTERN = re.compile(r"^戰報(?: ([^\s]+))?$")
 ACHIEVEMENT_PATTERN = re.compile(r"^成就(?: ([^\s]+))?$")
+AUTO_PATTERN = re.compile(r"^(取消)?托管(?: ([^\s]+))?$")
 
 
 def _quick_reply(*labels):
@@ -116,11 +117,31 @@ def text_message(event: MessageEvent):
                 insert_nba_totay(
                     matchList=matchList, playerStatBetList=playerStatBetList
                 )
+                # 托管 is secondary; never let it block publishing the slate.
+                try:
+                    insert_auto_predictions()
+                except Exception as err:
+                    respondMessages[0].text += f"\n\n⚠️ 托管預測失敗: {err}"
                 LINE_BOT_API.reply_message(event.reply_token, respondMessages)
         except Exception as err:
             LINE_BOT_API.reply_message(
                 event.reply_token, TextSendMessage(text=str(err))
             )
+
+    autoMatch = AUTO_PATTERN.match(message)
+    if autoMatch:
+        if not user_is_admin(userUID):
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
+            )
+            return
+        target = autoMatch.group(2)
+        userId = int(target) if target and target.isdigit() else -1
+        try:
+            response = set_user_auto(userId=userId, isAuto=not autoMatch.group(1))
+        except Exception as err:
+            response = f"托管設定失敗\n{type(err).__name__}: {err}"
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     if message == "檢查":
         response = get_user_prediction_check(userName=userName)

@@ -62,7 +62,6 @@ BILLY_PERSONA = """
 【個性】
 - 暴躁、嘴賤、自我感覺良好，看每個人都像智障
 - C羅(Cristiano Ronaldo)跟老詹(LeBron James)的腦粉，誰敢嘴他們就開噴
-- 任何話題都能硬凹回C羅跟老詹有多神，越牽強越好
 - 聽到梅西、Jordan、Curry 一律冷嘲熱諷
 
 【講話方式】
@@ -75,7 +74,6 @@ BILLY_PERSONA = """
 
 【不知道的事】
 - 絕對不准編比分、新聞、股價、數據
-- 直接嗆他自己去打指令：nba、台股、美股、f1、戰報
 """
 
 
@@ -154,6 +152,32 @@ def user_registration(userUID: str, userName: str, pictureUrl: str):
 
 def get_user_prediction_check(userName: str):
     return userName + check_user_prediction(userName)
+
+
+def set_user_auto(userId: int, isAuto: bool):
+    user, userNames = get_user_uid_by_id(userId)
+    command = "托管" if isAuto else "取消托管"
+    if user is None:
+        autoByName = {name: auto for _, name, auto in get_users_auto()}
+        return "\n".join(
+            [f"使用方式: {command} id"]
+            + [
+                f"{i}. {name}{' 🤖' if autoByName.get(name) else ''}"
+                for i, name in enumerate(userNames, 1)
+            ]
+        )
+
+    userUID, userName = user
+    update_user_auto(userUID=userUID, isAuto=isAuto)
+    if not isAuto:
+        return f"{userName} 已取消托管"
+
+    # Cover today's slate too, not just the next one.
+    inserted = insert_auto_predictions(userUID=userUID)
+    response = f"{userName} 已托管，每場自動選分數較高的一邊"
+    if inserted:
+        response += f"\n已幫今日補上 {inserted} 個預測"
+    return response
 
 
 def get_prediction_by_id(userId: int):
@@ -444,7 +468,8 @@ def _get_player_bet_info(playerSoup: BeautifulSoup, statType: str):
     )
     _odds_items = _odds_msg.split()
     odds = (int(_odds_items[4][1:]) - int(_odds_items[1][1:])) // 2
-    overPoint = int(1.5 * odds)
+    # Keep both sides in 0..15 so neither option can be worth negative points.
+    overPoint = min(15, max(0, int(1.5 * odds)))
     underPoint = 15 - overPoint
 
     return (
@@ -685,6 +710,11 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     )
 
 
+def _spread_to_point(spreadText: str):
+    # A spread beyond -30 would otherwise make the favourite worth negative points.
+    return max(0, int(round(30 + float(spreadText.strip()))))
+
+
 def _get_nba_games(playoffsLayout: bool, eventMap: dict = None):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
@@ -744,8 +774,8 @@ def _get_nba_games(playoffsLayout: bool, eventMap: dict = None):
                 "div", class_="odds-line fs-20 fs-xl-30 fs-sm-23 lh-1 lh-md-1pt5"
             )
             game["points"] = [
-                int(round(30 + float(gameOdds[0].text.strip()))),
-                int(round(30 + float(gameOdds[1].text.strip()))),
+                _spread_to_point(gameOdds[0].text),
+                _spread_to_point(gameOdds[1].text),
             ]
 
         # print(gameTimeMap)
@@ -818,8 +848,8 @@ def _process_single_game(gameInfo, gamePageUrl, playoffsLayout, gameTimeMap, ind
             )
             # Add points and time
             game["points"] = [
-                int(round(30 + float(gameOdds[0].text.strip()))),
-                int(round(30 + float(gameOdds[1].text.strip()))),
+                _spread_to_point(gameOdds[0].text),
+                _spread_to_point(gameOdds[1].text),
             ]
 
         team1Name, team2Name = game["names"]

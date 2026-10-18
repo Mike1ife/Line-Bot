@@ -2,6 +2,48 @@ SQL_SELECT_USER_IS_ADMIN = """
 SELECT is_admin FROM users WHERE uid = %s
 """
 
+SQL_UPDATE_USER_AUTO = """
+UPDATE users SET is_auto = %s WHERE uid = %s
+"""
+
+SQL_SELECT_USER_AUTO = """
+SELECT uid, name, is_auto FROM users ORDER BY created_at
+"""
+
+# 托管: pick the side worth more points (team1 on a tie) for every active game
+# that has not tipped off. tipoff_utc can be NULL when ESPN missed the game;
+# the slate is always for a later Taiwan date, so fall back to that.
+SQL_INSERT_AUTO_PREDICT_MATCH = """
+INSERT INTO user_predict_match (uid, match_id, predicted_team)
+SELECT u.uid, m.match_id,
+       CASE WHEN m.team2_point > m.team1_point THEN m.team2_name
+            ELSE m.team1_name END
+FROM users AS u
+CROSS JOIN match AS m
+WHERE u.is_auto
+  AND (%(uid)s::text IS NULL OR u.uid = %(uid)s)
+  AND m.is_active = TRUE
+  AND COALESCE(m.tipoff_utc > NOW(),
+               m.game_date > (NOW() AT TIME ZONE 'Asia/Taipei')::date)
+ON CONFLICT (uid, match_id) DO NOTHING
+"""
+
+SQL_INSERT_AUTO_PREDICT_STAT = """
+INSERT INTO user_predict_stat (uid, player_name, match_id, stat_type, predicted_outcome)
+SELECT u.uid, psb.player_name, psb.match_id, psb.stat_type,
+       CASE WHEN psb.under_point > psb.over_point THEN '小盤'
+            ELSE '大盤' END
+FROM users AS u
+CROSS JOIN player_stat_bet AS psb
+JOIN match AS m ON m.match_id = psb.match_id
+WHERE u.is_auto
+  AND (%(uid)s::text IS NULL OR u.uid = %(uid)s)
+  AND m.is_active = TRUE
+  AND COALESCE(m.tipoff_utc > NOW(),
+               m.game_date > (NOW() AT TIME ZONE 'Asia/Taipei')::date)
+ON CONFLICT (uid, player_name, match_id, stat_type) DO NOTHING
+"""
+
 SQL_UPDATE_USER_WEEK_GOAT_COUNT = """
 UPDATE users
 SET week_goat_count = week_goat_count + 1
@@ -108,43 +150,43 @@ SELECT uid FROM users WHERE name = %s
 """
 
 SQL_ADD_DAY_POINT = """
-UPDATE users SET day_points = day_points + %s WHERE uid = %s
+UPDATE users SET day_points = GREATEST(day_points + %s, 0) WHERE uid = %s
 """
 
 SQL_WRITE_DAY_POINT = """
-UPDATE users SET day_points = %s WHERE uid = %s
+UPDATE users SET day_points = GREATEST(%s, 0) WHERE uid = %s
 """
 
 SQL_ADD_WEEK_POINT = """
-UPDATE users SET week_points = week_points + %s WHERE uid = %s
+UPDATE users SET week_points = GREATEST(week_points + %s, 0) WHERE uid = %s
 """
 
 SQL_WRITE_WEEK_POINT = """
-UPDATE users SET week_points = %s WHERE uid = %s
+UPDATE users SET week_points = GREATEST(%s, 0) WHERE uid = %s
 """
 
 SQL_ADD_MONTH_POINT = """
-UPDATE users SET month_points = month_points + %s WHERE uid = %s
+UPDATE users SET month_points = GREATEST(month_points + %s, 0) WHERE uid = %s
 """
 
 SQL_WRITE_MONTH_POINT = """
-UPDATE users SET month_points = %s WHERE uid = %s
+UPDATE users SET month_points = GREATEST(%s, 0) WHERE uid = %s
 """
 
 SQL_ADD_SEASON_POINT = """
-UPDATE users SET season_points = season_points + %s WHERE uid = %s
+UPDATE users SET season_points = GREATEST(season_points + %s, 0) WHERE uid = %s
 """
 
 SQL_WRITE_SEASON_POINT = """
-UPDATE users SET season_points = %s WHERE uid = %s
+UPDATE users SET season_points = GREATEST(%s, 0) WHERE uid = %s
 """
 
 SQL_ADD_ALL_TIME_POINT = """
-UPDATE users SET all_time_points = all_time_points + %s WHERE uid = %s
+UPDATE users SET all_time_points = GREATEST(all_time_points + %s, 0) WHERE uid = %s
 """
 
 SQL_WRITE_ALL_TIME_POINT = """
-UPDATE users SET all_time_points = %s WHERE uid = %s
+UPDATE users SET all_time_points = GREATEST(%s, 0) WHERE uid = %s
 """
 
 SQL_ADD_TYPE_POINT = {
@@ -160,7 +202,7 @@ SQL_WRITE_TYPE_POINT = {
     "week_points": SQL_WRITE_WEEK_POINT,
     "month_points": SQL_WRITE_MONTH_POINT,
     "season_points": SQL_WRITE_SEASON_POINT,
-    "all_time_points": SQL_WRITE_SEASON_POINT,
+    "all_time_points": SQL_WRITE_ALL_TIME_POINT,
 }
 
 SQL_UPDATE_TYPE_POINT = {"a": SQL_ADD_TYPE_POINT, "w": SQL_WRITE_TYPE_POINT}
