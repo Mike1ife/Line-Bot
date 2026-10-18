@@ -128,6 +128,10 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text=str(err))
             )
 
+    if message == "托管名單":
+        response = get_auto_users()
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
     autoMatch = AUTO_PATTERN.match(message)
     if autoMatch:
         if not user_is_admin(userUID):

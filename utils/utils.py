@@ -180,6 +180,18 @@ def set_user_auto(userId: int, isAuto: bool):
     return response
 
 
+def get_auto_users():
+    # Keep the 跟盤 numbering so the id can be fed straight into 取消托管.
+    autoUsers = [
+        f"{i}. {name}"
+        for i, (_, name, isAuto) in enumerate(get_users_auto(), 1)
+        if isAuto
+    ]
+    if not autoUsers:
+        return "目前沒有人托管"
+    return "\n".join(["🤖 托管名單:"] + autoUsers)
+
+
 def get_prediction_by_id(userId: int):
     response = get_user_prediction(userId)
     return response
