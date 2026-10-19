@@ -41,6 +41,7 @@ def _quick_reply(*labels):
         ]
     )
 
+
 RANK_COMMANDS = ("週排行", "月排行", "季排行", "總排行")
 
 
@@ -91,7 +92,7 @@ def text_message(event: MessageEvent):
                 gameOfTheDayPage,
                 gameOfTheDayDate,
                 gameOfTheDayTime,
-            ) = get_nba_game_prediction(playoffsLayout=True)
+            ) = get_nba_game_prediction(playoffsLayout=False)
 
             if not matchColumns:
                 LINE_BOT_API.reply_message(
@@ -128,6 +129,18 @@ def text_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text=str(err))
             )
 
+    if message == "NBA預測預覽":
+        if not user_is_admin(userUID):
+            LINE_BOT_API.reply_message(
+                event.reply_token, TextSendMessage(text="傻狗給老子閉嘴")
+            )
+            return
+        try:
+            response = get_nba_prediction_preview()
+        except Exception as err:
+            response = f"預覽失敗\n{type(err).__name__}: {err}"
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
+
     if message == "托管名單":
         response = get_auto_users()
         LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
@@ -163,7 +176,7 @@ def text_message(event: MessageEvent):
                     event.reply_token, TextSendMessage(text="Invalid Source")
                 )
                 return
-            
+
             results_message, ranking_message = settle_daily_prediction(source=source)
             respondMessages = [
                 TextSendMessage(text=results_message),
@@ -178,7 +191,7 @@ def text_message(event: MessageEvent):
                 pass
             respondMessages[-1].quick_reply = _quick_reply("戰報", "成就", "週排行")
             LINE_BOT_API.reply_message(event.reply_token, respondMessages)
-            
+
         except Exception as err:
             errorMessage = TextSendMessage(text=str(err))
             respondMessage = TextSendMessage(
@@ -208,28 +221,36 @@ def text_message(event: MessageEvent):
         response = get_user_type_point("week_points")
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=response, quick_reply=_quick_reply("月排行", "季排行", "總排行")),
+            TextSendMessage(
+                text=response, quick_reply=_quick_reply("月排行", "季排行", "總排行")
+            ),
         )
 
     if message == "月排行":
         response = get_user_type_point("month_points")
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "季排行", "總排行")),
+            TextSendMessage(
+                text=response, quick_reply=_quick_reply("週排行", "季排行", "總排行")
+            ),
         )
 
     if message == "季排行":
         response = get_user_type_point("season_points")
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "月排行", "總排行")),
+            TextSendMessage(
+                text=response, quick_reply=_quick_reply("週排行", "月排行", "總排行")
+            ),
         )
 
     if message == "總排行":
         response = get_user_type_point("all_time_points")
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=response, quick_reply=_quick_reply("週排行", "月排行", "季排行")),
+            TextSendMessage(
+                text=response, quick_reply=_quick_reply("週排行", "月排行", "季排行")
+            ),
         )
 
     followMatch = FOLLOW_PATTERN.match(message)
@@ -357,7 +378,9 @@ def text_message(event: MessageEvent):
         content = get_textfile("TextFiles/Help.txt")
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=content, quick_reply=_quick_reply("規則", "週排行", "戰報")),
+            TextSendMessage(
+                text=content, quick_reply=_quick_reply("規則", "週排行", "戰報")
+            ),
         )
 
     if message.lower() == "nba":
@@ -391,7 +414,9 @@ def text_message(event: MessageEvent):
         response = get_taiex()
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=response, quick_reply=_quick_reply("台股 2330", "美股 AAPL")),
+            TextSendMessage(
+                text=response, quick_reply=_quick_reply("台股 2330", "美股 AAPL")
+            ),
         )
 
     achievementMatch = ACHIEVEMENT_PATTERN.match(message)

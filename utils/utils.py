@@ -647,7 +647,11 @@ def _get_nba_games_time_list(timeStr: str):
     return gameTimeMap
 
 
-def get_nba_game_prediction(playoffsLayout: bool = False):
+def get_nba_game_prediction(
+    playoffsLayout: bool = False, twDate: str = None, record: bool = True
+):
+    # twDate: Taiwan game date to build, tomorrow by default.
+    # record=False builds the slate without writing anything (預覽).
     response = get_user_type_point(rankType="week_points")
 
     matchList = []
@@ -655,7 +659,7 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
 
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    tomorrowStr = (nowTW + timedelta(days=1)).strftime("%Y-%m-%d")
+    tomorrowStr = twDate or (nowTW + timedelta(days=1)).strftime("%Y-%m-%d")
     gameOfTheDayDate = tomorrowStr
 
     # One ESPN request for the whole slate: real tip-off times and event ids.
@@ -668,14 +672,17 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
         gameOfTheDayBoxScoreUrl,
         gameOfTheDayTime,
         skipped,
-    ) = _get_nba_games(playoffsLayout=playoffsLayout, eventMap=eventMap)
+    ) = _get_nba_games(
+        playoffsLayout=playoffsLayout, eventMap=eventMap, twDate=tomorrowStr
+    )
 
     if not gameList:
         return None, "明天沒有比賽", None, None, None, None
 
-    insert_match_of_the_day_boxscore_url(
-        gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl
-    )
+    if record:
+        insert_match_of_the_day_boxscore_url(
+            gameOfTheDayBoxScoreUrl=gameOfTheDayBoxScoreUrl
+        )
 
     # Process each game
     for game in gameList:
@@ -722,18 +729,62 @@ def get_nba_game_prediction(playoffsLayout: bool = False):
     )
 
 
+def get_nba_prediction_preview(maxDays: int = 14):
+    """Text preview of the next slate. Builds the same carousel columns as
+    NBA每日預測 but writes nothing and sends no buttons."""
+    nowTW = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
+
+    # Nearest Taiwan date whose games have not started; Fox drops a date as
+    # soon as one of its games is final.
+    for i in range(1, maxDays + 1):
+        twDate = (nowTW + timedelta(days=i)).strftime("%Y-%m-%d")
+        espnGames = get_scoreboard(espn_date_for_tw_date(twDate))
+        if espnGames and all(game["state"] == "pre" for game in espnGames):
+            break
+    else:
+        return f"未來{maxDays}天沒有比賽"
+
+    # Same layout detection the admin otherwise does by hand.
+    for playoffsLayout in (False, True):
+        _, _, matchColumns, gamePage, gameDate, gameTime = get_nba_game_prediction(
+            playoffsLayout=playoffsLayout, twDate=twDate, record=False
+        )
+        if matchColumns:
+            break
+    else:
+        return f"{twDate} 有{len(espnGames)}場比賽，但 Fox 抓不到"
+
+    lines = [f"📋 NBA每日預測預覽 {twDate}（不會記錄）"]
+    if len(matchColumns) < len(espnGames):
+        lines.append(f"⚠️ Fox 只抓到 {len(matchColumns)}/{len(espnGames)} 場")
+    for column in matchColumns:
+        lines += ["", column.title, column.text]
+
+    statColumns, _ = get_player_stat_prediction(
+        gamePage=gamePage, gameDate=gameDate, gameTime=gameTime
+    )
+    lines += ["", "⛹️ 球員盤口"]
+    if not statColumns:
+        lines.append("Fox 還沒開出焦點戰的球員盤口")
+    for column in statColumns:
+        lines += ["", column.title, column.text]
+
+    return "\n".join(lines)
+
+
 def _spread_to_point(spreadText: str):
     # A spread beyond -30 would otherwise make the favourite worth negative points.
     return max(0, int(round(30 + float(spreadText.strip()))))
 
 
-def _get_nba_games(playoffsLayout: bool, eventMap: dict = None):
+def _get_nba_games(playoffsLayout: bool, eventMap: dict = None, twDate: str = None):
     nowUTC = datetime.now(timezone.utc)
     nowTW = nowUTC.astimezone(timezone(timedelta(hours=8)))
-    todayStr = nowTW.strftime("%Y-%m-%d")
+    tomorrowStr = twDate or (nowTW + timedelta(days=1)).strftime("%Y-%m-%d")
+    # Fox indexes by US Eastern date, one day behind the Taiwan game date.
+    foxDate = espn_date_for_tw_date(tomorrowStr)
 
-    # get today's score page
-    data = requests.get(f"https://www.foxsports.com/nba/scores?date={todayStr}").text
+    data = requests.get(f"https://www.foxsports.com/nba/scores?date={foxDate}").text
     soup = BeautifulSoup(data, "html.parser")
 
     finalScores = soup.find_all("div", class_="score-team-score")
@@ -741,11 +792,9 @@ def _get_nba_games(playoffsLayout: bool, eventMap: dict = None):
         return [], None, None, None, []  # Games already finished
 
     urlPattern = r'<a href="/nba/scores\?date=(\d{4}-\d{2}-\d{2})"'
-    if todayStr not in re.findall(urlPattern, data):
+    if foxDate not in re.findall(urlPattern, data):
         return [], None, None, None, []  # No game page for this date
 
-    tomorrowTW = nowTW + timedelta(days=1)
-    tomorrowStr = tomorrowTW.strftime("%Y-%m-%d")
     gameTimeMap = _get_nba_games_time_list(tomorrowStr)
 
     gameClass = "score-chip-playoff pregame" if playoffsLayout else "score-chip pregame"

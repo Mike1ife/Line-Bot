@@ -388,30 +388,49 @@ WHERE match.is_active = TRUE
 """
 
 
-SQL_INSERT_USER_WEEK_POINT_HISTORY = """
+# The period being closed is the one holding the last settled game (a Taiwan
+# date), not CURRENT_DATE: that is the DB session's UTC date, and the clock
+# alone can't tell a late-Sunday run from an early-Monday one.
+SQL_LAST_SETTLED_DAY = """
+(SELECT COALESCE(
+    (SELECT MAX(game_date) FROM match WHERE is_active = FALSE),
+    (NOW() AT TIME ZONE 'Asia/Taipei')::date
+) AS d) AS settled
+"""
+
+SQL_INSERT_USER_WEEK_POINT_HISTORY = f"""
 INSERT INTO user_point_history (uid, point_type, point_value, period)
-SELECT 
-    uid, 'week_points', week_points, TO_CHAR(CURRENT_DATE, 'IYYY-"W"IW')
+SELECT
+    uid, 'week_points', week_points, TO_CHAR(settled.d, 'IYYY-"W"IW')
 FROM users
+CROSS JOIN {SQL_LAST_SETTLED_DAY}
 ON CONFLICT (uid, point_type, period)
-DO UPDATE SET 
+DO UPDATE SET
     point_value = user_point_history.point_value + EXCLUDED.point_value;
 """
 
-SQL_INSERT_USER_MONTH_POINT_HISTORY = """
+SQL_INSERT_USER_MONTH_POINT_HISTORY = f"""
 INSERT INTO user_point_history (uid, point_type, point_value, period)
-SELECT 
-    uid, 'month_points', month_points, TO_CHAR(CURRENT_DATE, 'YYYY-Mon')
+SELECT
+    uid, 'month_points', month_points, TO_CHAR(settled.d, 'YYYY-Mon')
 FROM users
+CROSS JOIN {SQL_LAST_SETTLED_DAY}
 ON CONFLICT (uid, point_type, period)
 DO NOTHING;
 """
 
-SQL_INSERT_USER_SEASON_POINT_HISTORY = """
+# A season starts in October: 2025-10 .. 2026-06 is "2025-26".
+SQL_INSERT_USER_SEASON_POINT_HISTORY = f"""
 INSERT INTO user_point_history (uid, point_type, point_value, period)
-SELECT uid, 'season_points', season_points, 
-    (EXTRACT(YEAR FROM CURRENT_DATE) - 1)::text || '-' || RIGHT(EXTRACT(YEAR FROM CURRENT_DATE)::text, 2)
+SELECT uid, 'season_points', season_points,
+    CASE WHEN EXTRACT(MONTH FROM settled.d) >= 10
+        THEN EXTRACT(YEAR FROM settled.d)::text || '-'
+             || RIGHT((EXTRACT(YEAR FROM settled.d) + 1)::text, 2)
+        ELSE (EXTRACT(YEAR FROM settled.d) - 1)::text || '-'
+             || RIGHT(EXTRACT(YEAR FROM settled.d)::text, 2)
+    END
 FROM users
+CROSS JOIN {SQL_LAST_SETTLED_DAY}
 ON CONFLICT (uid, point_type, period)
 DO NOTHING;
 """
