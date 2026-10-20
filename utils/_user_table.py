@@ -278,7 +278,9 @@ def _pre_settle_week_points():
     for i in range(len(userDayPoints)):
         name, dayPoint = userDayPoints[i]
         weekPoint = userWeekPoints[i][1]
-        userPoints.append([name, dayPoint, weekPoint - dayPoint])
+        # week_points < day_points means 週最佳 already ran after the last 結算;
+        # that day was settled with the week, so there is nothing left to carry.
+        userPoints.append([name, dayPoint, max(0, weekPoint - dayPoint)])
     if all(prevPoint == 0 for _, _, prevPoint in userPoints):
         # No week point
         return
