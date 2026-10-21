@@ -208,41 +208,59 @@ def insert_user_predict_stat(
     return returnState
 
 
-def get_prediction_info():
-    # predictionInfo = {
-    #   "Match": [{"teamNames": (team1Name, team2Name), "teamOdds": (team1Odds, team2Odds), "teamStandings": (team1Standing, team2Standing)}],
-    #   "Stat": [{"playerName": playerName, "statType": statType, "statTarget": statTarget, "odds": (overOdds, underOdds)}]
-    # }
-    predictionInfo = {"Match": [], "Stat": []}
+def insert_user_predictions(userUID: str, matchPicks: list, statPicks: list):
+    """Record a whole slate of picks for one user in a single transaction.
+
+    matchPicks = [(gameDate, team1Name, team2Name, predictedTeam)]
+    statPicks = [(gameDate, team1Name, team2Name, playerName, statType, predictedOutcome)]
+
+    Picks whose game is not in the slate are skipped. Returns the number inserted.
+    """
+    conn = _get_connection()
+    inserted = 0
+    try:
+        with conn.cursor() as cur:
+            for gameDate, team1Name, team2Name, *pick in matchPicks + statPicks:
+                cur.execute(
+                    SQL_SELECT_MATCH_ID,
+                    (gameDate, team1Name, team2Name, team1Name, team2Name),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    continue
+                if len(pick) == 1:
+                    cur.execute(SQL_INSERT_USER_PREDICT_MATCH, (userUID, row[0], pick[0]))
+                else:
+                    playerName, statType, predictedOutcome = pick
+                    cur.execute(
+                        SQL_INSERT_USER_PREDICT_STAT,
+                        (userUID, playerName, row[0], statType, predictedOutcome),
+                    )
+                inserted += cur.rowcount
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    return inserted
+
+
+def get_user_prediction_record(userUID: str):
+    """Where a user stands this week and how their picks of each team went.
+
+    Returns (rank, playerCount, weekPoints, leaderPoints,
+             {teamName: (seasonCorrectCount, seasonWrongCount)}).
+    Ties share a rank, as in 週最佳.
+    """
     conn = _get_connection()
     with conn.cursor() as cur:
-        cur.execute(SQL_SELECT_ACTIVE_MATCH)
-        for (
-            team1Name,
-            team2Name,
-            team1Odds,
-            team2Odds,
-            team1Standing,
-            team2Standing,
-        ) in cur.fetchall():
-            match = {
-                "teamNames": (team1Name, team2Name),
-                "teamOdds": (team1Odds, team2Odds),
-                "teamStandings": (team1Standing, team2Standing),
-            }
-            predictionInfo["Match"].append(match)
-
-        cur.execute(SQL_SELECT_ACTIVE_PLAYER_STAT_BET)
-        for playerName, statType, statTarget, overOdds, underOdds in cur.fetchall():
-            playerStatBet = {
-                "playerName": playerName,
-                "statType": statType,
-                "statTarget": statTarget,
-                "odds": (overOdds, underOdds),
-            }
-            predictionInfo["Stat"].append(playerStatBet)
-
-    return predictionInfo
+        cur.execute(SQL_SELECT_UID_WEEK_POINT)
+        weekPoints = dict(cur.fetchall())
+        cur.execute(SQL_SELECT_SEASON_BOTH_COUNTER, (userUID,))
+        teamRecord = {team: (correct, wrong) for team, correct, wrong in cur.fetchall()}
+    points = weekPoints.get(userUID, 0)
+    rank = 1 + sum(other > points for other in weekPoints.values())
+    leaderPoints = max(weekPoints.values(), default=0)
+    return rank, len(weekPoints), points, leaderPoints, teamRecord
 
 
 def update_type_point(
@@ -876,11 +894,35 @@ def get_user_settle_points():
                 "dayPoints": day_points,
                 "dayMatchPoints": day_match_points,
                 "dayStatPoints": day_stat_points,
+                "userUID": uid,
             }
-            for name, week_points, day_points, day_match_points, day_stat_points in cur.fetchall()
+            for name, week_points, day_points, day_match_points, day_stat_points, uid in cur.fetchall()
         ]
     conn.commit()
     return data
+
+
+def get_user_day_picks(userUID: str):
+    """A user's graded picks on the most recently settled date.
+
+    Returns (gameDate, matchPicks, statPicks), or (None, [], []) before the
+    first settlement.
+    matchPicks = [(team1Name, team1Score, team2Score, team2Name, predictedTeam, isCorrect, point)]
+    statPicks = [(playerName, statType, statTarget, statResult, predictedOutcome, isCorrect, point)]
+    """
+    conn = _get_connection()
+    with conn.cursor() as cur:
+        cur.execute(SQL_SELECT_LAST_SETTLED_DATE)
+        result = cur.fetchone()
+        if not result or not result[0]:
+            return None, [], []
+        gameDate = result[0]
+        cur.execute(SQL_SELECT_USER_DAY_MATCH_PICKS, (userUID, gameDate))
+        matchPicks = cur.fetchall()
+        cur.execute(SQL_SELECT_USER_DAY_STAT_PICKS, (userUID, gameDate))
+        statPicks = cur.fetchall()
+    conn.commit()
+    return gameDate.strftime("%Y-%m-%d"), matchPicks, statPicks
 
 def get_daily_report(gameDate: str = ""):
     """Collect everything 戰報 needs for one settled day.

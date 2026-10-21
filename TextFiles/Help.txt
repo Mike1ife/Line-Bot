@@ -71,6 +71,5 @@ help ─ 這份列表
 規則 ─ 預測規則說明
 NBA猜一猜 ─ 生涯數據猜球員
 ai {問題} ─ 問 Billy
-ai預測 ─ Billy 的今日預測
 yt {關鍵字} ─ YouTube 搜尋
 gg {關鍵字} ─ Google 圖片

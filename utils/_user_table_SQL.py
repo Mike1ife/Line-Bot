@@ -222,6 +222,10 @@ WHERE uid = %s
 ORDER BY season_wrong_count DESC
 """
 
+SQL_SELECT_UID_WEEK_POINT = """
+SELECT uid, COALESCE(week_points, 0) FROM users
+"""
+
 SQL_SELECT_SEASON_BOTH_COUNTER = """
 SELECT team_name, season_correct_count, season_wrong_count
 FROM counter 
@@ -379,14 +383,6 @@ FROM match
 WHERE is_active = TRUE
 """
 
-SQL_SELECT_ACTIVE_PLAYER_STAT_BET = """
-SELECT player_name, stat_type, stat_target, over_point, under_point
-FROM player_stat_bet AS psb
-INNER JOIN match
-    ON match.match_id = psb.match_id
-WHERE match.is_active = TRUE
-"""
-
 
 # The period being closed is the one holding the last settled game (a Taiwan
 # date), not CURRENT_DATE: that is the DB session's UTC date, and the clock
@@ -459,9 +455,37 @@ VALUES (%s)
 """
 
 SQL_SELECT_USER_SETTLE_POINTS = """
-SELECT name, week_points, day_points, day_match_points, day_stat_points 
-FROM users 
+SELECT name, week_points, day_points, day_match_points, day_stat_points, uid
+FROM users
 ORDER BY week_points DESC
+"""
+
+# One user's graded picks on a settled date. is_correct is NULL for a voided
+# question; point is what the pick pays if it hits.
+SQL_SELECT_USER_DAY_MATCH_PICKS = """
+SELECT m.team1_name, m.team1_score, m.team2_score, m.team2_name,
+       upm.predicted_team, upm.is_correct,
+       CASE WHEN upm.predicted_team = m.team1_name THEN m.team1_point
+            ELSE m.team2_point END
+FROM user_predict_match AS upm
+JOIN match AS m ON m.match_id = upm.match_id
+WHERE upm.uid = %s AND m.game_date = %s
+ORDER BY m.match_id
+"""
+
+SQL_SELECT_USER_DAY_STAT_PICKS = """
+SELECT psb.player_name, psb.stat_type, psb.stat_target, psb.stat_result,
+       ups.predicted_outcome, ups.is_correct,
+       CASE WHEN ups.predicted_outcome = '大盤' THEN psb.over_point
+            ELSE psb.under_point END
+FROM user_predict_stat AS ups
+JOIN player_stat_bet AS psb
+    ON psb.player_name = ups.player_name
+    AND psb.match_id = ups.match_id
+    AND psb.stat_type = ups.stat_type
+JOIN match AS m ON m.match_id = ups.match_id
+WHERE ups.uid = %s AND m.game_date = %s
+ORDER BY m.match_id
 """
 
 SQL_SELECT_ACTIVE_MATCHES = """

@@ -38,8 +38,17 @@ class GeminiError(Exception):
     pass
 
 
-def generate(systemPrompt: str, userPrompt: str, maxTokens: int, temperature: float):
+def generate(
+    systemPrompt: str,
+    userPrompt: str,
+    maxTokens: int,
+    temperature: float,
+    responseSchema: dict = None,
+):
     """Single-turn completion, falling back to a second model on 503.
+
+    With responseSchema the model is constrained to JSON matching it, and the
+    raw JSON text is returned for the caller to parse.
 
     Raises GeminiError with a readable message.
     """
@@ -51,7 +60,7 @@ def generate(systemPrompt: str, userPrompt: str, maxTokens: int, temperature: fl
     for model in models:
         try:
             return _generate_once(
-                model, systemPrompt, userPrompt, maxTokens, temperature
+                model, systemPrompt, userPrompt, maxTokens, temperature, responseSchema
             )
         except GeminiError as err:
             lastError = err
@@ -61,7 +70,12 @@ def generate(systemPrompt: str, userPrompt: str, maxTokens: int, temperature: fl
 
 
 def _generate_once(
-    model: str, systemPrompt: str, userPrompt: str, maxTokens: int, temperature: float
+    model: str,
+    systemPrompt: str,
+    userPrompt: str,
+    maxTokens: int,
+    temperature: float,
+    responseSchema: dict = None,
 ):
     if not GEMINI_API_KEY:
         raise GeminiError("GEMINI_API_KEY 未設定")
@@ -75,6 +89,9 @@ def _generate_once(
         },
         "safetySettings": SAFETY_SETTINGS,
     }
+    if responseSchema:
+        payload["generationConfig"]["responseMimeType"] = "application/json"
+        payload["generationConfig"]["responseSchema"] = responseSchema
 
     try:
         response = requests.post(

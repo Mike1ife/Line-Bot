@@ -123,6 +123,18 @@ def text_message(event: MessageEvent):
                     insert_auto_predictions()
                 except Exception as err:
                     respondMessages[0].text += f"\n\n⚠️ 托管預測失敗: {err}"
+                # Billy plays like any member; like 托管, he must not block the slate.
+                try:
+                    billyMessage = get_billy_prediction(
+                        matchList=matchList, playerStatBetList=playerStatBetList
+                    )
+                except Exception as err:
+                    billyMessage = f"⚠️ Billy 預測失敗: {err}"
+                # A reply carries at most 5 messages.
+                if len(respondMessages) < 5:
+                    respondMessages.append(TextSendMessage(text=billyMessage))
+                else:
+                    respondMessages[0].text += f"\n\n{billyMessage}"
                 LINE_BOT_API.reply_message(event.reply_token, respondMessages)
         except Exception as err:
             LINE_BOT_API.reply_message(
@@ -187,6 +199,13 @@ def text_message(event: MessageEvent):
                 report = get_battle_report()
                 if report:
                     respondMessages.append(TextSendMessage(text=report))
+            except Exception:
+                pass
+            # Billy's comment is a bonus too; a Gemini failure just drops it.
+            try:
+                comment = get_billy_settle_comment()
+                if comment:
+                    respondMessages.append(TextSendMessage(text=f"🤖 Billy: {comment}"))
             except Exception:
                 pass
             respondMessages[-1].quick_reply = _quick_reply("戰報", "成就", "週排行")
@@ -353,10 +372,6 @@ def text_message(event: MessageEvent):
                 event.reply_token,
                 ImageSendMessage(original_content_url=imgSrc, preview_image_url=imgSrc),
             )
-
-    if message.lower() == "ai預測":
-        response = get_gemini_prediction()
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=response))
 
     aiMatch = AI_PATTERN.match(message.lower())
     if aiMatch:

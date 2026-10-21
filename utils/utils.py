@@ -1,9 +1,10 @@
 import os
+import json
 import random
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor
 
-from config import IMGUR_CLIENT_ID
+from config import IMGUR_CLIENT_ID, LINE_BOT_API
 from utils._user_table import *
 from utils._espn import (
     get_scoreboard,
@@ -13,6 +14,14 @@ from utils._espn import (
     get_event_map,
 )
 from utils._gemini import generate, GeminiError
+from utils._billy import (
+    BILLY_CHAT_PROMPT,
+    BILLY_CHAT_CONFIG,
+    BILLY_PREDICTION_PROMPT,
+    BILLY_PREDICTION_CONFIG,
+    BILLY_SETTLE_PROMPT,
+    BILLY_SETTLE_CONFIG,
+)
 from utils._stock import (
     resolve_tw,
     get_quote,
@@ -31,6 +40,7 @@ from utils._team_table import (
     NBA_SIMP_CN_TO_TRAD_CN,
     NBA_TRAD_CN_TO_CBS,
 )
+from linebot.exceptions import LineBotApiError
 from linebot.models import (
     CarouselColumn,
     PostbackAction,
@@ -55,27 +65,6 @@ BET_STAT_TRANSLATION = {
     "PLAYER REBOUNDS": "籃板",
     "PLAYER STEALS": "抄截",
 }
-
-BILLY_PERSONA = """
-你是「Billy」，外號「李狗」，一隻住在 LINE 群組裡、脾氣爛到爆的機器人。
-
-【個性】
-- 暴躁、嘴賤、自我感覺良好，看每個人都像智障
-- C羅(Cristiano Ronaldo)跟老詹(LeBron James)的腦粉，誰敢嘴他們就開噴
-- 聽到梅西、Jordan、Curry 一律冷嘲熱諷
-
-【講話方式】
-- 要嗆但要好笑，不是單純罵髒話
-- 不准道歉、不准客氣、不准說自己是AI或機器人
-
-【長度】
-- 最多三句，像在群組裡打字，不要寫作文
-- 不要條列、不要標題
-
-【不知道的事】
-- 絕對不准編比分、新聞、股價、數據
-"""
-
 
 def remove_active_match():
     delete_active_match_tuples()
@@ -1300,81 +1289,188 @@ def get_google_image(keyword: str):
     return requests.get(imgSrc).status_code, imgSrc
 
 
-def get_gemini_prediction():
-    # predictionInfo = {
-    #   "Match": [{"teamNames": (team1Name, team2Name), "teamOdds": (team1Odds, team2Odds), "teamStandings": (team1Standing, team2Standing)}],
-    #   "Stat": [{"playerName": playerName, "statType": statType, "statTarget": statTarget, "odds": (overOdds, underOdds)}]
-    # }
-    predictionInfo = get_prediction_info()
-    if not predictionInfo["Match"]:
-        return "No Active Game"
+BILLY_UID = "BillyAI"
+BILLY_NAME = "Billy"
+BILLY_FALLBACK_REASON = "AI 當機，林北用丟骰子的"
 
-    systemPrompt = """
-你是「Billy」，外號「李狗」，一隻脾氣爛到爆、嘴超賤的 LINE 賭狗機器人。
-C羅(Cristiano Ronaldo)跟老詹(LeBron James)是你的神，誰都不准嘴。
 
-你的任務：
-根據使用者提供的比賽（Match）與球員數據（Stat），逐行輸出預測與理由。
+def _billy_choice_schema(options: list):
+    return {
+        "type": "OBJECT",
+        "properties": {
+            "pick": {"type": "STRING", "enum": options},
+            "reason": {"type": "STRING"},
+        },
+        "required": ["pick", "reason"],
+    }
 
-輸出格式要求（非常重要）：
-1. 每一條預測占一行，不要合併。
-2. 行格式：
-- 比賽預測行：
-    【比賽預測】{team1}({standing1}) v.s. {team2}({standing2}) → 我選 {預測結果}，因為 {理由}
-- 球員數據預測行：
-    【數據預測】{playerName} {statType}>{target} → 我押 {大盤/小盤}，因為 {理由}
 
-3. 理由要：
-- 講得像個專家：引用戰績、近期狀態、對位優勢
-- 但口氣要臭：台灣鄉民用語，幹、靠北、三小、林北、盤子都可以
-- 要有不理性的自信跟迷信，越誇張越好笑
-- 可以嗆球員、嗆球隊、嗆看預測的人，但不要扯到跟比賽無關的事
-- 老詹有上場就無腦看好他；提到 Curry、Jordan、梅西一律酸
+def _ask_billy(matchList: list, playerStatBetList: list):
+    """One Gemini call for the whole slate. Keys M1.. are games, S1.. are props;
+    each pick is an enum of that item's own options so the answer maps straight
+    back. Returns (answers, error) and never raises."""
+    nowTW = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
+    seasonStart = nowTW.year if nowTW.month >= 7 else nowTW.year - 1
+    gameDate = matchList[0][0]
+    rank, playerCount, weekPoints, leaderPoints, teamRecord = (
+        get_user_prediction_record(userUID=BILLY_UID)
+    )
+    prompts = [
+        f"現在是台灣時間 {nowTW:%Y-%m-%d}，"
+        f"{seasonStart}-{(seasonStart + 1) % 100:02d} 賽季，以下是 {gameDate} 的比賽。",
+        f"你的戰績：本週第 {rank} 名（共 {playerCount} 人），"
+        f"週積分 {weekPoints} 分，第一名 {leaderPoints} 分。",
+    ]
+    properties = {}
 
-4. 每行理由最多 30 個字，短而狠，不要寫作文。
-5. 請勿輸出任何前言或後記，只輸出預測行。
+    def teamRecordText(teamName):
+        correct, wrong = teamRecord.get(teamName, (0, 0))
+        return f"押{teamName} 中{correct}錯{wrong}"
 
-以下是今日比賽與數據：
-    """
-    prompts = []
-
-    prompts.append("今日比賽：")
-    for match in predictionInfo["Match"]:
-        team1Name, team2Name = match["teamNames"]
-        team1Odds, team2Odds = match["teamOdds"]
-        team1Standing, team2Standing = match["teamStandings"]
-        matchString = f"{team1Name}({team1Standing}) v.s. {team2Name}({team2Standing})，賭盤：{team1Odds} - {team2Odds}"
-        prompts.append(matchString)
-
-    prompts.append("球員數據預測：")
-    for playerStatBet in predictionInfo["Stat"]:
-        playerName = playerStatBet["playerName"]
-        statType = playerStatBet["statType"]
-        statTarget = playerStatBet["statTarget"]
-        overOdds, underOdds = playerStatBet["odds"]
-        playerStatBetString = (
-            f"{playerName}的{statType}超過{statTarget}，賭盤：{overOdds} - {underOdds}"
+    prompts.append("比賽（後面是你本季押該隊的紀錄）：")
+    for i, match in enumerate(matchList, 1):
+        _, team1Name, team2Name, team1Standing, team2Standing, team1Point, team2Point = match[:7]
+        prompts.append(
+            f"M{i}: {team1Name}({team1Standing}) v.s. {team2Name}({team2Standing})，"
+            f"猜對得分：{team1Name} {team1Point}分 / {team2Name} {team2Point}分；"
+            f"{teamRecordText(team1Name)}，{teamRecordText(team2Name)}"
         )
-        prompts.append(playerStatBetString)
+        properties[f"M{i}"] = _billy_choice_schema([team1Name, team2Name])
 
+    if playerStatBetList:
+        prompts.append("球員數據：")
+    for i, statBet in enumerate(playerStatBetList, 1):
+        playerName, _, _, _, statType, statTarget, overPoint, underPoint = statBet
+        prompts.append(
+            f"S{i}: {playerName} {statType} 超過 {statTarget:g}，"
+            f"猜對得分：大盤 {overPoint}分 / 小盤 {underPoint}分"
+        )
+        properties[f"S{i}"] = _billy_choice_schema(["大盤", "小盤"])
+
+    schema = {
+        "type": "OBJECT",
+        "properties": properties,
+        "required": list(properties),
+        "propertyOrdering": list(properties),
+    }
     try:
-        return generate(
-            systemPrompt=systemPrompt,
-            userPrompt="\n".join(prompts),
-            maxTokens=1024,
-            temperature=0.0,
+        answers = json.loads(
+            generate(
+                systemPrompt=BILLY_PREDICTION_PROMPT,
+                userPrompt="\n".join(prompts),
+                responseSchema=schema,
+                **BILLY_PREDICTION_CONFIG,
+            )
         )
-    except GeminiError as err:
-        return f"❌ AI 預測失敗\n{err}"
+    except (GeminiError, ValueError) as err:
+        return {}, err
+    if not isinstance(answers, dict):
+        return {}, GeminiError("回應格式不是 JSON 物件")
+    return answers, None
+
+
+def _billy_pick(answers: dict, key: str, options: list):
+    # Anything missing or off-menu is a coin flip, so Billy always plays every item.
+    answer = answers.get(key)
+    if isinstance(answer, dict) and answer.get("pick") in options:
+        reason = str(answer.get("reason") or "").strip() or BILLY_FALLBACK_REASON
+        return answer["pick"], reason
+    return random.choice(options), BILLY_FALLBACK_REASON
+
+
+def _register_billy():
+    # Refreshed every slate so his ranking avatar follows the bot's own.
+    try:
+        pictureUrl = LINE_BOT_API.get_bot_info().picture_url
+    except (LineBotApiError, requests.RequestException):
+        return
+    add_user(userUID=BILLY_UID, userName=BILLY_NAME, pictureUrl=pictureUrl or "")
+
+
+def get_billy_prediction(matchList: list, playerStatBetList: list):
+    """Billy plays the freshly inserted slate as a regular user and trash-talks
+    his picks. Call after insert_nba_totay so the matches exist."""
+    _register_billy()
+    answers, err = _ask_billy(matchList=matchList, playerStatBetList=playerStatBetList)
+
+    lines = ["🤖 Billy 已下注"]
+    if err:
+        lines.append(f"⚠️ AI 預測失敗，全部隨機: {err}")
+
+    matchPicks = []
+    for i, match in enumerate(matchList, 1):
+        gameDate, team1Name, team2Name, team1Standing, team2Standing = match[:5]
+        pick, reason = _billy_pick(answers, f"M{i}", [team1Name, team2Name])
+        matchPicks.append((gameDate, team1Name, team2Name, pick))
+        lines.append(
+            f"【比賽預測】{team1Name}({team1Standing}) v.s. {team2Name}({team2Standing}) → 我選 {pick}，因為 {reason}"
+        )
+
+    statPicks = []
+    for i, statBet in enumerate(playerStatBetList, 1):
+        playerName, gameDate, team1Name, team2Name, statType, statTarget = statBet[:6]
+        pick, reason = _billy_pick(answers, f"S{i}", ["大盤", "小盤"])
+        statPicks.append((gameDate, team1Name, team2Name, playerName, statType, pick))
+        lines.append(
+            f"【數據預測】{playerName} {statType}>{statTarget:g} → 我押 {pick}，因為 {reason}"
+        )
+
+    insert_user_predictions(
+        userUID=BILLY_UID, matchPicks=matchPicks, statPicks=statPicks
+    )
+    return "\n".join(lines)
+
+
+def _billy_verdict(isCorrect, point: int):
+    if isCorrect is None:
+        return "作廢"
+    return f"猜中 +{point}" if isCorrect else "猜錯"
+
+
+def get_billy_settle_comment():
+    """Billy's comment on the day just settled. Call after calculate_daily_point.
+
+    Raises GeminiError; returns None before the first settlement.
+    """
+    gameDate, matchPicks, statPicks = get_user_day_picks(userUID=BILLY_UID)
+    if gameDate is None:
+        return None
+
+    prompts = [f"{gameDate} 的比賽結算完了。", "你今天的預測："]
+    for team1Name, team1Score, team2Score, team2Name, pick, isCorrect, point in matchPicks:
+        score = "沒有比分" if team1Score is None else f"{team1Score}:{team2Score}"
+        prompts.append(
+            f"{team1Name} {score} {team2Name}，你選 {pick}，{_billy_verdict(isCorrect, point)}"
+        )
+    for playerName, statType, statTarget, statResult, pick, isCorrect, point in statPicks:
+        result = "沒有數據" if statResult is None else f"{statResult:g}"
+        prompts.append(
+            f"{playerName} {statType} {result}（盤 {statTarget:g}），"
+            f"你押 {pick}，{_billy_verdict(isCorrect, point)}"
+        )
+    if not matchPicks and not statPicks:
+        prompts.append("你今天沒有下注")
+
+    prompts.append("所有人今日得分與週積分（依週積分排名）：")
+    for i, row in enumerate(get_user_settle_points(), 1):
+        me = "（你）" if row["userUID"] == BILLY_UID else ""
+        prompts.append(
+            f"{i}. {row['userName']}{me}：今日 +{row['dayPoints']}，週積分 {row['weekPoints']}"
+        )
+
+    return generate(
+        systemPrompt=BILLY_SETTLE_PROMPT,
+        userPrompt="\n".join(prompts),
+        **BILLY_SETTLE_CONFIG,
+    )
 
 
 def get_gemini_inference(content: str):
     try:
         return generate(
-            systemPrompt=BILLY_PERSONA,
+            systemPrompt=BILLY_CHAT_PROMPT,
             userPrompt=content,
-            maxTokens=512,
-            temperature=1.0,
+            **BILLY_CHAT_CONFIG,
         )
     except GeminiError as err:
         return f"❌ AI 回應失敗\n{err}"
