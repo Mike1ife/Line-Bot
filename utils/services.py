@@ -196,7 +196,7 @@ def text_message(event: MessageEvent):
             ]
             # 戰報 is a bonus message; never let it break the settlement reply.
             try:
-                report = get_battle_report()
+                report = get_battle_report(includeRanking=False)
                 if report:
                     respondMessages.append(TextSendMessage(text=report))
             except Exception:

@@ -307,16 +307,19 @@ def generate_daily_results_message():
         # Winning team on the left side
         if t1_score > t2_score:
             lines.append(
-                f"{team1_name} {t1_score} : {t2_score} {team2_name} ➕{team1_point}"
+                f"{team1_name} {t1_score}:{t2_score} {team2_name} ➕{team1_point}"
             )
         else:
             lines.append(
-                f"{team2_name} {t2_score} : {t1_score} {team1_name} ➕{team2_point}"
+                f"{team2_name} {t2_score}:{t1_score} {team1_name} ➕{team2_point}"
             )
 
     lines.append("")  # Insert a blank line
     lines.append("⛹️ 球員數據")
 
+    # Grouped by player so long names get their own line instead of wrapping;
+    # each prop line is result, which side hit (target), points it paid.
+    propsByPlayer = {}
     for (
         player_name,
         stat_type,
@@ -326,15 +329,15 @@ def generate_daily_results_message():
         under_point,
     ) in stats:
         if stat_result >= stat_target:
-            lines.append(
-                f"{player_name} {stat_type} {stat_result}\n"
-                f"🔼大 (盤{stat_target}) ➕{over_point}"
-            )
+            propLine = f"{stat_type} {stat_result:g} 🔼({stat_target:g}) ➕{over_point}"
         else:
-            lines.append(
-                f"{player_name} {stat_type} {stat_result}\n"
-                f"🔽小 (盤{stat_target}) ➕{under_point}"
-            )
+            propLine = f"{stat_type} {stat_result:g} 🔽({stat_target:g}) ➕{under_point}"
+        propsByPlayer.setdefault(player_name, []).append(propLine)
+
+    for player_name, propLines in propsByPlayer.items():
+        lines.append(player_name)
+        # Full-width space: LINE keeps it, so the indent survives
+        lines += [f"　{propLine}" for propLine in propLines]
 
     return "\n".join(lines)
 
@@ -355,7 +358,7 @@ def settle_daily_prediction(source: str):
     calculate_daily_point()
 
     settle_data = get_user_settle_points()
-    rank_lines = ["🏆 本週排行榜 (今日結算) 🏆\n\n"]
+    rank_lines = ["🏆 本週排行榜"]
 
     # Iterate through weekPoints to maintain week_points DESC order
     for i, row in enumerate(settle_data, 1):
@@ -365,19 +368,14 @@ def settle_daily_prediction(source: str):
         userDayMatchPoints = row["dayMatchPoints"]
         userDayStatPoints = row["dayStatPoints"]
 
-        # Format to emoji digits
-        emoji_week_points = to_emoji_digits(userWeekPoints)
+        # One line with plain numbers so it doesn't wrap on a phone; today's
+        # total is the 🏀 + ⛹️ sum, so it isn't repeated.
+        line = f"{i}. {userName} {userWeekPoints}"
+        if userDayPoints != 0:
+            line += f" 🏀{userDayMatchPoints} ⛹️{userDayStatPoints}"
+        rank_lines.append(line)
 
-        if userDayPoints == 0:
-            rank_lines.append(f"{i}. {userName}: {emoji_week_points}分\n")
-        else:
-            # Full-width space ( ) is used for alignment in LINE
-            rank_lines.append(
-                f"{i}. {userName}: {emoji_week_points}分\n"
-                f"└ +{userDayPoints} : 🏀{userDayMatchPoints} | ⛹️{userDayStatPoints}\n"
-            )
-
-    ranking_message = "".join(rank_lines).strip()
+    ranking_message = "\n".join(rank_lines)
 
     return results_message, ranking_message
 
@@ -1660,8 +1658,12 @@ def get_random_boxscore(gameDate: str = ""):
     return "\n".join(lines)
 
 
-def get_battle_report(gameDate: str = ""):
-    """戰報 - narrative recap of one settled day."""
+def get_battle_report(gameDate: str = "", includeRanking: bool = True):
+    """戰報 - narrative recap of one settled day.
+
+    includeRanking=False drops the per-user list, for 結算 where the 排行榜
+    message right before it already shows every user's day.
+    """
     if gameDate:
         try:
             datetime.strptime(gameDate, "%Y-%m-%d")
@@ -1676,13 +1678,22 @@ def get_battle_report(gameDate: str = ""):
     if not scores:
         return f"{report['gameDate']} 沒有人預測"
 
-    lines = [f"📋 戰報 {report['gameDate']}", ""]
+    lines = [f"📋 戰報 {report['gameDate']}"]
 
-    bestName, bestPoint, bestHit, bestTotal = scores[0]
-    lines.append(f"🐐 {bestName} {bestPoint}分 ({bestHit}/{bestTotal})")
-    if len(scores) > 1:
-        worstName, worstPoint, worstHit, worstTotal = scores[-1]
-        lines.append(f"💩 {worstName} {worstPoint}分 ({worstHit}/{worstTotal})")
+    # Everyone tied for the top (or bottom) score shares the title.
+    bestPoint, worstPoint = scores[0][1], scores[-1][1]
+    bestNames = "、".join(name for name, point, _, _ in scores if point == bestPoint)
+    lines.append(f"🐐 {bestNames} {bestPoint}分")
+    if worstPoint != bestPoint:
+        worstNames = "、".join(
+            name for name, point, _, _ in scores if point == worstPoint
+        )
+        lines.append(f"💩 {worstNames} {worstPoint}分")
+
+    heartbreak = report["heartbreak"]
+    if heartbreak:
+        team1, team2, score1, score2, wrong, total = heartbreak
+        lines += [f"💔 {team1} {score1}-{score2} {team2}", f"　{total}人中{wrong}人看錯"]
 
     try:
         achievements = collect_day_achievements(gameDate=report["gameDate"])
@@ -1692,16 +1703,6 @@ def get_battle_report(gameDate: str = ""):
         lines += ["", "🏅 今日成就"]
         for name, key, detail in achievements:
             lines.append(f"{name} {key} ({detail})")
-
-    heartbreak = report["heartbreak"]
-    if heartbreak:
-        team1, team2, score1, score2, wrong, total = heartbreak
-        lines += [
-            "",
-            "💔 傷心場",
-            f"{team1} {score1}-{score2} {team2}",
-            f"{total}人中{wrong}人看錯",
-        ]
 
     loneCorrect = report["loneCorrect"]
     if loneCorrect:
@@ -1715,9 +1716,10 @@ def get_battle_report(gameDate: str = ""):
         for team1, team2, score1, score2, picked, count in wipeouts:
             lines.append(f"{team1} {score1}-{score2} {team2} ({count}人全押{picked})")
 
-    lines += ["", "-" * 20]
-    for i, (name, point, hit, total) in enumerate(scores, 1):
-        lines.append(f"{i}. {name} {point}分 {hit}/{total}")
+    if includeRanking:
+        lines += ["", "-" * 20]
+        for i, (name, point, hit, total) in enumerate(scores, 1):
+            lines.append(f"{i}. {name} {point}分 {hit}/{total}")
 
     return "\n".join(lines)
 
