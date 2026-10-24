@@ -630,22 +630,18 @@ WHERE upm.uid = %s
            THEN m.team1_point ELSE m.team2_point END >= 40
 """
 
-SQL_SELECT_LONGEST_STREAK = """
-WITH graded AS (
-    SELECT upm.is_correct,
-           ROW_NUMBER() OVER (ORDER BY m.game_date, upm.match_id) AS seq
-    FROM user_predict_match AS upm
-    JOIN match AS m ON m.match_id = upm.match_id
-    WHERE upm.uid = %s AND upm.is_correct IS NOT NULL
-),
-islands AS (
-    SELECT is_correct,
-           seq - ROW_NUMBER() OVER (PARTITION BY is_correct ORDER BY seq) AS grp
-    FROM graded
-)
-SELECT COALESCE(MAX(runLength), 0) FROM (
-    SELECT COUNT(*) AS runLength FROM islands WHERE is_correct GROUP BY grp
-) AS runs
+SQL_SELECT_GOAT_COUNTS = """
+SELECT COALESCE(week_goat_count, 0), COALESCE(month_goat_count, 0)
+FROM users
+WHERE uid = %s
+"""
+
+# Game picks graded this season. counter keeps per-team season tallies and is
+# zeroed at season end by 結算傻鳥, so summing it gives the season's record.
+SQL_SELECT_SEASON_HIT_RATE = """
+SELECT COALESCE(SUM(season_correct_count), 0), COALESCE(SUM(season_wrong_count), 0)
+FROM counter
+WHERE uid = %s
 """
 
 SQL_SELECT_LOYAL_TEAM = """
@@ -709,34 +705,6 @@ WHERE m.game_date = %s
   AND upm.is_correct
   AND CASE WHEN upm.predicted_team = m.team1_name THEN m.team1_point
            ELSE m.team2_point END >= 40
-"""
-
-# Win runs that are still alive at the end of the given date, with the length
-# they had before that date, so the caller can see which milestones were crossed.
-SQL_SELECT_DAY_STREAKS = """
-WITH graded AS (
-    SELECT upm.uid, upm.is_correct, m.game_date,
-           ROW_NUMBER() OVER (PARTITION BY upm.uid
-                              ORDER BY m.game_date, upm.match_id) AS seq
-    FROM user_predict_match AS upm
-    JOIN match AS m ON m.match_id = upm.match_id
-    WHERE upm.is_correct IS NOT NULL AND m.game_date <= %s
-),
-islands AS (
-    SELECT uid, is_correct, game_date, seq,
-           seq - ROW_NUMBER() OVER (PARTITION BY uid, is_correct ORDER BY seq) AS grp
-    FROM graded
-),
-runs AS (
-    SELECT uid, COUNT(*) AS runLength, MAX(game_date) AS endedOn,
-           COUNT(*) FILTER (WHERE game_date = %s) AS earnedToday
-    FROM islands
-    WHERE is_correct
-    GROUP BY uid, grp
-)
-SELECT uid, runLength, runLength - earnedToday AS lengthBefore
-FROM runs
-WHERE endedOn = %s AND earnedToday > 0
 """
 
 SQL_INSERT_ACHIEVEMENT = """

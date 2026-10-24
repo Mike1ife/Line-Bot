@@ -31,9 +31,16 @@ from utils._stock import (
 )
 from utils._espn import get_tw_slate
 from utils._f1 import (
-    get_next_race,
+    get_current_weekend,
+    get_weekend_results,
+    get_standings,
+    get_live_snapshot,
     format_tw,
     countdown_to,
+    RACE_DURATION,
+    PODIUM_SESSIONS,
+    POLE_SESSIONS,
+    OPENF1_SESSION_CN,
 )
 from utils._team_table import (
     NBA_ABBR_ENG_TO_ABBR_CN,
@@ -358,6 +365,14 @@ def settle_daily_prediction(source: str):
     calculate_daily_point()
 
     settle_data = get_user_settle_points()
+    # Who had a graded pick today, from the same tally 戰報 uses; the rest get
+    # only their week total, so a scoreless day still shows as (+0). Points are
+    # already committed here, so a failure only costs the (+day) part.
+    try:
+        report = get_daily_report() or {}
+    except Exception:
+        report = {}
+    dayPlayers = {name for name, _, _, _ in report.get("scores", [])}
     rank_lines = ["🏆 本週排行榜"]
 
     # Iterate through weekPoints to maintain week_points DESC order
@@ -365,14 +380,11 @@ def settle_daily_prediction(source: str):
         userName = row["userName"]
         userWeekPoints = row["weekPoints"]
         userDayPoints = row["dayPoints"]
-        userDayMatchPoints = row["dayMatchPoints"]
-        userDayStatPoints = row["dayStatPoints"]
 
-        # One line with plain numbers so it doesn't wrap on a phone; today's
-        # total is the 🏀 + ⛹️ sum, so it isn't repeated.
-        line = f"{i}. {userName} {userWeekPoints}"
-        if userDayPoints != 0:
-            line += f" 🏀{userDayMatchPoints} ⛹️{userDayStatPoints}"
+        # One line with plain numbers so it doesn't wrap on a phone.
+        line = f"{i}. {userName} {userWeekPoints}分"
+        if userName in dayPlayers:
+            line += f" (+{userDayPoints})"
         rank_lines.append(line)
 
     ranking_message = "\n".join(rank_lines)
@@ -1742,7 +1754,15 @@ def get_achievement_message(userName: str, userId: int = -1):
     badges = get_user_achievements(userUID=userUID)
 
     lines = [f"🏅 {userName} 的成就", ""]
-    lines.append(f"🔥 最長連勝 {badges['longestStreak']}")
+    lines.append(f"👑 週冠 ×{badges['weekGoatCount']} / 月冠 ×{badges['monthGoatCount']}")
+    graded = badges["seasonCorrect"] + badges["seasonWrong"]
+    if graded:
+        lines.append(
+            f"📈 本季命中 {badges['seasonCorrect'] * 100 // graded}% "
+            f"({badges['seasonCorrect']}/{graded})"
+        )
+    else:
+        lines.append("📈 本季命中 -")
     lines.append(f"💯 全對 ×{badges['perfectDays']}")
     lines.append(f"💀 全錯 ×{badges['zeroDays']}")
     lines.append(f"🎯 逆天改命 ×{badges['againstTheWorld']}")
@@ -1760,10 +1780,32 @@ def get_achievement_message(userName: str, userId: int = -1):
     return "\n".join(lines)
 
 
+def _format_lap_time(seconds: float):
+    minutes, rest = divmod(seconds, 60)
+    return f"{int(minutes)}:{rest:06.3f}"
+
+
+def _format_session_result(label: str, top: list):
+    """One short line under a finished session: podium, pole, or practice top 3."""
+    if label in PODIUM_SESSIONS:
+        return "　" + " ".join(f"{medal}{row['code']}" for medal, row in zip("🥇🥈🥉", top))
+    if label in POLE_SESSIONS:
+        # Qualifying durations are [Q1, Q2, Q3]; pole is the leader's last set time.
+        times = [t for t in (top[0]["duration"] or []) if t]
+        poleTime = f" {_format_lap_time(times[-1])}" if times else ""
+        return f"　桿位 {top[0]['code']}{poleTime}"
+    parts = [top[0]["code"]] + [
+        f"{row['code']} +{row['gap']:.3f}" if isinstance(row["gap"], (int, float)) else row["code"]
+        for row in top[1:]
+    ]
+    return "　" + "  ".join(parts)
+
+
 def get_f1_schedule():
-    """f1 - next race weekend with every session in Taiwan time."""
+    """f1 - this race weekend with every session in Taiwan time, and the top 3
+    of each session that has finished."""
     try:
-        race = get_next_race()
+        race = get_current_weekend()
     except Exception as err:
         return f"❌ F1 賽程讀取失敗\n{type(err).__name__}: {err}"
 
@@ -1777,6 +1819,12 @@ def get_f1_schedule():
 
     lines = [header, f"📍 {race['circuit']}, {location}", ""]
 
+    # Results are extra; the schedule still goes out if OpenF1 is down.
+    try:
+        results = get_weekend_results(race)
+    except Exception:
+        results = {}
+
     nowUTC = datetime.now(timezone.utc)
     nextMarked = False
     for label, startUTC in race["sessions"]:
@@ -1788,12 +1836,72 @@ def get_f1_schedule():
         else:
             marker = "　"
         lines.append(f"{marker} {label} {format_tw(startUTC)}")
+        if label in results:
+            lines.append(_format_session_result(label, results[label]))
 
     remaining = countdown_to(race["raceUTC"])
     lines.append("")
-    lines.append(f"⏱️ 距離正賽 {remaining}" if remaining else "🏎️ 正賽進行中")
+    if remaining:
+        lines.append(f"⏱️ 距離正賽 {remaining}")
+    elif nowUTC < race["raceUTC"] + RACE_DURATION:
+        lines.append("🏎️ 正賽進行中，輸入 f1 live")
+    else:
+        lines.append("🏁 本站已結束")
     lines.append("（以上為台灣時間）")
 
+    return "\n".join(lines)
+
+
+def get_f1_standings():
+    """f1 積分 - driver top 10 and every constructor after the latest race."""
+    try:
+        standingsRound, drivers, constructors = get_standings()
+    except Exception as err:
+        return f"❌ F1 積分讀取失敗\n{type(err).__name__}: {err}"
+    if not drivers:
+        return "本季還沒有積分"
+
+    lines = [f"🏆 F1 積分榜（第{standingsRound}站後）", "", "🏎️ 車手"]
+    lines += [f"{position}. {code} {points}" for position, code, points in drivers[:10]]
+    lines += ["", "🏭 車隊"]
+    lines += [f"{position}. {name} {points}" for position, name, points in constructors]
+    return "\n".join(lines)
+
+
+def get_f1_live():
+    """f1 live - leader's lap, track status and top 5 of the session running now."""
+    try:
+        snapshot = get_live_snapshot()
+    except requests.HTTPError as err:
+        if err.response is not None and err.response.status_code in (401, 403):
+            return "⚠️ OpenF1 即時資料需要付費帳號\n賽段結束後輸入 f1 看結果"
+        return f"❌ F1 即時資料讀取失敗\n{err}"
+    except Exception as err:
+        return f"❌ F1 即時資料讀取失敗\n{type(err).__name__}: {err}"
+
+    session = snapshot["session"]
+    label = OPENF1_SESSION_CN.get(session["session_name"], session["session_name"])
+    start = datetime.fromisoformat(session["date_start"])
+    if snapshot["state"] == "pre":
+        return f"⏳ {label} 還沒開始\n{format_tw(start)}（台灣時間）"
+    if snapshot["state"] == "post":
+        return f"目前沒有進行中的賽段\n最近一節：{label}（已結束）\n輸入 f1 看結果"
+
+    header = f"🔴 {label}"
+    if snapshot["lap"]:
+        header += f" Lap {snapshot['lap']}"
+    if snapshot["status"]:
+        header += f"  {snapshot['status']}"
+    lines = [header]
+    for i, (code, gap) in enumerate(snapshot["top"], 1):
+        if i == 1 or gap is None:
+            lines.append(f"{i} {code}")
+        elif isinstance(gap, (int, float)):
+            lines.append(f"{i} {code} +{gap:.1f}")
+        else:
+            lines.append(f"{i} {code} {gap}")  # e.g. "+1 LAP"
+    if not snapshot["top"]:
+        lines.append("還沒有位置資料")
     return "\n".join(lines)
 
 

@@ -984,8 +984,11 @@ def get_user_achievements(userUID: str):
             cur.execute(SQL_SELECT_UNDERDOG_HITS, (userUID,))
             underdogHits, biggestPayout = cur.fetchone()
 
-            cur.execute(SQL_SELECT_LONGEST_STREAK, (userUID,))
-            longestStreak = cur.fetchone()[0]
+            cur.execute(SQL_SELECT_GOAT_COUNTS, (userUID,))
+            weekGoatCount, monthGoatCount = cur.fetchone()
+
+            cur.execute(SQL_SELECT_SEASON_HIT_RATE, (userUID,))
+            seasonCorrect, seasonWrong = cur.fetchone()
 
             cur.execute(SQL_SELECT_LOYAL_TEAM, (userUID,))
             loyal = cur.fetchone()
@@ -999,7 +1002,10 @@ def get_user_achievements(userUID: str):
         "againstTheWorld": againstTheWorld,
         "underdogHits": underdogHits,
         "biggestPayout": biggestPayout,
-        "longestStreak": longestStreak,
+        "weekGoatCount": weekGoatCount,
+        "monthGoatCount": monthGoatCount,
+        "seasonCorrect": seasonCorrect,
+        "seasonWrong": seasonWrong,
         "loyalTeam": loyal[0] if loyal else None,
         "loyalCount": loyal[1] if loyal else 0,
     }
@@ -1022,9 +1028,6 @@ def get_uid_by_name(userName: str):
         cur.execute(SQL_SELECT_UID, (userName,))
         result = cur.fetchone()
         return result[0] if result else None
-
-
-STREAK_MILESTONES = (5, 10, 15, 20)
 
 
 def collect_day_achievements(gameDate: str):
@@ -1051,14 +1054,6 @@ def collect_day_achievements(gameDate: str):
             cur.execute(SQL_SELECT_DAY_UNDERDOG, (gameDate,))
             for userUID, picked, point in cur.fetchall():
                 earned.append((userUID, "冷門王", f"{picked} {point}分"))
-
-            cur.execute(SQL_SELECT_DAY_STREAKS, (gameDate, gameDate, gameDate))
-            for userUID, runLength, lengthBefore in cur.fetchall():
-                crossed = [
-                    m for m in STREAK_MILESTONES if lengthBefore < m <= runLength
-                ]
-                if crossed:
-                    earned.append((userUID, f"{max(crossed)}連勝", f"{runLength}連勝"))
 
             if not earned:
                 return []

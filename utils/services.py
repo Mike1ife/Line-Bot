@@ -406,7 +406,23 @@ def text_message(event: MessageEvent):
         response = get_f1_schedule()
         LINE_BOT_API.reply_message(
             event.reply_token,
-            TextSendMessage(text=response, quick_reply=_quick_reply("nba", "help")),
+            TextSendMessage(
+                text=response, quick_reply=_quick_reply("f1 live", "f1 積分", "nba")
+            ),
+        )
+
+    if message.lower() == "f1 積分":
+        response = get_f1_standings()
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("f1", "f1 live")),
+        )
+
+    if message.lower() == "f1 live":
+        response = get_f1_live()
+        LINE_BOT_API.reply_message(
+            event.reply_token,
+            TextSendMessage(text=response, quick_reply=_quick_reply("f1 live", "f1")),
         )
 
     twStockMatch = TW_STOCK_PATTERN.match(message)
